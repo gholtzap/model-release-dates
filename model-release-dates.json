@@ -1,0 +1,766 @@
+{
+  "schema_version": 1,
+  "release_date_definition": "First public developer availability of the named upstream model through an official API or downloadable weights. Public preview or experimental availability counts; private previews and announcements without access do not.",
+  "identifier_type_definition": {
+    "model": "A named API model that is not pinned to a dated snapshot.",
+    "snapshot": "A date-pinned API model identifier.",
+    "weights": "A named downloadable model-weight release."
+  },
+  "availability_definition": {
+    "api": "Public access through an official developer API.",
+    "weights": "Officially downloadable model weights."
+  },
+  "researched_at": "2026-07-20",
+  "models": [
+    {
+      "model": "openai/gpt-3.5-turbo",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2023-03-01",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "Introducing APIs for GPT-3.5 Turbo and Whisper",
+          "url": "https://openai.com/index/introducing-chatgpt-and-whisper-apis/",
+          "evidence": "OpenAI launched the GPT-3.5 Turbo API on March 1, 2023."
+        },
+        {
+          "publisher": "OpenAI",
+          "title": "Function calling and other API updates",
+          "url": "https://openai.com/index/function-calling-and-other-api-updates/",
+          "evidence": "OpenAI identifies the original dated API model as gpt-3.5-turbo-0301."
+        }
+      ]
+    },
+    {
+      "model": "openai/gpt-3.5-turbo-instruct",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2023-09-18",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "gpt-3.5-turbo-instruct Model",
+          "url": "https://developers.openai.com/api/docs/models/gpt-3.5-turbo-instruct",
+          "evidence": "OpenAI's model documentation confirms the exact legacy Completions model identifier."
+        },
+        {
+          "publisher": "Vercel",
+          "title": "GPT-3.5 Turbo Instruct",
+          "url": "https://vercel.com/ai-gateway/models/gpt-3.5-turbo-instruct/about",
+          "evidence": "Vercel's model catalog dates the launch to September 18, 2023."
+        }
+      ]
+    },
+    {
+      "model": "openai/gpt-4-turbo",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2023-11-06",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "New models and developer products announced at DevDay",
+          "url": "https://openai.com/index/new-models-and-developer-products-announced-at-devday/",
+          "evidence": "OpenAI launched GPT-4 Turbo in API preview at DevDay on November 6, 2023."
+        }
+      ]
+    },
+    {
+      "model": "openai/gpt-4o",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2024-05-13",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "Hello GPT-4o",
+          "url": "https://openai.com/index/hello-gpt-4o/",
+          "evidence": "OpenAI publicly released GPT-4o text and image capabilities on May 13, 2024."
+        }
+      ]
+    },
+    {
+      "model": "openai/gpt-4o-2024-05-13",
+      "identifier_type": "snapshot",
+      "availability": ["api"],
+      "release_date": "2024-05-13",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "GPT-4o Model",
+          "url": "https://developers.openai.com/api/docs/models/gpt-4o",
+          "evidence": "OpenAI's model documentation lists the dated snapshot gpt-4o-2024-05-13."
+        },
+        {
+          "publisher": "OpenAI",
+          "title": "Hello GPT-4o",
+          "url": "https://openai.com/index/hello-gpt-4o/",
+          "evidence": "OpenAI's GPT-4o launch is dated May 13, 2024."
+        }
+      ]
+    },
+    {
+      "model": "openai/gpt-4o-mini",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2024-07-18",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "GPT-4o mini: advancing cost-efficient intelligence",
+          "url": "https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/",
+          "evidence": "OpenAI made GPT-4o mini available in its APIs on July 18, 2024."
+        }
+      ]
+    },
+    {
+      "model": "openai/o1-mini",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2024-09-12",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "Introducing OpenAI o1-preview",
+          "url": "https://openai.com/index/introducing-openai-o1-preview/",
+          "evidence": "OpenAI released o1-mini in ChatGPT and the API on September 12, 2024."
+        }
+      ]
+    },
+    {
+      "model": "openai/o1",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2024-12-17",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "OpenAI o1 and new tools for developers",
+          "url": "https://openai.com/index/o1-and-new-tools-for-developers/",
+          "evidence": "OpenAI says it shipped o1-2024-12-17 in the API that day."
+        }
+      ]
+    },
+    {
+      "model": "openai/o1-pro",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-03-19",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "o1-pro Model",
+          "url": "https://developers.openai.com/api/docs/models/o1-pro",
+          "evidence": "OpenAI's model documentation lists the original API snapshot as o1-pro-2025-03-19."
+        },
+        {
+          "publisher": "TechCrunch",
+          "title": "OpenAI's o1-pro is the company's most expensive AI model yet",
+          "url": "https://techcrunch.com/2025/03/19/openais-o1-pro-is-its-most-expensive-model-yet/",
+          "evidence": "Contemporaneous reporting confirms the o1-pro developer API launch on March 19, 2025."
+        }
+      ]
+    },
+    {
+      "model": "openai/o3-mini",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-01-31",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "OpenAI o3-mini",
+          "url": "https://openai.com/index/openai-o3-mini/",
+          "evidence": "OpenAI's dated release says o3-mini became available in ChatGPT and the API that day."
+        }
+      ]
+    },
+    {
+      "model": "openai/gpt-4.1",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-04-14",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "Introducing GPT-4.1 in the API",
+          "url": "https://openai.com/index/gpt-4-1/",
+          "evidence": "OpenAI says GPT-4.1 launched in the API on April 14, 2025."
+        }
+      ]
+    },
+    {
+      "model": "openai/gpt-4.1-mini",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-04-14",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "Introducing GPT-4.1 in the API",
+          "url": "https://openai.com/index/gpt-4-1/",
+          "evidence": "OpenAI says GPT-4.1 mini launched in the API on April 14, 2025."
+        }
+      ]
+    },
+    {
+      "model": "openai/gpt-4.1-nano",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-04-14",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "Introducing GPT-4.1 in the API",
+          "url": "https://openai.com/index/gpt-4-1/",
+          "evidence": "OpenAI says GPT-4.1 nano launched in the API on April 14, 2025."
+        }
+      ]
+    },
+    {
+      "model": "openai/o3",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-04-16",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "Introducing OpenAI o3 and o4-mini",
+          "url": "https://openai.com/index/introducing-o3-and-o4-mini/",
+          "evidence": "OpenAI's April 16 release says o3 became available to developers that day."
+        }
+      ]
+    },
+    {
+      "model": "openai/o4-mini",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-04-16",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "Introducing OpenAI o3 and o4-mini",
+          "url": "https://openai.com/index/introducing-o3-and-o4-mini/",
+          "evidence": "OpenAI's April 16 release says o4-mini became available to developers that day."
+        }
+      ]
+    },
+    {
+      "model": "openai/o3-pro",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-06-10",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "Introducing OpenAI o3 and o4-mini",
+          "url": "https://openai.com/index/introducing-o3-and-o4-mini/",
+          "evidence": "OpenAI's June 10 update says o3-pro became available in ChatGPT and the API that day."
+        }
+      ]
+    },
+    {
+      "model": "openai/gpt-5",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-08-07",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "Introducing GPT-5 for developers",
+          "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
+          "evidence": "OpenAI says GPT-5 became available in its API on August 7, 2025."
+        }
+      ]
+    },
+    {
+      "model": "openai/gpt-5-mini",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-08-07",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "Introducing GPT-5 for developers",
+          "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
+          "evidence": "OpenAI says GPT-5 mini became available in its API on August 7, 2025."
+        }
+      ]
+    },
+    {
+      "model": "openai/gpt-5-nano",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-08-07",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "Introducing GPT-5 for developers",
+          "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
+          "evidence": "OpenAI says GPT-5 nano became available in its API on August 7, 2025."
+        }
+      ]
+    },
+    {
+      "model": "openai/gpt-5-chat-latest",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-08-07",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "Introducing GPT-5 for developers",
+          "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
+          "evidence": "OpenAI's August 7 launch post explicitly says the ChatGPT version became available in the API as gpt-5-chat-latest."
+        }
+      ]
+    },
+    {
+      "model": "openai/gpt-oss-120b",
+      "identifier_type": "weights",
+      "availability": ["weights"],
+      "release_date": "2025-08-05",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "Introducing gpt-oss",
+          "url": "https://openai.com/index/introducing-gpt-oss/",
+          "evidence": "OpenAI released the gpt-oss-120b weights on August 5, 2025."
+        }
+      ]
+    },
+    {
+      "model": "openai/gpt-oss-20b",
+      "identifier_type": "weights",
+      "availability": ["weights"],
+      "release_date": "2025-08-05",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "OpenAI",
+          "title": "Introducing gpt-oss",
+          "url": "https://openai.com/index/introducing-gpt-oss/",
+          "evidence": "OpenAI released the gpt-oss-20b weights on August 5, 2025."
+        }
+      ]
+    },
+    {
+      "model": "anthropic/claude-3-haiku",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2024-03-13",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Anthropic",
+          "title": "Claude 3 Haiku: our fastest model yet",
+          "url": "https://www.anthropic.com/news/claude-3-haiku",
+          "evidence": "Anthropic says Claude 3 Haiku became available in its API on March 13, 2024."
+        }
+      ]
+    },
+    {
+      "model": "anthropic/claude-3-opus",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2024-03-04",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Anthropic",
+          "title": "Introducing the next generation of Claude",
+          "url": "https://www.anthropic.com/news/claude-3-family",
+          "evidence": "Anthropic's March 4 launch says Claude 3 Opus was available in its API that day."
+        }
+      ]
+    },
+    {
+      "model": "anthropic/claude-3.5-sonnet",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2024-06-20",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Anthropic",
+          "title": "Claude Platform release notes",
+          "url": "https://platform.claude.com/docs/en/release-notes/overview",
+          "evidence": "Anthropic's June 20, 2024 release-note entry says Claude 3.5 Sonnet became generally available across the Claude API, Bedrock, and Vertex AI."
+        }
+      ]
+    },
+    {
+      "model": "anthropic/claude-3.5-sonnet-20240620",
+      "identifier_type": "snapshot",
+      "availability": ["api"],
+      "release_date": "2024-06-20",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Anthropic",
+          "title": "Claude Platform release notes",
+          "url": "https://platform.claude.com/docs/en/release-notes/overview",
+          "evidence": "Anthropic's June 20, 2024 release-note entry records API general availability for this Claude 3.5 Sonnet release."
+        },
+        {
+          "publisher": "Anthropic",
+          "title": "Model deprecations",
+          "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+          "evidence": "Anthropic's lifecycle documentation identifies the dated API model as claude-3-5-sonnet-20240620."
+        }
+      ]
+    },
+    {
+      "model": "anthropic/claude-3.5-haiku",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2024-11-04",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Anthropic",
+          "title": "Claude Platform release notes",
+          "url": "https://platform.claude.com/docs/en/release-notes/overview",
+          "evidence": "Anthropic's November 4, 2024 entry says Claude 3.5 Haiku became available on the Claude API that day."
+        }
+      ]
+    },
+    {
+      "model": "anthropic/claude-3.7-sonnet",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-02-24",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Anthropic",
+          "title": "Claude 3.7 Sonnet and Claude Code",
+          "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+          "evidence": "Anthropic introduced Claude 3.7 Sonnet with API availability on February 24, 2025."
+        }
+      ]
+    },
+    {
+      "model": "anthropic/claude-opus-4",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-05-22",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Anthropic",
+          "title": "Introducing Claude 4",
+          "url": "https://www.anthropic.com/news/claude-4",
+          "evidence": "Anthropic's May 22 launch says Claude Opus 4 was available in its API that day."
+        }
+      ]
+    },
+    {
+      "model": "anthropic/claude-sonnet-4",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-05-22",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Anthropic",
+          "title": "Introducing Claude 4",
+          "url": "https://www.anthropic.com/news/claude-4",
+          "evidence": "Anthropic's May 22 launch says Claude Sonnet 4 was available in its API that day."
+        }
+      ]
+    },
+    {
+      "model": "anthropic/claude-opus-4.1",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-08-05",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Anthropic",
+          "title": "Claude Opus 4.1",
+          "url": "https://www.anthropic.com/news/claude-opus-4-1",
+          "evidence": "Anthropic says Claude Opus 4.1 became available in its API on August 5, 2025."
+        }
+      ]
+    },
+    {
+      "model": "anthropic/claude-sonnet-4.5",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-09-29",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Anthropic",
+          "title": "Introducing Claude Sonnet 4.5",
+          "url": "https://www.anthropic.com/news/claude-sonnet-4-5",
+          "evidence": "Anthropic says Claude Sonnet 4.5 became available in its API on September 29, 2025."
+        }
+      ]
+    },
+    {
+      "model": "google/gemini-2.0-flash",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2024-12-11",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Google",
+          "title": "Introducing Gemini 2.0: our new AI model for the agentic era",
+          "url": "https://blog.google/innovation-and-ai/models-and-research/google-deepmind/google-gemini-ai-update-december-2024/",
+          "evidence": "Google made the experimental Gemini 2.0 Flash model available through the Gemini API on December 11, 2024."
+        }
+      ]
+    },
+    {
+      "model": "google/gemini-2.0-flash-lite",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-02-05",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Google",
+          "title": "Gemini 2.0: Flash, Flash-Lite and Pro",
+          "url": "https://developers.googleblog.com/en/gemini-2-family-expands/",
+          "evidence": "Google made Gemini 2.0 Flash-Lite publicly available in preview through the Gemini API on February 5, 2025."
+        }
+      ]
+    },
+    {
+      "model": "google/gemini-2.5-pro",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-03-25",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Google",
+          "title": "Gemini 2.5: Our most intelligent AI model",
+          "url": "https://blog.google/innovation-and-ai/models-and-research/google-deepmind/gemini-model-thinking-updates-march-2025/",
+          "evidence": "Google made Gemini 2.5 Pro Experimental available in Google AI Studio on March 25, 2025."
+        }
+      ]
+    },
+    {
+      "model": "google/gemini-2.5-flash",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-04-17",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Google",
+          "title": "Developers can now start building with Gemini 2.5 Flash",
+          "url": "https://blog.google/products-and-platforms/products/gemini/gemini-2-5-flash-preview/",
+          "evidence": "Google released Gemini 2.5 Flash in public API preview on April 17, 2025."
+        }
+      ]
+    },
+    {
+      "model": "google/gemini-2.5-flash-lite",
+      "identifier_type": "model",
+      "availability": ["api"],
+      "release_date": "2025-06-17",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Google",
+          "title": "We're expanding our Gemini 2.5 family of models",
+          "url": "https://blog.google/products-and-platforms/products/gemini/gemini-2-5-model-family-expands/",
+          "evidence": "Google released Gemini 2.5 Flash-Lite in public API preview on June 17, 2025."
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-r1",
+      "identifier_type": "weights",
+      "availability": ["api", "weights"],
+      "release_date": "2025-01-20",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "DeepSeek",
+          "title": "DeepSeek-R1 Release",
+          "url": "https://api-docs.deepseek.com/news/news250120/",
+          "evidence": "DeepSeek's official release page says the R1 weights, website, and API went live on January 20, 2025."
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v3",
+      "identifier_type": "weights",
+      "availability": ["api", "weights"],
+      "release_date": "2024-12-26",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "DeepSeek",
+          "title": "Introducing DeepSeek-V3",
+          "url": "https://api-docs.deepseek.com/news/news1226/",
+          "evidence": "DeepSeek's official release page dates the V3 release to December 26, 2024."
+        }
+      ]
+    },
+    {
+      "model": "meta/llama-3.1-8b",
+      "identifier_type": "weights",
+      "availability": ["weights"],
+      "release_date": "2024-07-23",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Meta",
+          "title": "Introducing Llama 3.1: Our most capable models to date",
+          "url": "https://ai.meta.com/blog/meta-llama-3-1/",
+          "evidence": "Meta released the upgraded Llama 3.1 8B weights on July 23, 2024."
+        }
+      ]
+    },
+    {
+      "model": "meta/llama-3.1-70b",
+      "identifier_type": "weights",
+      "availability": ["weights"],
+      "release_date": "2024-07-23",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Meta",
+          "title": "Introducing Llama 3.1: Our most capable models to date",
+          "url": "https://ai.meta.com/blog/meta-llama-3-1/",
+          "evidence": "Meta released the upgraded Llama 3.1 70B weights on July 23, 2024."
+        }
+      ]
+    },
+    {
+      "model": "meta/llama-3.2-1b",
+      "identifier_type": "weights",
+      "availability": ["weights"],
+      "release_date": "2024-09-25",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Meta",
+          "title": "Llama 3.2: Revolutionizing edge AI and vision with open, customizable models",
+          "url": "https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/",
+          "evidence": "Meta released the Llama 3.2 1B model on September 25, 2024."
+        }
+      ]
+    },
+    {
+      "model": "meta/llama-3.2-3b",
+      "identifier_type": "weights",
+      "availability": ["weights"],
+      "release_date": "2024-09-25",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Meta",
+          "title": "Llama 3.2: Revolutionizing edge AI and vision with open, customizable models",
+          "url": "https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/",
+          "evidence": "Meta released the Llama 3.2 3B model on September 25, 2024."
+        }
+      ]
+    },
+    {
+      "model": "meta/llama-3.2-11b",
+      "identifier_type": "weights",
+      "availability": ["weights"],
+      "release_date": "2024-09-25",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Meta",
+          "title": "Llama 3.2: Revolutionizing edge AI and vision with open, customizable models",
+          "url": "https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/",
+          "evidence": "Meta released the Llama 3.2 11B vision model on September 25, 2024."
+        }
+      ]
+    },
+    {
+      "model": "meta/llama-3.2-90b",
+      "identifier_type": "weights",
+      "availability": ["weights"],
+      "release_date": "2024-09-25",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Meta",
+          "title": "Llama 3.2: Revolutionizing edge AI and vision with open, customizable models",
+          "url": "https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/",
+          "evidence": "Meta released the Llama 3.2 90B vision model on September 25, 2024."
+        }
+      ]
+    },
+    {
+      "model": "meta/llama-3.3-70b",
+      "identifier_type": "weights",
+      "availability": ["weights"],
+      "release_date": "2024-12-06",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Meta on Hugging Face",
+          "title": "Llama-3.3-70B-Instruct model card",
+          "url": "https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct",
+          "evidence": "Meta's official model card and license both state a December 6, 2024 release date."
+        }
+      ]
+    },
+    {
+      "model": "meta/llama-4-maverick",
+      "identifier_type": "weights",
+      "availability": ["weights"],
+      "release_date": "2025-04-05",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Meta",
+          "title": "The Llama 4 herd: The beginning of a new era of natively multimodal AI innovation",
+          "url": "https://ai.meta.com/blog/llama-4-multimodal-intelligence/",
+          "evidence": "Meta made Llama 4 Maverick available for download on April 5, 2025."
+        }
+      ]
+    },
+    {
+      "model": "meta/llama-4-scout",
+      "identifier_type": "weights",
+      "availability": ["weights"],
+      "release_date": "2025-04-05",
+      "confidence": "confirmed",
+      "sources": [
+        {
+          "publisher": "Meta",
+          "title": "The Llama 4 herd: The beginning of a new era of natively multimodal AI innovation",
+          "url": "https://ai.meta.com/blog/llama-4-multimodal-intelligence/",
+          "evidence": "Meta made Llama 4 Scout available for download on April 5, 2025."
+        }
+      ]
+    }
+  ]
+}

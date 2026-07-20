@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/api/models/:provider/:model",
+      "destination": "/api/model"
+    }
+  ],
+  "functions": {
+    "api/models.ts": {
+      "includeFiles": "model-release-dates.json"
+    },
+    "api/model.ts": {
+      "includeFiles": "model-release-dates.json"
+    }
+  }
+}
