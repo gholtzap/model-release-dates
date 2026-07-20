@@ -1,38 +1,67 @@
 # Model Release Date API
 
-A read-only API for querying verified AI model release dates. It runs as native TypeScript Vercel Functions and uses `model-release-dates.json` as its versioned data source.
+This project provides one read-only, source-backed API for answering questions such as:
 
-## Endpoints
+- When was a specific model first available to developers?
+- Which models did a provider release during a date range?
+- Was a model released through an API, downloadable weights, or both?
 
-### List and filter models
+A release date means the first public developer availability through an official API or downloadable weights. Public previews count; private previews and announcements without access do not.
 
-```http
-GET /api/models
+## Get one model
+
+```sh
+curl 'https://<your-domain>/api/models/openai/gpt-4o'
 ```
 
-Supported query parameters:
+```json
+{
+  "data": {
+    "model": "openai/gpt-4o",
+    "identifier_type": "model",
+    "availability": ["api"],
+    "release_date": "2024-05-13",
+    "confidence": "confirmed",
+    "sources": [
+      {
+        "publisher": "OpenAI",
+        "title": "Hello GPT-4o",
+        "url": "https://openai.com/index/hello-gpt-4o/",
+        "evidence": "OpenAI publicly released GPT-4o text and image capabilities on May 13, 2024."
+      }
+    ]
+  },
+  "meta": {
+    "schema_version": 1,
+    "researched_at": "2026-07-20"
+  }
+}
+```
 
-| Parameter | Meaning |
+Model IDs use `provider/model` format. An unknown model returns `404` with `error.code` set to `model_not_found`.
+
+## Search models
+
+```sh
+curl 'https://<your-domain>/api/models?provider=openai&from=2025-01-01&to=2025-12-31&sort=release_date&order=desc'
+```
+
+`GET /api/models` accepts these query parameters:
+
+| Parameter | Accepted value |
 | --- | --- |
-| `q` | Case-insensitive substring search against the canonical model ID |
-| `provider` | Exact provider prefix, such as `openai` |
+| `q` | Case-insensitive substring of a model ID |
+| `provider` | Provider prefix, such as `openai`, `anthropic`, or `meta` |
 | `identifier_type` | `model`, `snapshot`, or `weights` |
 | `availability` | `api` or `weights` |
 | `confidence` | `confirmed` |
-| `from` | Inclusive earliest release date in `YYYY-MM-DD` format |
-| `to` | Inclusive latest release date in `YYYY-MM-DD` format |
+| `from` / `to` | Inclusive `YYYY-MM-DD` date bounds |
 | `sort` | `release_date` (default) or `model` |
 | `order` | `asc` (default) or `desc` |
-| `limit` | Page size from 1 through 100; defaults to 50 |
-| `offset` | Zero-based result offset; defaults to 0 |
+| `limit` | 1–100; defaults to 50 |
+| `offset` | Zero-based offset; defaults to 0 |
 
-Example:
-
-```sh
-curl 'https://your-project.vercel.app/api/models?provider=openai&from=2025-01-01&sort=release_date'
-```
-
-List responses contain a `data` array and pagination metadata:
+Filters can be combined. The response contains `data` plus pagination metadata:
 
 ```json
 {
@@ -48,32 +77,26 @@ List responses contain a `data` array and pagination metadata:
 }
 ```
 
-### Retrieve one model
+`total` is the number of matching records before pagination; `count` is the number returned. Invalid or repeated parameters return `400` with `error.code` set to `invalid_query`.
 
-```http
-GET /api/models/:provider/:model
-```
+## Run locally
 
-Example:
-
-```sh
-curl 'https://your-project.vercel.app/api/models/openai/gpt-4o'
-```
-
-The response contains the complete model record, including `release_date` and its supporting sources. Unknown models return `404` with a stable JSON error code.
-
-## Development
-
-Uses Node.js 24, matching Vercel's supported major-version configuration.
+Node.js 24 is the deployment runtime.
 
 ```sh
 npm install
 npm run check
 npm test
+npm run test:coverage
+npx vercel dev
 ```
 
-The tests execute the actual Vercel handlers through standard Web `Request` and `Response` objects. Dataset validation runs when a function starts, so malformed records fail before the API serves them.
+The tests exercise every published model lookup, combined filters, inclusive dates, sorting, complete pagination, request failures, HTTP headers, Vercel routing, and dataset corruption cases. Coverage is enforced at 100% for production lines, branches, and functions.
 
-## Deploying to Vercel
+The project uses strict TypeScript, native Vercel Functions, and `model-release-dates.json` as its data source. The dataset is validated at startup; malformed dates, duplicate model IDs, unsupported enum values, or invalid sources prevent the API from serving bad data.
 
-Import this repository as a Vercel project. No framework preset, build command, database, or environment variables are required. `vercel.json` includes the dataset in each function bundle and rewrites individual model URLs to the item handler.
+## Deploy
+
+Import the repository into Vercel without a framework preset, database, environment variables, or custom build command. `vercel.json` bundles the dataset and routes `/api/models/:provider/:model` to the individual-model handler.
+
+To update the API, edit `model-release-dates.json`, run `npm test`, and deploy the new commit.
