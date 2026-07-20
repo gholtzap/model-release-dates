@@ -53,3 +53,23 @@ test("Vercel builds and serves the static explorer", () => {
   assert.match(html, /id="availability-events-list"/);
   assert.match(html, /src="\/app\.js"/);
 });
+
+test("Vercel applies the public-site security policy to every route", () => {
+  const rules = asArray(vercelConfig()["headers"]).map(asRecord);
+  const rule = rules.find((candidate) => candidate["source"] === "/(.*)");
+  assert.notEqual(rule, undefined);
+
+  const headers = Object.fromEntries(
+    asArray(rule!["headers"]).map((value) => {
+      const header = asRecord(value);
+      return [header["key"], header["value"]];
+    }),
+  );
+  assert.deepEqual(headers, {
+    "Content-Security-Policy":
+      "default-src 'self'; base-uri 'none'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "X-Content-Type-Options": "nosniff",
+  });
+});

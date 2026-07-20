@@ -42,6 +42,7 @@ const limitInput = required<HTMLSelectElement>("#limit");
 const modelIdInput = required<HTMLInputElement>("#model-id");
 const identifierNamespaceInput = required<HTMLSelectElement>("#identifier-namespace");
 const upstreamIdentifierInput = required<HTMLInputElement>("#upstream-identifier");
+const moreFilters = required<HTMLDetailsElement>(".more-filters");
 const requestPath = required<HTMLElement>("#request-path");
 const copyRequestButton = required<HTMLButtonElement>("#copy-request");
 const runButton = required<HTMLButtonElement>("#run-request");
@@ -114,6 +115,17 @@ function filters(): ListFilters {
     limit: Number(limitInput.value),
     offset,
   };
+}
+
+function revealActiveAdvancedFilters(): void {
+  moreFilters.open = identifierInput.value !== ""
+    || availabilityStageInput.value !== ""
+    || lifecycleStatusInput.value !== ""
+    || fromInput.value !== ""
+    || toInput.value !== ""
+    || sortInput.value !== "release_date"
+    || orderInput.value !== "asc"
+    || limitInput.value !== "50";
 }
 
 function activePath(): string {
@@ -563,6 +575,7 @@ function applyPreset(preset: string): void {
     fromInput.value = "2025-01-01";
     toInput.value = "2025-12-31";
   }
+  revealActiveAdvancedFilters();
   updateRequestPreview();
   void runListRequest();
 }
@@ -600,6 +613,7 @@ function hydrateFromLocation(): RequestMode {
   }
   const requestedOffset = Number(parameters.get("offset") ?? "0");
   offset = Number.isSafeInteger(requestedOffset) && requestedOffset >= 0 ? requestedOffset : 0;
+  revealActiveAdvancedFilters();
   setMode("list");
   return "list";
 }

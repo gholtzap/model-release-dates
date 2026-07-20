@@ -57,6 +57,8 @@ curl 'https://model-release-dates.vercel.app/api/models?provider=anthropic&lifec
 
 Filters can be combined. `meta.total` is the number of matches before pagination; `meta.count` is the number returned. Invalid, unknown, or repeated query parameters return `400` with `error.code` set to `invalid_query`.
 
+Requests to `/api/*` are limited to 100 requests per 60-second fixed window per source IP and Vercel region. Requests over the limit receive HTTP `429`.
+
 ## Response model
 
 Schema version 2 keeps evidence on the event it supports:

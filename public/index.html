@@ -15,13 +15,8 @@
   </head>
   <body>
     <header class="app-header">
-      <a class="brand endpoint-selector" href="/" aria-label="AI Model Release Index home">
-        <span class="brand-mark" aria-hidden="true">GET</span>
-        <span class="brand-copy">
-          <strong>Model releases</strong>
-          <span>API playground</span>
-        </span>
-        <span class="selector-chevron" aria-hidden="true">⌄</span>
+      <a class="brand" href="/" aria-label="AI Model Release Index home">
+        <strong>Model release index</strong>
       </a>
 
       <div class="request-preview">
@@ -33,10 +28,8 @@
       </div>
 
       <div class="header-actions">
-        <span class="live-indicator"><span aria-hidden="true"></span>Live data</span>
         <button id="run-request" class="run-button" type="submit" form="request-form">
           <span>Send</span>
-          <span aria-hidden="true">▶</span>
         </button>
       </div>
     </header>
@@ -45,9 +38,8 @@
       <aside class="request-panel" aria-labelledby="request-heading">
         <div class="panel-heading">
           <div>
-            <span class="eyebrow">Model Release Date API</span>
-            <h1 id="request-heading">Explore model releases</h1>
-            <p>Query release timing, upstream identifiers, availability, and lifecycle history.</p>
+            <h1 id="request-heading">Query models</h1>
+            <p>Search release dates, identifiers, availability, and lifecycle history.</p>
           </div>
         </div>
 
@@ -65,29 +57,18 @@
 
         <form id="request-form">
           <div id="list-fields">
-            <section class="parameter-section" aria-labelledby="search-parameters-heading">
-              <div class="parameter-heading">
-                <div>
-                  <strong id="search-parameters-heading">Search</strong>
-                  <span>Find a model by canonical name or upstream ID.</span>
-                </div>
-                <span class="parameter-kind">string</span>
-              </div>
-              <label class="field field-wide">
-                <span>Query</span>
-                <input id="query" name="q" type="search" placeholder="deepseek-reasoner" autocomplete="off" />
-              </label>
-            </section>
-
             <section class="parameter-section" aria-labelledby="filter-parameters-heading">
               <div class="parameter-heading">
                 <div>
                   <strong id="filter-parameters-heading">Filters</strong>
-                  <span>Narrow results by provider, channel, identifier, or lifecycle.</span>
+                  <span>Find a model by canonical name or upstream identifier.</span>
                 </div>
-                <span class="parameter-kind">optional</span>
               </div>
-              <div class="field-grid">
+              <label class="field field-wide">
+                <span>Search</span>
+                <input id="query" name="q" type="search" placeholder="deepseek-reasoner" autocomplete="off" />
+              </label>
+              <div class="field-grid primary-filters">
                 <label class="field">
                   <span>Provider</span>
                   <select id="provider" name="provider">
@@ -107,77 +88,71 @@
                     <option value="weights">Weights</option>
                   </select>
                 </label>
-                <label class="field">
-                  <span>Identifier</span>
-                  <select id="identifier-type" name="identifier_type">
-                    <option value="">All types</option>
-                    <option value="model">Model</option>
-                    <option value="snapshot">Snapshot</option>
-                    <option value="weights">Weights</option>
-                  </select>
-                </label>
-                <label class="field">
-                  <span>Availability stage</span>
-                  <select id="availability-stage" name="availability_stage">
-                    <option value="">All stages</option>
-                    <option value="public_preview">Public preview</option>
-                    <option value="public">Public</option>
-                  </select>
-                </label>
-                <label class="field">
-                  <span>Lifecycle</span>
-                  <select id="lifecycle-status" name="lifecycle_status">
-                    <option value="">All statuses</option>
-                    <option value="active">Active</option>
-                    <option value="deprecated">Deprecated</option>
-                    <option value="retired">Retired</option>
-                    <option value="retirement_scheduled">Retirement scheduled</option>
-                    <option value="unknown">Unknown</option>
-                  </select>
-                </label>
-                <label class="field">
-                  <span>Page size</span>
-                  <select id="limit" name="limit">
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50" selected>50</option>
-                  </select>
-                </label>
               </div>
-            </section>
 
-            <section class="parameter-section" aria-labelledby="range-parameters-heading">
-              <div class="parameter-heading">
-                <div>
-                  <strong id="range-parameters-heading">Date range &amp; order</strong>
-                  <span>Dates are inclusive and use the derived first public release.</span>
+              <details class="more-filters">
+                <summary>More filters</summary>
+                <div class="field-grid">
+                  <label class="field">
+                    <span>Identifier type</span>
+                    <select id="identifier-type" name="identifier_type">
+                      <option value="">All types</option>
+                      <option value="model">Model</option>
+                      <option value="snapshot">Snapshot</option>
+                      <option value="weights">Weights</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span>Availability stage</span>
+                    <select id="availability-stage" name="availability_stage">
+                      <option value="">All stages</option>
+                      <option value="public_preview">Public preview</option>
+                      <option value="public">Public</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span>Lifecycle</span>
+                    <select id="lifecycle-status" name="lifecycle_status">
+                      <option value="">All statuses</option>
+                      <option value="active">Active</option>
+                      <option value="deprecated">Deprecated</option>
+                      <option value="retired">Retired</option>
+                      <option value="retirement_scheduled">Retirement scheduled</option>
+                      <option value="unknown">Unknown</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span>Released from</span>
+                    <input id="from-date" name="from" type="date" />
+                  </label>
+                  <label class="field">
+                    <span>Released to</span>
+                    <input id="to-date" name="to" type="date" />
+                  </label>
+                  <label class="field">
+                    <span>Sort by</span>
+                    <select id="sort" name="sort">
+                      <option value="release_date">Release date</option>
+                      <option value="model">Model ID</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span>Order</span>
+                    <select id="order" name="order">
+                      <option value="asc">Ascending</option>
+                      <option value="desc">Descending</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span>Page size</span>
+                    <select id="limit" name="limit">
+                      <option value="10">10</option>
+                      <option value="25">25</option>
+                      <option value="50" selected>50</option>
+                    </select>
+                  </label>
                 </div>
-                <span class="parameter-kind">YYYY-MM-DD</span>
-              </div>
-              <div class="field-grid">
-                <label class="field">
-                  <span>Released from</span>
-                  <input id="from-date" name="from" type="date" />
-                </label>
-                <label class="field">
-                  <span>Released to</span>
-                  <input id="to-date" name="to" type="date" />
-                </label>
-                <label class="field">
-                  <span>Sort by</span>
-                  <select id="sort" name="sort">
-                    <option value="release_date">Release date</option>
-                    <option value="model">Model ID</option>
-                  </select>
-                </label>
-                <label class="field">
-                  <span>Order</span>
-                  <select id="order" name="order">
-                    <option value="asc">Ascending</option>
-                    <option value="desc">Descending</option>
-                  </select>
-                </label>
-              </div>
+              </details>
             </section>
           </div>
 
@@ -185,10 +160,9 @@
             <section class="parameter-section">
               <div class="parameter-heading">
                 <div>
-                  <strong>Path</strong>
+                  <strong>Model path</strong>
                   <span>Retrieve a model using its canonical provider/model ID.</span>
                 </div>
-                <span class="required-badge">required</span>
               </div>
               <label class="field field-wide">
                 <span>Model ID</span>
@@ -211,7 +185,6 @@
                   <strong>Identifier path</strong>
                   <span>Resolve an exact first-party API or weights identifier.</span>
                 </div>
-                <span class="required-badge">required</span>
               </div>
               <div class="field-grid field-grid-flush">
                 <label class="field">
@@ -243,10 +216,7 @@
 
       <section class="results-panel" aria-labelledby="results-heading">
         <div class="results-toolbar">
-          <div>
-            <span class="eyebrow">Response collection</span>
-            <h2 id="results-heading">Models</h2>
-          </div>
+          <h2 id="results-heading">Models</h2>
           <div class="response-status" id="response-status" role="status" aria-live="polite">
             <span class="status-dot" aria-hidden="true"></span>
             <span>Ready</span>
@@ -298,7 +268,6 @@
         </div>
 
         <div id="detail-empty" class="detail-empty">
-          <span class="detail-empty-mark" aria-hidden="true">↗</span>
           <h2>Select a model</h2>
           <p>Choose a result to inspect its exact endpoint and release evidence.</p>
         </div>
