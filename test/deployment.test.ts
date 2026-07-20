@@ -54,6 +54,24 @@ test("Vercel builds and serves the static explorer", () => {
   assert.match(html, /src="\/app\.js"/);
 });
 
+test("the explorer ships the accessible responsive workbench contract", () => {
+  const html = readFileSync(resolve(process.cwd(), "public/index.html"), "utf8");
+  const css = readFileSync(resolve(process.cwd(), "public/styles.css"), "utf8");
+  const app = readFileSync(resolve(process.cwd(), "web/app.ts"), "utf8");
+
+  assert.match(html, /id="mobile-query-tab"[^>]+aria-controls="request-panel"/);
+  assert.match(html, /id="mode-list-tab"[^>]+aria-controls="list-fields"/);
+  assert.match(html, /id="detail-overview-tab"[^>]+aria-controls="detail-overview"/);
+  assert.match(html, /<option value="desc" selected>Descending<\/option>/);
+  assert.match(html, /<th scope="col">Lifecycle<\/th>/);
+  assert.match(html, /id="results-loading"/);
+  assert.match(css, /grid-template-columns: clamp\(280px, 22vw, 320px\) minmax\(440px, 1fr\) clamp\(380px, 29vw, 480px\)/);
+  assert.match(css, /height: calc\(100dvh - 56px\)/);
+  assert.doesNotMatch(css, /\bInter\b/);
+  assert.match(app, /event\.key === "ArrowRight"/);
+  assert.match(app, /parameters\.get\("order"\) === "asc" \? "asc" : "desc"/);
+});
+
 test("Vercel applies the public-site security policy to every route", () => {
   const rules = asArray(vercelConfig()["headers"]).map(asRecord);
   const rule = rules.find((candidate) => candidate["source"] === "/(.*)");

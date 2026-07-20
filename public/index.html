@@ -7,7 +7,7 @@
       name="description"
       content="Explore verified AI model release dates and their supporting sources."
     />
-    <meta name="theme-color" content="#0b0c0d" />
+    <meta name="theme-color" content="#0b0d0f" />
     <meta name="color-scheme" content="dark" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/styles.css" />
@@ -35,7 +35,7 @@
     </header>
 
     <main class="workspace">
-      <aside class="request-panel" aria-labelledby="request-heading">
+      <aside id="request-panel" class="request-panel" aria-labelledby="request-heading" tabindex="-1">
         <div class="panel-heading">
           <div>
             <h1 id="request-heading">Query models</h1>
@@ -44,19 +44,19 @@
         </div>
 
         <div class="mode-switch" role="tablist" aria-label="Endpoint">
-          <button class="mode-button is-active" type="button" role="tab" aria-selected="true" data-mode="list">
+          <button id="mode-list-tab" class="mode-button is-active" type="button" role="tab" aria-controls="list-fields" aria-selected="true" tabindex="0" data-mode="list">
             List models
           </button>
-          <button class="mode-button" type="button" role="tab" aria-selected="false" data-mode="item">
+          <button id="mode-item-tab" class="mode-button" type="button" role="tab" aria-controls="item-fields" aria-selected="false" tabindex="-1" data-mode="item">
             Get one
           </button>
-          <button class="mode-button" type="button" role="tab" aria-selected="false" data-mode="identifier">
+          <button id="mode-identifier-tab" class="mode-button" type="button" role="tab" aria-controls="identifier-fields" aria-selected="false" tabindex="-1" data-mode="identifier">
             Resolve ID
           </button>
         </div>
 
         <form id="request-form">
-          <div id="list-fields">
+          <div id="list-fields" role="tabpanel" aria-labelledby="mode-list-tab" tabindex="0">
             <section class="parameter-section" aria-labelledby="filter-parameters-heading">
               <div class="parameter-heading">
                 <div>
@@ -140,7 +140,7 @@
                     <span>Order</span>
                     <select id="order" name="order">
                       <option value="asc">Ascending</option>
-                      <option value="desc">Descending</option>
+                      <option value="desc" selected>Descending</option>
                     </select>
                   </label>
                   <label class="field">
@@ -156,7 +156,7 @@
             </section>
           </div>
 
-          <div id="item-fields" hidden>
+          <div id="item-fields" role="tabpanel" aria-labelledby="mode-item-tab" tabindex="0" hidden>
             <section class="parameter-section">
               <div class="parameter-heading">
                 <div>
@@ -178,7 +178,7 @@
             </section>
           </div>
 
-          <div id="identifier-fields" hidden>
+          <div id="identifier-fields" role="tabpanel" aria-labelledby="mode-identifier-tab" tabindex="0" hidden>
             <section class="parameter-section">
               <div class="parameter-heading">
                 <div>
@@ -214,7 +214,19 @@
         </div>
       </aside>
 
-      <section class="results-panel" aria-labelledby="results-heading">
+      <nav class="mobile-workspace-tabs" role="tablist" aria-label="Workspace view">
+        <button class="mobile-workspace-tab is-active" id="mobile-query-tab" type="button" role="tab" aria-controls="request-panel" aria-selected="true" tabindex="0" data-mobile-panel="query">
+          Query
+        </button>
+        <button class="mobile-workspace-tab" id="mobile-results-tab" type="button" role="tab" aria-controls="results-panel" aria-selected="false" tabindex="-1" data-mobile-panel="results">
+          Models
+        </button>
+        <button class="mobile-workspace-tab" id="mobile-detail-tab" type="button" role="tab" aria-controls="detail-panel" aria-selected="false" tabindex="-1" data-mobile-panel="detail">
+          Detail
+        </button>
+      </nav>
+
+      <section id="results-panel" class="results-panel" aria-labelledby="results-heading" tabindex="-1">
         <div class="results-toolbar">
           <h2 id="results-heading">Models</h2>
           <div class="response-status" id="response-status" role="status" aria-live="polite">
@@ -235,8 +247,8 @@
               <tr>
                 <th scope="col">Model</th>
                 <th scope="col">Released</th>
+                <th scope="col">Lifecycle</th>
                 <th scope="col">Channel</th>
-                <th scope="col">Type</th>
               </tr>
             </thead>
             <tbody id="results-body"></tbody>
@@ -244,6 +256,14 @@
           <div id="empty-state" class="empty-state" hidden>
             <strong>No models found</strong>
             <span>Adjust the filters and run the request again.</span>
+          </div>
+          <div id="results-loading" class="results-loading" aria-label="Loading models" hidden>
+            <div class="loading-row"><span></span><span></span><span></span><span></span></div>
+            <div class="loading-row"><span></span><span></span><span></span><span></span></div>
+            <div class="loading-row"><span></span><span></span><span></span><span></span></div>
+            <div class="loading-row"><span></span><span></span><span></span><span></span></div>
+            <div class="loading-row"><span></span><span></span><span></span><span></span></div>
+            <div class="loading-row"><span></span><span></span><span></span><span></span></div>
           </div>
         </div>
 
@@ -257,12 +277,12 @@
         </footer>
       </section>
 
-      <aside class="detail-panel" aria-label="Model detail">
+      <aside id="detail-panel" class="detail-panel" aria-label="Model detail" tabindex="-1">
         <div class="detail-tabs" role="tablist" aria-label="Response detail">
-          <button class="detail-tab is-active" type="button" role="tab" aria-selected="true" data-detail-tab="overview">
+          <button id="detail-overview-tab" class="detail-tab is-active" type="button" role="tab" aria-controls="detail-overview" aria-selected="true" tabindex="0" data-detail-tab="overview">
             Overview
           </button>
-          <button class="detail-tab" type="button" role="tab" aria-selected="false" data-detail-tab="json">
+          <button id="detail-json-tab" class="detail-tab" type="button" role="tab" aria-controls="raw-response" aria-selected="false" tabindex="-1" data-detail-tab="json">
             JSON response
           </button>
         </div>
@@ -272,7 +292,7 @@
           <p>Choose a result to inspect its exact endpoint and release evidence.</p>
         </div>
 
-        <div id="detail-overview" hidden>
+        <div id="detail-overview" role="tabpanel" aria-labelledby="detail-overview-tab" tabindex="0" hidden>
           <div class="detail-identity">
             <a id="detail-provider" class="eyebrow provider-link" target="_blank" rel="noreferrer"></a>
             <h2 id="detail-model"></h2>
@@ -281,7 +301,7 @@
 
           <div class="release-block">
             <span>First public release</span>
-            <strong id="detail-date"></strong>
+            <time id="detail-date"></time>
           </div>
 
           <dl class="detail-facts">
@@ -347,7 +367,7 @@
           </section>
         </div>
 
-        <pre id="raw-response" class="raw-response" hidden><code>{}</code></pre>
+        <pre id="raw-response" class="raw-response" role="tabpanel" aria-labelledby="detail-json-tab" tabindex="0" hidden><code>{}</code></pre>
       </aside>
     </main>
 

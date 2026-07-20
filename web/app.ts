@@ -15,6 +15,7 @@ import {
 
 type RequestMode = "list" | "item" | "identifier";
 type DetailTab = "overview" | "json";
+type MobilePanel = "query" | "results" | "detail";
 
 function required<T extends Element>(selector: string): T {
   const element = document.querySelector<T>(selector);
@@ -24,7 +25,34 @@ function required<T extends Element>(selector: string): T {
   return element;
 }
 
+function bindTabKeyboardNavigation(buttons: NodeListOf<HTMLButtonElement>): void {
+  const tabs = [...buttons];
+  for (const [index, button] of tabs.entries()) {
+    button.addEventListener("keydown", (event) => {
+      const nextIndex = event.key === "ArrowRight"
+        ? (index + 1) % tabs.length
+        : event.key === "ArrowLeft"
+          ? (index - 1 + tabs.length) % tabs.length
+          : event.key === "Home"
+            ? 0
+            : event.key === "End"
+              ? tabs.length - 1
+              : undefined;
+      if (nextIndex === undefined) {
+        return;
+      }
+      event.preventDefault();
+      tabs[nextIndex]?.focus();
+      tabs[nextIndex]?.click();
+    });
+  }
+}
+
 const form = required<HTMLFormElement>("#request-form");
+const workspace = required<HTMLElement>(".workspace");
+const requestPanel = required<HTMLElement>("#request-panel");
+const resultsPanel = required<HTMLElement>("#results-panel");
+const detailPanel = required<HTMLElement>("#detail-panel");
 const listFields = required<HTMLElement>("#list-fields");
 const itemFields = required<HTMLElement>("#item-fields");
 const identifierFields = required<HTMLElement>("#identifier-fields");
@@ -51,6 +79,7 @@ const catalogNotice = required<HTMLElement>("#catalog-notice");
 const errorBanner = required<HTMLElement>("#error-banner");
 const resultsBody = required<HTMLTableSectionElement>("#results-body");
 const emptyState = required<HTMLElement>("#empty-state");
+const resultsLoading = required<HTMLElement>("#results-loading");
 const resultRange = required<HTMLElement>("#result-range");
 const pageNumber = required<HTMLElement>("#page-number");
 const previousPage = required<HTMLButtonElement>("#previous-page");
@@ -60,7 +89,7 @@ const detailOverview = required<HTMLElement>("#detail-overview");
 const detailProvider = required<HTMLAnchorElement>("#detail-provider");
 const detailModel = required<HTMLElement>("#detail-model");
 const detailEndpoint = required<HTMLElement>("#detail-endpoint");
-const detailDate = required<HTMLElement>("#detail-date");
+const detailDate = required<HTMLTimeElement>("#detail-date");
 const detailAvailability = required<HTMLElement>("#detail-availability");
 const detailType = required<HTMLElement>("#detail-type");
 const detailConfidence = required<HTMLElement>("#detail-confidence");
@@ -80,11 +109,19 @@ const rawResponse = required<HTMLElement>("#raw-response");
 const modeButtons = document.querySelectorAll<HTMLButtonElement>("[data-mode]");
 const detailTabs = document.querySelectorAll<HTMLButtonElement>("[data-detail-tab]");
 const presetButtons = document.querySelectorAll<HTMLButtonElement>("[data-preset]");
+const mobilePanelButtons = document.querySelectorAll<HTMLButtonElement>("[data-mobile-panel]");
+const mobileViewport = window.matchMedia("(max-width: 760px)");
+const mobilePanels: Readonly<Record<MobilePanel, HTMLElement>> = {
+  query: requestPanel,
+  results: resultsPanel,
+  detail: detailPanel,
+};
 
 const browserFetch: Fetcher = (input, init) => window.fetch(input, init);
 
 let mode: RequestMode = "list";
 let detailTab: DetailTab = "overview";
+let mobilePanel: MobilePanel = "query";
 let offset = 0;
 let total = 0;
 let selectedModelId: string | undefined;
@@ -124,7 +161,7 @@ function revealActiveAdvancedFilters(): void {
     || fromInput.value !== ""
     || toInput.value !== ""
     || sortInput.value !== "release_date"
-    || orderInput.value !== "asc"
+    || orderInput.value !== "desc"
     || limitInput.value !== "50";
 }
 
@@ -158,6 +195,8 @@ function setStatus(kind: "ready" | "loading" | "success" | "error", text: string
 
 function setBusy(busy: boolean): void {
   runButton.disabled = busy;
+  resultsPanel.setAttribute("aria-busy", String(busy));
+  resultsLoading.hidden = !busy;
   const label = runButton.querySelector<HTMLSpanElement>("span:first-child");
   if (label !== null) {
     label.textContent = busy ? "Sending…" : "Send";
@@ -208,7 +247,13 @@ function renderModels(models: readonly ApiModel[]): void {
     modelCell.append(modelButton);
 
     const dateCell = document.createElement("td");
-    dateCell.textContent = model.release_date;
+    const releaseDate = document.createElement("time");
+    releaseDate.dateTime = model.release_date;
+    releaseDate.textContent = model.release_date;
+    dateCell.append(releaseDate);
+
+    const lifecycleCell = document.createElement("td");
+    lifecycleCell.append(tag(model.lifecycle_status.replaceAll("_", " ")));
 
     const availabilityCell = document.createElement("td");
     const tags = document.createElement("div");
@@ -216,10 +261,7 @@ function renderModels(models: readonly ApiModel[]): void {
     tags.append(...model.availability.map(tag));
     availabilityCell.append(tags);
 
-    const typeCell = document.createElement("td");
-    typeCell.append(tag(model.identifier_type));
-
-    row.append(modelCell, dateCell, availabilityCell, typeCell);
+    row.append(modelCell, dateCell, lifecycleCell, availabilityCell);
     resultsBody.append(row);
   }
 }
@@ -286,6 +328,7 @@ function renderDetail(model: ApiModel): void {
   detailDate.textContent = model.release_date_precision === "day"
     ? model.release_date
     : `${model.release_date} (${model.release_date_precision} precision)`;
+  detailDate.dateTime = model.release_date;
   detailAvailability.textContent = model.availability.join(" + ");
   detailType.textContent = model.identifier_type;
   detailConfidence.textContent = model.confidence;
@@ -315,6 +358,7 @@ function renderDetail(model: ApiModel): void {
       const title = document.createElement("strong");
       title.textContent = `${event.channel} · ${event.stage.replaceAll("_", " ")}`;
       const date = document.createElement("time");
+      date.dateTime = event.date;
       date.textContent = event.date;
       summary.append(title, date);
       const meta = document.createElement("div");
@@ -335,6 +379,7 @@ function renderDetail(model: ApiModel): void {
       const title = document.createElement("strong");
       title.textContent = event.status.replaceAll("_", " ");
       const date = document.createElement("time");
+      date.dateTime = event.date;
       date.textContent = event.date;
       summary.append(title, date);
       const meta = document.createElement("div");
@@ -383,11 +428,47 @@ function showDetailTab(tabValue: DetailTab): void {
     const active = button.dataset["detailTab"] === tabValue;
     button.classList.toggle("is-active", active);
     button.setAttribute("aria-selected", String(active));
+    button.tabIndex = active ? 0 : -1;
   }
   const hasSelection = selectedModelId !== undefined;
   detailOverview.hidden = tabValue !== "overview" || !hasSelection;
   detailEmpty.hidden = tabValue !== "overview" || hasSelection;
   rawResponse.hidden = tabValue !== "json";
+}
+
+function syncMobilePanelAccessibility(): void {
+  for (const [panelName, panel] of Object.entries(mobilePanels) as ReadonlyArray<readonly [MobilePanel, HTMLElement]>) {
+    if (mobileViewport.matches) {
+      panel.setAttribute("role", "tabpanel");
+      panel.setAttribute("aria-labelledby", `mobile-${panelName}-tab`);
+      panel.setAttribute("aria-hidden", String(panelName !== mobilePanel));
+    } else {
+      panel.removeAttribute("role");
+      panel.removeAttribute("aria-hidden");
+      if (panelName === "query") {
+        panel.setAttribute("aria-labelledby", "request-heading");
+      } else if (panelName === "results") {
+        panel.setAttribute("aria-labelledby", "results-heading");
+      } else {
+        panel.removeAttribute("aria-labelledby");
+      }
+    }
+  }
+}
+
+function showMobilePanel(panelName: MobilePanel, focusPanel = false): void {
+  mobilePanel = panelName;
+  workspace.dataset["mobilePanel"] = panelName;
+  for (const button of mobilePanelButtons) {
+    const active = button.dataset["mobilePanel"] === panelName;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-selected", String(active));
+    button.tabIndex = active ? 0 : -1;
+  }
+  syncMobilePanelAccessibility();
+  if (focusPanel && mobileViewport.matches) {
+    mobilePanels[panelName].focus();
+  }
 }
 
 function syncLocation(): void {
@@ -450,8 +531,10 @@ async function runListRequest(): Promise<void> {
     } else {
       clearDetail();
     }
+    showMobilePanel("results", true);
   } catch (error: unknown) {
     showError(error);
+    showMobilePanel("results", true);
   } finally {
     setBusy(false);
   }
@@ -472,12 +555,14 @@ async function runItemRequest(): Promise<void> {
     renderRawResponse();
     renderCoverage(response.meta.coverage, response.meta.researched_at);
     setStatus("success", `200 OK · 1 model · ${Math.round(performance.now() - startedAt)} ms`);
+    showMobilePanel("detail", true);
   } catch (error: unknown) {
     total = 0;
     renderModels([]);
     renderPagination(0);
     clearDetail();
     showError(error);
+    showMobilePanel("results", true);
   } finally {
     setBusy(false);
   }
@@ -502,12 +587,14 @@ async function runIdentifierRequest(): Promise<void> {
     renderRawResponse();
     renderCoverage(response.meta.coverage, response.meta.researched_at);
     setStatus("success", `200 OK · identifier resolved · ${Math.round(performance.now() - startedAt)} ms`);
+    showMobilePanel("detail", true);
   } catch (error: unknown) {
     total = 0;
     renderModels([]);
     renderPagination(0);
     clearDetail();
     showError(error);
+    showMobilePanel("results", true);
   } finally {
     setBusy(false);
   }
@@ -520,6 +607,7 @@ async function inspectModel(modelId: string): Promise<void> {
     row.classList.toggle("is-selected", row.dataset["model"] === modelId);
   }
   setStatus("loading", "Loading model");
+  detailPanel.setAttribute("aria-busy", "true");
   const startedAt = performance.now();
   try {
     const response = await fetchModel(browserFetch, modelId);
@@ -528,8 +616,11 @@ async function inspectModel(modelId: string): Promise<void> {
     renderRawResponse();
     renderCoverage(response.meta.coverage, response.meta.researched_at);
     setStatus("success", `200 OK · item endpoint · ${Math.round(performance.now() - startedAt)} ms`);
+    showMobilePanel("detail", true);
   } catch (error: unknown) {
     showError(error);
+  } finally {
+    detailPanel.setAttribute("aria-busy", "false");
   }
 }
 
@@ -543,6 +634,7 @@ function setMode(nextMode: RequestMode): void {
     const active = button.dataset["mode"] === mode;
     button.classList.toggle("is-active", active);
     button.setAttribute("aria-selected", String(active));
+    button.tabIndex = active ? 0 : -1;
   }
   updateRequestPreview();
 }
@@ -557,7 +649,7 @@ function resetListControls(): void {
   fromInput.value = "";
   toInput.value = "";
   sortInput.value = "release_date";
-  orderInput.value = "asc";
+  orderInput.value = "desc";
   limitInput.value = "50";
   offset = 0;
 }
@@ -606,7 +698,7 @@ function hydrateFromLocation(): RequestMode {
   fromInput.value = parameters.get("from") ?? "";
   toInput.value = parameters.get("to") ?? "";
   sortInput.value = parameters.get("sort") === "model" ? "model" : "release_date";
-  orderInput.value = parameters.get("order") === "desc" ? "desc" : "asc";
+  orderInput.value = parameters.get("order") === "asc" ? "asc" : "desc";
   const requestedLimit = parameters.get("limit");
   if (requestedLimit === "10" || requestedLimit === "25" || requestedLimit === "50") {
     limitInput.value = requestedLimit;
@@ -648,6 +740,18 @@ for (const button of detailTabs) {
   });
 }
 
+for (const button of mobilePanelButtons) {
+  button.addEventListener("click", () => {
+    const requestedPanel = button.dataset["mobilePanel"];
+    showMobilePanel(requestedPanel === "results" || requestedPanel === "detail" ? requestedPanel : "query");
+  });
+}
+
+bindTabKeyboardNavigation(modeButtons);
+bindTabKeyboardNavigation(detailTabs);
+bindTabKeyboardNavigation(mobilePanelButtons);
+mobileViewport.addEventListener("change", syncMobilePanelAccessibility);
+
 for (const button of presetButtons) {
   button.addEventListener("click", () => applyPreset(button.dataset["preset"] ?? ""));
 }
@@ -678,6 +782,7 @@ copyRequestButton.addEventListener("click", async () => {
 });
 
 const initialMode = hydrateFromLocation();
+showMobilePanel("query");
 updateRequestPreview();
 setStatus("ready", "Ready");
 if (initialMode === "item") {
