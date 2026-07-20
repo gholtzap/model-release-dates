@@ -128,11 +128,11 @@ function activePath(): string {
 
 function updateRequestPreview(): void {
   try {
-    requestPath.textContent = `GET ${activePath()}`;
+    requestPath.textContent = activePath();
   } catch {
     requestPath.textContent = mode === "identifier"
-      ? "GET /api/identifiers/{namespace}/{identifier}"
-      : "GET /api/models/{provider}/{model}";
+      ? "/api/identifiers/{namespace}/{identifier}"
+      : "/api/models/{provider}/{model}";
   }
 }
 
@@ -148,7 +148,7 @@ function setBusy(busy: boolean): void {
   runButton.disabled = busy;
   const label = runButton.querySelector<HTMLSpanElement>("span:first-child");
   if (label !== null) {
-    label.textContent = busy ? "Running…" : "Run request";
+    label.textContent = busy ? "Sending…" : "Send";
   }
   if (busy) {
     setStatus("loading", "Requesting");
