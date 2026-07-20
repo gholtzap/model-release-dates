@@ -1,766 +1,2761 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "release_date_definition": "First public developer availability of the named upstream model through an official API or downloadable weights. Public preview or experimental availability counts; private previews and announcements without access do not.",
   "identifier_type_definition": {
     "model": "A named API model that is not pinned to a dated snapshot.",
     "snapshot": "A date-pinned API model identifier.",
     "weights": "A named downloadable model-weight release."
   },
+  "identifier_kind_definition": {
+    "model": "A fixed official identifier that is neither a rolling alias nor a dated snapshot.",
+    "alias": "An official identifier that may resolve to a newer underlying model over time.",
+    "snapshot": "An immutable official identifier pinned to a particular model version.",
+    "weights": "An official identifier for downloadable model weights."
+  },
   "availability_definition": {
     "api": "Public access through an official developer API.",
     "weights": "Officially downloadable model weights."
   },
+  "availability_stage_definition": {
+    "public_preview": "Public developer access labeled preview or experimental by the provider.",
+    "public": "Public developer access without a preview or experimental label."
+  },
+  "date_precision_definition": {
+    "day": "The event date is known to the calendar day.",
+    "month": "Only the event month is known; normalized compatibility dates use its first day.",
+    "year": "Only the event year is known; normalized compatibility dates use January 1."
+  },
+  "lifecycle_status_definition": {
+    "active": "The provider documented the scoped model, channel, or identifier as available on the observation date.",
+    "deprecated": "The provider announced or documented that support is ending, but access may continue.",
+    "retired": "The provider ended access through the scoped channel or identifier.",
+    "retirement_scheduled": "The provider published a future retirement date."
+  },
+  "lifecycle_date_role_definition": {
+    "announced": "The date on which the provider announced the lifecycle change.",
+    "effective": "The date on which the lifecycle status took effect.",
+    "scheduled": "A provider-published future effective date.",
+    "observed": "The date on which the current provider status was verified."
+  },
+  "relationship_type_definition": {
+    "snapshot_of": "The record is an immutable snapshot of the target rolling or named model.",
+    "alias_of": "The record is an alias of the target model."
+  },
+  "coverage": {
+    "exhaustive": false,
+    "statement": "This is a curated, non-exhaustive catalog. A missing model does not mean that the model or release does not exist.",
+    "provider_inclusion_criteria": "Providers are included when they publish first-party model access and sufficiently precise primary evidence for developer availability.",
+    "model_inclusion_criteria": "Records cover selected general-purpose text or multimodal models with public first-party API access or official downloadable weights. Private previews, fine-tunes, embeddings, media-only models, and third-party-only aliases are excluded unless explicitly added."
+  },
+  "providers": [
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "website": "https://openai.com/"
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic",
+      "website": "https://www.anthropic.com/"
+    },
+    {
+      "id": "google",
+      "name": "Google",
+      "website": "https://ai.google.dev/"
+    },
+    {
+      "id": "deepseek-ai",
+      "name": "DeepSeek",
+      "website": "https://www.deepseek.com/"
+    },
+    {
+      "id": "meta",
+      "name": "Meta",
+      "website": "https://ai.meta.com/"
+    }
+  ],
   "researched_at": "2026-07-20",
   "models": [
     {
       "model": "openai/gpt-3.5-turbo",
+      "display_name": "GPT-3.5 Turbo",
+      "provider_id": "openai",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2023-03-01",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "Introducing APIs for GPT-3.5 Turbo and Whisper",
-          "url": "https://openai.com/index/introducing-chatgpt-and-whisper-apis/",
-          "evidence": "OpenAI launched the GPT-3.5 Turbo API on March 1, 2023."
+          "namespace": "openai-api",
+          "value": "gpt-3.5-turbo",
+          "kind": "alias"
         },
         {
-          "publisher": "OpenAI",
-          "title": "Function calling and other API updates",
-          "url": "https://openai.com/index/function-calling-and-other-api-updates/",
-          "evidence": "OpenAI identifies the original dated API model as gpt-3.5-turbo-0301."
+          "namespace": "openai-api",
+          "value": "gpt-3.5-turbo-0301",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2023-03-01",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "Introducing APIs for GPT-3.5 Turbo and Whisper",
+              "url": "https://openai.com/index/introducing-chatgpt-and-whisper-apis/",
+              "evidence": "OpenAI launched the GPT-3.5 Turbo API on March 1, 2023."
+            },
+            {
+              "publisher": "OpenAI",
+              "title": "Function calling and other API updates",
+              "url": "https://openai.com/index/function-calling-and-other-api-updates/",
+              "evidence": "OpenAI identifies the original dated API model as gpt-3.5-turbo-0301."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/gpt-3.5-turbo as deprecated when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/gpt-3.5-turbo-instruct",
+      "display_name": "GPT-3.5 Turbo Instruct",
+      "provider_id": "openai",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2023-09-18",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "gpt-3.5-turbo-instruct Model",
-          "url": "https://developers.openai.com/api/docs/models/gpt-3.5-turbo-instruct",
-          "evidence": "OpenAI's model documentation confirms the exact legacy Completions model identifier."
-        },
-        {
-          "publisher": "Vercel",
-          "title": "GPT-3.5 Turbo Instruct",
-          "url": "https://vercel.com/ai-gateway/models/gpt-3.5-turbo-instruct/about",
-          "evidence": "Vercel's model catalog dates the launch to September 18, 2023."
+          "namespace": "openai-api",
+          "value": "gpt-3.5-turbo-instruct",
+          "kind": "model"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2023-09-18",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "gpt-3.5-turbo-instruct Model",
+              "url": "https://developers.openai.com/api/docs/models/gpt-3.5-turbo-instruct",
+              "evidence": "OpenAI's model documentation confirms the exact legacy Completions model identifier."
+            },
+            {
+              "publisher": "Vercel",
+              "title": "GPT-3.5 Turbo Instruct",
+              "url": "https://vercel.com/ai-gateway/models/gpt-3.5-turbo-instruct/about",
+              "evidence": "Vercel's model catalog dates the launch to September 18, 2023."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/gpt-3.5-turbo-instruct as deprecated when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/gpt-4-turbo",
+      "display_name": "GPT-4 Turbo",
+      "provider_id": "openai",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2023-11-06",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "New models and developer products announced at DevDay",
-          "url": "https://openai.com/index/new-models-and-developer-products-announced-at-devday/",
-          "evidence": "OpenAI launched GPT-4 Turbo in API preview at DevDay on November 6, 2023."
+          "namespace": "openai-api",
+          "value": "gpt-4-turbo",
+          "kind": "alias"
+        },
+        {
+          "namespace": "openai-api",
+          "value": "gpt-4-1106-preview",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public_preview",
+          "date": "2023-11-06",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "New models and developer products announced at DevDay",
+              "url": "https://openai.com/index/new-models-and-developer-products-announced-at-devday/",
+              "evidence": "OpenAI launched GPT-4 Turbo in API preview at DevDay on November 6, 2023."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/gpt-4-turbo as deprecated when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/gpt-4o",
+      "display_name": "GPT-4o",
+      "provider_id": "openai",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2024-05-13",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "Hello GPT-4o",
-          "url": "https://openai.com/index/hello-gpt-4o/",
-          "evidence": "OpenAI publicly released GPT-4o text and image capabilities on May 13, 2024."
+          "namespace": "openai-api",
+          "value": "gpt-4o",
+          "kind": "alias"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2024-05-13",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "Hello GPT-4o",
+              "url": "https://openai.com/index/hello-gpt-4o/",
+              "evidence": "OpenAI publicly released GPT-4o text and image capabilities on May 13, 2024."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/gpt-4o as deprecated when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/gpt-4o-2024-05-13",
+      "display_name": "GPT-4o (2024-05-13 snapshot)",
+      "provider_id": "openai",
       "identifier_type": "snapshot",
-      "availability": ["api"],
-      "release_date": "2024-05-13",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "GPT-4o Model",
-          "url": "https://developers.openai.com/api/docs/models/gpt-4o",
-          "evidence": "OpenAI's model documentation lists the dated snapshot gpt-4o-2024-05-13."
-        },
-        {
-          "publisher": "OpenAI",
-          "title": "Hello GPT-4o",
-          "url": "https://openai.com/index/hello-gpt-4o/",
-          "evidence": "OpenAI's GPT-4o launch is dated May 13, 2024."
+          "namespace": "openai-api",
+          "value": "gpt-4o-2024-05-13",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [
+        {
+          "type": "snapshot_of",
+          "target_model": "openai/gpt-4o"
+        }
+      ],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2024-05-13",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "GPT-4o Model",
+              "url": "https://developers.openai.com/api/docs/models/gpt-4o",
+              "evidence": "OpenAI's model documentation lists the dated snapshot gpt-4o-2024-05-13."
+            },
+            {
+              "publisher": "OpenAI",
+              "title": "Hello GPT-4o",
+              "url": "https://openai.com/index/hello-gpt-4o/",
+              "evidence": "OpenAI's GPT-4o launch is dated May 13, 2024."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/gpt-4o-2024-05-13 as deprecated when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/gpt-4o-mini",
+      "display_name": "GPT-4o mini",
+      "provider_id": "openai",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2024-07-18",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "GPT-4o mini: advancing cost-efficient intelligence",
-          "url": "https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/",
-          "evidence": "OpenAI made GPT-4o mini available in its APIs on July 18, 2024."
+          "namespace": "openai-api",
+          "value": "gpt-4o-mini",
+          "kind": "alias"
+        },
+        {
+          "namespace": "openai-api",
+          "value": "gpt-4o-mini-2024-07-18",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2024-07-18",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "GPT-4o mini: advancing cost-efficient intelligence",
+              "url": "https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/",
+              "evidence": "OpenAI made GPT-4o mini available in its APIs on July 18, 2024."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/gpt-4o-mini as active when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/o1-mini",
+      "display_name": "OpenAI o1-mini",
+      "provider_id": "openai",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2024-09-12",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "Introducing OpenAI o1-preview",
-          "url": "https://openai.com/index/introducing-openai-o1-preview/",
-          "evidence": "OpenAI released o1-mini in ChatGPT and the API on September 12, 2024."
+          "namespace": "openai-api",
+          "value": "o1-mini",
+          "kind": "alias"
+        },
+        {
+          "namespace": "openai-api",
+          "value": "o1-mini-2024-09-12",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2024-09-12",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "Introducing OpenAI o1-preview",
+              "url": "https://openai.com/index/introducing-openai-o1-preview/",
+              "evidence": "OpenAI released o1-mini in ChatGPT and the API on September 12, 2024."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/o1-mini as deprecated when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/o1",
+      "display_name": "OpenAI o1",
+      "provider_id": "openai",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2024-12-17",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "OpenAI o1 and new tools for developers",
-          "url": "https://openai.com/index/o1-and-new-tools-for-developers/",
-          "evidence": "OpenAI says it shipped o1-2024-12-17 in the API that day."
+          "namespace": "openai-api",
+          "value": "o1",
+          "kind": "alias"
+        },
+        {
+          "namespace": "openai-api",
+          "value": "o1-2024-12-17",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2024-12-17",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI o1 and new tools for developers",
+              "url": "https://openai.com/index/o1-and-new-tools-for-developers/",
+              "evidence": "OpenAI says it shipped o1-2024-12-17 in the API that day."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/o1 as deprecated when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/o1-pro",
+      "display_name": "OpenAI o1-pro",
+      "provider_id": "openai",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-03-19",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "o1-pro Model",
-          "url": "https://developers.openai.com/api/docs/models/o1-pro",
-          "evidence": "OpenAI's model documentation lists the original API snapshot as o1-pro-2025-03-19."
+          "namespace": "openai-api",
+          "value": "o1-pro",
+          "kind": "alias"
         },
         {
-          "publisher": "TechCrunch",
-          "title": "OpenAI's o1-pro is the company's most expensive AI model yet",
-          "url": "https://techcrunch.com/2025/03/19/openais-o1-pro-is-its-most-expensive-model-yet/",
-          "evidence": "Contemporaneous reporting confirms the o1-pro developer API launch on March 19, 2025."
+          "namespace": "openai-api",
+          "value": "o1-pro-2025-03-19",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2025-03-19",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "o1-pro Model",
+              "url": "https://developers.openai.com/api/docs/models/o1-pro",
+              "evidence": "OpenAI's model documentation lists the original API snapshot as o1-pro-2025-03-19."
+            },
+            {
+              "publisher": "TechCrunch",
+              "title": "OpenAI's o1-pro is the company's most expensive AI model yet",
+              "url": "https://techcrunch.com/2025/03/19/openais-o1-pro-is-its-most-expensive-model-yet/",
+              "evidence": "Contemporaneous reporting confirms the o1-pro developer API launch on March 19, 2025."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/o1-pro as deprecated when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/o3-mini",
+      "display_name": "OpenAI o3-mini",
+      "provider_id": "openai",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-01-31",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "OpenAI o3-mini",
-          "url": "https://openai.com/index/openai-o3-mini/",
-          "evidence": "OpenAI's dated release says o3-mini became available in ChatGPT and the API that day."
+          "namespace": "openai-api",
+          "value": "o3-mini",
+          "kind": "alias"
+        },
+        {
+          "namespace": "openai-api",
+          "value": "o3-mini-2025-01-31",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2025-01-31",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI o3-mini",
+              "url": "https://openai.com/index/openai-o3-mini/",
+              "evidence": "OpenAI's dated release says o3-mini became available in ChatGPT and the API that day."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/o3-mini as deprecated when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/gpt-4.1",
+      "display_name": "GPT-4.1",
+      "provider_id": "openai",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-04-14",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "Introducing GPT-4.1 in the API",
-          "url": "https://openai.com/index/gpt-4-1/",
-          "evidence": "OpenAI says GPT-4.1 launched in the API on April 14, 2025."
+          "namespace": "openai-api",
+          "value": "gpt-4.1",
+          "kind": "alias"
+        },
+        {
+          "namespace": "openai-api",
+          "value": "gpt-4.1-2025-04-14",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2025-04-14",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "Introducing GPT-4.1 in the API",
+              "url": "https://openai.com/index/gpt-4-1/",
+              "evidence": "OpenAI says GPT-4.1 launched in the API on April 14, 2025."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/gpt-4.1 as active when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/gpt-4.1-mini",
+      "display_name": "GPT-4.1 mini",
+      "provider_id": "openai",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-04-14",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "Introducing GPT-4.1 in the API",
-          "url": "https://openai.com/index/gpt-4-1/",
-          "evidence": "OpenAI says GPT-4.1 mini launched in the API on April 14, 2025."
+          "namespace": "openai-api",
+          "value": "gpt-4.1-mini",
+          "kind": "alias"
+        },
+        {
+          "namespace": "openai-api",
+          "value": "gpt-4.1-mini-2025-04-14",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2025-04-14",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "Introducing GPT-4.1 in the API",
+              "url": "https://openai.com/index/gpt-4-1/",
+              "evidence": "OpenAI says GPT-4.1 mini launched in the API on April 14, 2025."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/gpt-4.1-mini as active when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/gpt-4.1-nano",
+      "display_name": "GPT-4.1 nano",
+      "provider_id": "openai",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-04-14",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "Introducing GPT-4.1 in the API",
-          "url": "https://openai.com/index/gpt-4-1/",
-          "evidence": "OpenAI says GPT-4.1 nano launched in the API on April 14, 2025."
+          "namespace": "openai-api",
+          "value": "gpt-4.1-nano",
+          "kind": "alias"
+        },
+        {
+          "namespace": "openai-api",
+          "value": "gpt-4.1-nano-2025-04-14",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2025-04-14",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "Introducing GPT-4.1 in the API",
+              "url": "https://openai.com/index/gpt-4-1/",
+              "evidence": "OpenAI says GPT-4.1 nano launched in the API on April 14, 2025."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/gpt-4.1-nano as deprecated when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/o3",
+      "display_name": "OpenAI o3",
+      "provider_id": "openai",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-04-16",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "Introducing OpenAI o3 and o4-mini",
-          "url": "https://openai.com/index/introducing-o3-and-o4-mini/",
-          "evidence": "OpenAI's April 16 release says o3 became available to developers that day."
+          "namespace": "openai-api",
+          "value": "o3",
+          "kind": "alias"
+        },
+        {
+          "namespace": "openai-api",
+          "value": "o3-2025-04-16",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2025-04-16",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "Introducing OpenAI o3 and o4-mini",
+              "url": "https://openai.com/index/introducing-o3-and-o4-mini/",
+              "evidence": "OpenAI's April 16 release says o3 became available to developers that day."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/o3 as active when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/o4-mini",
+      "display_name": "OpenAI o4-mini",
+      "provider_id": "openai",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-04-16",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "Introducing OpenAI o3 and o4-mini",
-          "url": "https://openai.com/index/introducing-o3-and-o4-mini/",
-          "evidence": "OpenAI's April 16 release says o4-mini became available to developers that day."
+          "namespace": "openai-api",
+          "value": "o4-mini",
+          "kind": "alias"
+        },
+        {
+          "namespace": "openai-api",
+          "value": "o4-mini-2025-04-16",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2025-04-16",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "Introducing OpenAI o3 and o4-mini",
+              "url": "https://openai.com/index/introducing-o3-and-o4-mini/",
+              "evidence": "OpenAI's April 16 release says o4-mini became available to developers that day."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/o4-mini as deprecated when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/o3-pro",
+      "display_name": "OpenAI o3-pro",
+      "provider_id": "openai",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-06-10",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "Introducing OpenAI o3 and o4-mini",
-          "url": "https://openai.com/index/introducing-o3-and-o4-mini/",
-          "evidence": "OpenAI's June 10 update says o3-pro became available in ChatGPT and the API that day."
+          "namespace": "openai-api",
+          "value": "o3-pro",
+          "kind": "alias"
+        },
+        {
+          "namespace": "openai-api",
+          "value": "o3-pro-2025-06-10",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2025-06-10",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "Introducing OpenAI o3 and o4-mini",
+              "url": "https://openai.com/index/introducing-o3-and-o4-mini/",
+              "evidence": "OpenAI's June 10 update says o3-pro became available in ChatGPT and the API that day."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/o3-pro as active when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/gpt-5",
+      "display_name": "GPT-5",
+      "provider_id": "openai",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-08-07",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "Introducing GPT-5 for developers",
-          "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
-          "evidence": "OpenAI says GPT-5 became available in its API on August 7, 2025."
+          "namespace": "openai-api",
+          "value": "gpt-5",
+          "kind": "alias"
+        },
+        {
+          "namespace": "openai-api",
+          "value": "gpt-5-2025-08-07",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2025-08-07",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "Introducing GPT-5 for developers",
+              "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
+              "evidence": "OpenAI says GPT-5 became available in its API on August 7, 2025."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/gpt-5 as active when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/gpt-5-mini",
+      "display_name": "GPT-5 mini",
+      "provider_id": "openai",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-08-07",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "Introducing GPT-5 for developers",
-          "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
-          "evidence": "OpenAI says GPT-5 mini became available in its API on August 7, 2025."
+          "namespace": "openai-api",
+          "value": "gpt-5-mini",
+          "kind": "alias"
+        },
+        {
+          "namespace": "openai-api",
+          "value": "gpt-5-mini-2025-08-07",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2025-08-07",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "Introducing GPT-5 for developers",
+              "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
+              "evidence": "OpenAI says GPT-5 mini became available in its API on August 7, 2025."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/gpt-5-mini as active when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/gpt-5-nano",
+      "display_name": "GPT-5 nano",
+      "provider_id": "openai",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-08-07",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "Introducing GPT-5 for developers",
-          "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
-          "evidence": "OpenAI says GPT-5 nano became available in its API on August 7, 2025."
+          "namespace": "openai-api",
+          "value": "gpt-5-nano",
+          "kind": "alias"
+        },
+        {
+          "namespace": "openai-api",
+          "value": "gpt-5-nano-2025-08-07",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2025-08-07",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "Introducing GPT-5 for developers",
+              "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
+              "evidence": "OpenAI says GPT-5 nano became available in its API on August 7, 2025."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/gpt-5-nano as active when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/gpt-5-chat-latest",
+      "display_name": "GPT-5 Chat Latest",
+      "provider_id": "openai",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-08-07",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "Introducing GPT-5 for developers",
-          "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
-          "evidence": "OpenAI's August 7 launch post explicitly says the ChatGPT version became available in the API as gpt-5-chat-latest."
+          "namespace": "openai-api",
+          "value": "gpt-5-chat-latest",
+          "kind": "alias"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2025-08-07",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "Introducing GPT-5 for developers",
+              "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
+              "evidence": "OpenAI's August 7 launch post explicitly says the ChatGPT version became available in the API as gpt-5-chat-latest."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "OpenAI API model catalog",
+              "url": "https://developers.openai.com/api/docs/models/all",
+              "evidence": "OpenAI's model catalog marked openai/gpt-5-chat-latest as deprecated when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/gpt-oss-120b",
+      "display_name": "gpt-oss-120b",
+      "provider_id": "openai",
       "identifier_type": "weights",
-      "availability": ["weights"],
-      "release_date": "2025-08-05",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "Introducing gpt-oss",
-          "url": "https://openai.com/index/introducing-gpt-oss/",
-          "evidence": "OpenAI released the gpt-oss-120b weights on August 5, 2025."
+          "namespace": "huggingface",
+          "value": "openai/gpt-oss-120b",
+          "kind": "weights"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "weights",
+          "stage": "public",
+          "date": "2025-08-05",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "Introducing gpt-oss",
+              "url": "https://openai.com/index/introducing-gpt-oss/",
+              "evidence": "OpenAI released the gpt-oss-120b weights on August 5, 2025."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "weights",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "Official model repository",
+              "url": "https://huggingface.co/openai/gpt-oss-120b",
+              "evidence": "OpenAI's official weights remained downloadable when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "openai/gpt-oss-20b",
+      "display_name": "gpt-oss-20b",
+      "provider_id": "openai",
       "identifier_type": "weights",
-      "availability": ["weights"],
-      "release_date": "2025-08-05",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "OpenAI",
-          "title": "Introducing gpt-oss",
-          "url": "https://openai.com/index/introducing-gpt-oss/",
-          "evidence": "OpenAI released the gpt-oss-20b weights on August 5, 2025."
+          "namespace": "huggingface",
+          "value": "openai/gpt-oss-20b",
+          "kind": "weights"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "weights",
+          "stage": "public",
+          "date": "2025-08-05",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "Introducing gpt-oss",
+              "url": "https://openai.com/index/introducing-gpt-oss/",
+              "evidence": "OpenAI released the gpt-oss-20b weights on August 5, 2025."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "weights",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "OpenAI",
+              "title": "Official model repository",
+              "url": "https://huggingface.co/openai/gpt-oss-20b",
+              "evidence": "OpenAI's official weights remained downloadable when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "anthropic/claude-3-haiku",
+      "display_name": "Claude 3 Haiku",
+      "provider_id": "anthropic",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2024-03-13",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Anthropic",
-          "title": "Claude 3 Haiku: our fastest model yet",
-          "url": "https://www.anthropic.com/news/claude-3-haiku",
-          "evidence": "Anthropic says Claude 3 Haiku became available in its API on March 13, 2024."
+          "namespace": "anthropic-api",
+          "value": "claude-3-haiku-20240307",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2024-03-13",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Claude 3 Haiku: our fastest model yet",
+              "url": "https://www.anthropic.com/news/claude-3-haiku",
+              "evidence": "Anthropic says Claude 3 Haiku became available in its API on March 13, 2024."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2026-02-19",
+          "date_role": "announced",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records anthropic/claude-3-haiku as deprecated on 2026-02-19."
+            }
+          ]
+        },
+        {
+          "status": "retired",
+          "date": "2026-04-20",
+          "date_role": "effective",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records anthropic/claude-3-haiku as retired on 2026-04-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "anthropic/claude-3-opus",
+      "display_name": "Claude 3 Opus",
+      "provider_id": "anthropic",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2024-03-04",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Anthropic",
-          "title": "Introducing the next generation of Claude",
-          "url": "https://www.anthropic.com/news/claude-3-family",
-          "evidence": "Anthropic's March 4 launch says Claude 3 Opus was available in its API that day."
+          "namespace": "anthropic-api",
+          "value": "claude-3-opus-20240229",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2024-03-04",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Introducing the next generation of Claude",
+              "url": "https://www.anthropic.com/news/claude-3-family",
+              "evidence": "Anthropic's March 4 launch says Claude 3 Opus was available in its API that day."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2025-06-30",
+          "date_role": "announced",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records anthropic/claude-3-opus as deprecated on 2025-06-30."
+            }
+          ]
+        },
+        {
+          "status": "retired",
+          "date": "2026-01-05",
+          "date_role": "effective",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records anthropic/claude-3-opus as retired on 2026-01-05."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "anthropic/claude-3.5-sonnet",
+      "display_name": "Claude 3.5 Sonnet",
+      "provider_id": "anthropic",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2024-06-20",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Anthropic",
-          "title": "Claude Platform release notes",
-          "url": "https://platform.claude.com/docs/en/release-notes/overview",
-          "evidence": "Anthropic's June 20, 2024 release-note entry says Claude 3.5 Sonnet became generally available across the Claude API, Bedrock, and Vertex AI."
+          "namespace": "anthropic-api",
+          "value": "claude-3-5-sonnet-latest",
+          "kind": "alias"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2024-06-20",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Claude Platform release notes",
+              "url": "https://platform.claude.com/docs/en/release-notes/overview",
+              "evidence": "Anthropic's June 20, 2024 release-note entry says Claude 3.5 Sonnet became generally available across the Claude API, Bedrock, and Vertex AI."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2025-08-13",
+          "date_role": "announced",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records anthropic/claude-3.5-sonnet as deprecated on 2025-08-13."
+            }
+          ]
+        },
+        {
+          "status": "retired",
+          "date": "2025-10-28",
+          "date_role": "effective",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records anthropic/claude-3.5-sonnet as retired on 2025-10-28."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "anthropic/claude-3.5-sonnet-20240620",
+      "display_name": "Claude 3.5 Sonnet (20240620 snapshot)",
+      "provider_id": "anthropic",
       "identifier_type": "snapshot",
-      "availability": ["api"],
-      "release_date": "2024-06-20",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Anthropic",
-          "title": "Claude Platform release notes",
-          "url": "https://platform.claude.com/docs/en/release-notes/overview",
-          "evidence": "Anthropic's June 20, 2024 release-note entry records API general availability for this Claude 3.5 Sonnet release."
+          "namespace": "anthropic-api",
+          "value": "claude-3-5-sonnet-20240620",
+          "kind": "snapshot"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "snapshot_of",
+          "target_model": "anthropic/claude-3.5-sonnet"
+        }
+      ],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2024-06-20",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Claude Platform release notes",
+              "url": "https://platform.claude.com/docs/en/release-notes/overview",
+              "evidence": "Anthropic's June 20, 2024 release-note entry records API general availability for this Claude 3.5 Sonnet release."
+            },
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle documentation identifies the dated API model as claude-3-5-sonnet-20240620."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2025-08-13",
+          "date_role": "announced",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records anthropic/claude-3.5-sonnet-20240620 as deprecated on 2025-08-13."
+            }
+          ]
         },
         {
-          "publisher": "Anthropic",
-          "title": "Model deprecations",
-          "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
-          "evidence": "Anthropic's lifecycle documentation identifies the dated API model as claude-3-5-sonnet-20240620."
+          "status": "retired",
+          "date": "2025-10-28",
+          "date_role": "effective",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records anthropic/claude-3.5-sonnet-20240620 as retired on 2025-10-28."
+            }
+          ]
         }
-      ]
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "anthropic/claude-3.5-haiku",
+      "display_name": "Claude 3.5 Haiku",
+      "provider_id": "anthropic",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2024-11-04",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Anthropic",
-          "title": "Claude Platform release notes",
-          "url": "https://platform.claude.com/docs/en/release-notes/overview",
-          "evidence": "Anthropic's November 4, 2024 entry says Claude 3.5 Haiku became available on the Claude API that day."
+          "namespace": "anthropic-api",
+          "value": "claude-3-5-haiku-latest",
+          "kind": "alias"
+        },
+        {
+          "namespace": "anthropic-api",
+          "value": "claude-3-5-haiku-20241022",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2024-11-04",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Claude Platform release notes",
+              "url": "https://platform.claude.com/docs/en/release-notes/overview",
+              "evidence": "Anthropic's November 4, 2024 entry says Claude 3.5 Haiku became available on the Claude API that day."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2025-12-19",
+          "date_role": "announced",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records anthropic/claude-3.5-haiku as deprecated on 2025-12-19."
+            }
+          ]
+        },
+        {
+          "status": "retired",
+          "date": "2026-02-19",
+          "date_role": "effective",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records anthropic/claude-3.5-haiku as retired on 2026-02-19."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "anthropic/claude-3.7-sonnet",
+      "display_name": "Claude 3.7 Sonnet",
+      "provider_id": "anthropic",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-02-24",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Anthropic",
-          "title": "Claude 3.7 Sonnet and Claude Code",
-          "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
-          "evidence": "Anthropic introduced Claude 3.7 Sonnet with API availability on February 24, 2025."
+          "namespace": "anthropic-api",
+          "value": "claude-3-7-sonnet-latest",
+          "kind": "alias"
+        },
+        {
+          "namespace": "anthropic-api",
+          "value": "claude-3-7-sonnet-20250219",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2025-02-24",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Claude 3.7 Sonnet and Claude Code",
+              "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+              "evidence": "Anthropic introduced Claude 3.7 Sonnet with API availability on February 24, 2025."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2025-10-28",
+          "date_role": "announced",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records anthropic/claude-3.7-sonnet as deprecated on 2025-10-28."
+            }
+          ]
+        },
+        {
+          "status": "retired",
+          "date": "2026-02-19",
+          "date_role": "effective",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records anthropic/claude-3.7-sonnet as retired on 2026-02-19."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "anthropic/claude-opus-4",
+      "display_name": "Claude Opus 4",
+      "provider_id": "anthropic",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-05-22",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Anthropic",
-          "title": "Introducing Claude 4",
-          "url": "https://www.anthropic.com/news/claude-4",
-          "evidence": "Anthropic's May 22 launch says Claude Opus 4 was available in its API that day."
+          "namespace": "anthropic-api",
+          "value": "claude-opus-4-0",
+          "kind": "alias"
+        },
+        {
+          "namespace": "anthropic-api",
+          "value": "claude-opus-4-20250514",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2025-05-22",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Introducing Claude 4",
+              "url": "https://www.anthropic.com/news/claude-4",
+              "evidence": "Anthropic's May 22 launch says Claude Opus 4 was available in its API that day."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2026-04-14",
+          "date_role": "announced",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records anthropic/claude-opus-4 as deprecated on 2026-04-14."
+            }
+          ]
+        },
+        {
+          "status": "retired",
+          "date": "2026-06-15",
+          "date_role": "effective",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records anthropic/claude-opus-4 as retired on 2026-06-15."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "anthropic/claude-sonnet-4",
+      "display_name": "Claude Sonnet 4",
+      "provider_id": "anthropic",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-05-22",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Anthropic",
-          "title": "Introducing Claude 4",
-          "url": "https://www.anthropic.com/news/claude-4",
-          "evidence": "Anthropic's May 22 launch says Claude Sonnet 4 was available in its API that day."
+          "namespace": "anthropic-api",
+          "value": "claude-sonnet-4-0",
+          "kind": "alias"
+        },
+        {
+          "namespace": "anthropic-api",
+          "value": "claude-sonnet-4-20250514",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2025-05-22",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Introducing Claude 4",
+              "url": "https://www.anthropic.com/news/claude-4",
+              "evidence": "Anthropic's May 22 launch says Claude Sonnet 4 was available in its API that day."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2026-04-14",
+          "date_role": "announced",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records anthropic/claude-sonnet-4 as deprecated on 2026-04-14."
+            }
+          ]
+        },
+        {
+          "status": "retired",
+          "date": "2026-06-15",
+          "date_role": "effective",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records anthropic/claude-sonnet-4 as retired on 2026-06-15."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "anthropic/claude-opus-4.1",
+      "display_name": "Claude Opus 4.1",
+      "provider_id": "anthropic",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-08-05",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Anthropic",
-          "title": "Claude Opus 4.1",
-          "url": "https://www.anthropic.com/news/claude-opus-4-1",
-          "evidence": "Anthropic says Claude Opus 4.1 became available in its API on August 5, 2025."
+          "namespace": "anthropic-api",
+          "value": "claude-opus-4-1",
+          "kind": "alias"
+        },
+        {
+          "namespace": "anthropic-api",
+          "value": "claude-opus-4-1-20250805",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2025-08-05",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Claude Opus 4.1",
+              "url": "https://www.anthropic.com/news/claude-opus-4-1",
+              "evidence": "Anthropic says Claude Opus 4.1 became available in its API on August 5, 2025."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2026-06-05",
+          "date_role": "announced",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records anthropic/claude-opus-4.1 as deprecated on 2026-06-05."
+            }
+          ]
+        },
+        {
+          "status": "retirement_scheduled",
+          "date": "2026-08-05",
+          "date_role": "scheduled",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records anthropic/claude-opus-4.1 as retirement_scheduled on 2026-08-05."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "anthropic/claude-sonnet-4.5",
+      "display_name": "Claude Sonnet 4.5",
+      "provider_id": "anthropic",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-09-29",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Anthropic",
-          "title": "Introducing Claude Sonnet 4.5",
-          "url": "https://www.anthropic.com/news/claude-sonnet-4-5",
-          "evidence": "Anthropic says Claude Sonnet 4.5 became available in its API on September 29, 2025."
+          "namespace": "anthropic-api",
+          "value": "claude-sonnet-4-5",
+          "kind": "alias"
+        },
+        {
+          "namespace": "anthropic-api",
+          "value": "claude-sonnet-4-5-20250929",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2025-09-29",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Introducing Claude Sonnet 4.5",
+              "url": "https://www.anthropic.com/news/claude-sonnet-4-5",
+              "evidence": "Anthropic says Claude Sonnet 4.5 became available in its API on September 29, 2025."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records anthropic/claude-sonnet-4.5 as active on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "google/gemini-2.0-flash",
+      "display_name": "Gemini 2.0 Flash",
+      "provider_id": "google",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2024-12-11",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Google",
-          "title": "Introducing Gemini 2.0: our new AI model for the agentic era",
-          "url": "https://blog.google/innovation-and-ai/models-and-research/google-deepmind/google-gemini-ai-update-december-2024/",
-          "evidence": "Google made the experimental Gemini 2.0 Flash model available through the Gemini API on December 11, 2024."
+          "namespace": "gemini-api",
+          "value": "gemini-2.0-flash-exp",
+          "kind": "alias"
+        },
+        {
+          "namespace": "gemini-api",
+          "value": "gemini-2.0-flash",
+          "kind": "alias"
+        },
+        {
+          "namespace": "gemini-api",
+          "value": "gemini-2.0-flash-001",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public_preview",
+          "date": "2024-12-11",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Google",
+              "title": "Introducing Gemini 2.0: our new AI model for the agentic era",
+              "url": "https://blog.google/innovation-and-ai/models-and-research/google-deepmind/google-gemini-ai-update-december-2024/",
+              "evidence": "Google made the experimental Gemini 2.0 Flash model available through the Gemini API on December 11, 2024."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "retired",
+          "date": "2026-06-01",
+          "date_role": "effective",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Google",
+              "title": "Gemini deprecations",
+              "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+              "evidence": "Google's Gemini API lifecycle table records google/gemini-2.0-flash as retired on 2026-06-01."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "google/gemini-2.0-flash-lite",
+      "display_name": "Gemini 2.0 Flash-Lite",
+      "provider_id": "google",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-02-05",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Google",
-          "title": "Gemini 2.0: Flash, Flash-Lite and Pro",
-          "url": "https://developers.googleblog.com/en/gemini-2-family-expands/",
-          "evidence": "Google made Gemini 2.0 Flash-Lite publicly available in preview through the Gemini API on February 5, 2025."
+          "namespace": "gemini-api",
+          "value": "gemini-2.0-flash-lite-preview-02-05",
+          "kind": "snapshot"
+        },
+        {
+          "namespace": "gemini-api",
+          "value": "gemini-2.0-flash-lite",
+          "kind": "alias"
+        },
+        {
+          "namespace": "gemini-api",
+          "value": "gemini-2.0-flash-lite-001",
+          "kind": "snapshot"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public_preview",
+          "date": "2025-02-05",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Google",
+              "title": "Gemini 2.0: Flash, Flash-Lite and Pro",
+              "url": "https://developers.googleblog.com/en/gemini-2-family-expands/",
+              "evidence": "Google made Gemini 2.0 Flash-Lite publicly available in preview through the Gemini API on February 5, 2025."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "retired",
+          "date": "2026-06-01",
+          "date_role": "effective",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Google",
+              "title": "Gemini deprecations",
+              "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+              "evidence": "Google's Gemini API lifecycle table records google/gemini-2.0-flash-lite as retired on 2026-06-01."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "google/gemini-2.5-pro",
+      "display_name": "Gemini 2.5 Pro",
+      "provider_id": "google",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-03-25",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Google",
-          "title": "Gemini 2.5: Our most intelligent AI model",
-          "url": "https://blog.google/innovation-and-ai/models-and-research/google-deepmind/gemini-model-thinking-updates-march-2025/",
-          "evidence": "Google made Gemini 2.5 Pro Experimental available in Google AI Studio on March 25, 2025."
+          "namespace": "gemini-api",
+          "value": "gemini-2.5-pro-exp-03-25",
+          "kind": "snapshot"
+        },
+        {
+          "namespace": "gemini-api",
+          "value": "gemini-2.5-pro",
+          "kind": "alias"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public_preview",
+          "date": "2025-03-25",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Google",
+              "title": "Gemini 2.5: Our most intelligent AI model",
+              "url": "https://blog.google/innovation-and-ai/models-and-research/google-deepmind/gemini-model-thinking-updates-march-2025/",
+              "evidence": "Google made Gemini 2.5 Pro Experimental available in Google AI Studio on March 25, 2025."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "retirement_scheduled",
+          "date": "2026-10-16",
+          "date_role": "scheduled",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Google",
+              "title": "Gemini deprecations",
+              "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+              "evidence": "Google's Gemini API lifecycle table records google/gemini-2.5-pro as retirement scheduled on 2026-10-16."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "google/gemini-2.5-flash",
+      "display_name": "Gemini 2.5 Flash",
+      "provider_id": "google",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-04-17",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Google",
-          "title": "Developers can now start building with Gemini 2.5 Flash",
-          "url": "https://blog.google/products-and-platforms/products/gemini/gemini-2-5-flash-preview/",
-          "evidence": "Google released Gemini 2.5 Flash in public API preview on April 17, 2025."
+          "namespace": "gemini-api",
+          "value": "gemini-2.5-flash-preview-04-17",
+          "kind": "snapshot"
+        },
+        {
+          "namespace": "gemini-api",
+          "value": "gemini-2.5-flash",
+          "kind": "alias"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public_preview",
+          "date": "2025-04-17",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Google",
+              "title": "Developers can now start building with Gemini 2.5 Flash",
+              "url": "https://blog.google/products-and-platforms/products/gemini/gemini-2-5-flash-preview/",
+              "evidence": "Google released Gemini 2.5 Flash in public API preview on April 17, 2025."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "retirement_scheduled",
+          "date": "2026-10-16",
+          "date_role": "scheduled",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Google",
+              "title": "Gemini deprecations",
+              "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+              "evidence": "Google's Gemini API lifecycle table records google/gemini-2.5-flash as retirement scheduled on 2026-10-16."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "google/gemini-2.5-flash-lite",
+      "display_name": "Gemini 2.5 Flash-Lite",
+      "provider_id": "google",
       "identifier_type": "model",
-      "availability": ["api"],
-      "release_date": "2025-06-17",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Google",
-          "title": "We're expanding our Gemini 2.5 family of models",
-          "url": "https://blog.google/products-and-platforms/products/gemini/gemini-2-5-model-family-expands/",
-          "evidence": "Google released Gemini 2.5 Flash-Lite in public API preview on June 17, 2025."
+          "namespace": "gemini-api",
+          "value": "gemini-2.5-flash-lite-preview-06-17",
+          "kind": "snapshot"
+        },
+        {
+          "namespace": "gemini-api",
+          "value": "gemini-2.5-flash-lite",
+          "kind": "alias"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public_preview",
+          "date": "2025-06-17",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Google",
+              "title": "We're expanding our Gemini 2.5 family of models",
+              "url": "https://blog.google/products-and-platforms/products/gemini/gemini-2-5-model-family-expands/",
+              "evidence": "Google released Gemini 2.5 Flash-Lite in public API preview on June 17, 2025."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "retirement_scheduled",
+          "date": "2026-10-16",
+          "date_role": "scheduled",
+          "channel": "api",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Google",
+              "title": "Gemini deprecations",
+              "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+              "evidence": "Google's Gemini API lifecycle table records google/gemini-2.5-flash-lite as retirement scheduled on 2026-10-16."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "deepseek-ai/deepseek-r1",
+      "display_name": "DeepSeek R1",
+      "provider_id": "deepseek-ai",
       "identifier_type": "weights",
-      "availability": ["api", "weights"],
-      "release_date": "2025-01-20",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "DeepSeek",
-          "title": "DeepSeek-R1 Release",
-          "url": "https://api-docs.deepseek.com/news/news250120/",
-          "evidence": "DeepSeek's official release page says the R1 weights, website, and API went live on January 20, 2025."
+          "namespace": "deepseek-api",
+          "value": "deepseek-reasoner",
+          "kind": "alias"
+        },
+        {
+          "namespace": "huggingface",
+          "value": "deepseek-ai/DeepSeek-R1",
+          "kind": "weights"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2025-01-20",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "DeepSeek",
+              "title": "DeepSeek-R1 Release",
+              "url": "https://api-docs.deepseek.com/news/news250120/",
+              "evidence": "DeepSeek's official release page says the R1 weights, website, and API went live on January 20, 2025."
+            }
+          ]
+        },
+        {
+          "channel": "weights",
+          "stage": "public",
+          "date": "2025-01-20",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "DeepSeek",
+              "title": "DeepSeek-R1 Release",
+              "url": "https://api-docs.deepseek.com/news/news250120/",
+              "evidence": "DeepSeek's official release page says the R1 weights, website, and API went live on January 20, 2025."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "retirement_scheduled",
+          "date": "2026-07-24",
+          "date_role": "scheduled",
+          "channel": "api",
+          "identifier": {
+            "namespace": "deepseek-api",
+            "value": "deepseek-reasoner"
+          },
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "DeepSeek",
+              "title": "DeepSeek API change log",
+              "url": "https://api-docs.deepseek.com/updates/",
+              "evidence": "DeepSeek schedules this model's legacy API identifier for retirement on 2026-07-24."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "deepseek-ai/deepseek-v3",
+      "display_name": "DeepSeek V3",
+      "provider_id": "deepseek-ai",
       "identifier_type": "weights",
-      "availability": ["api", "weights"],
-      "release_date": "2024-12-26",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "DeepSeek",
-          "title": "Introducing DeepSeek-V3",
-          "url": "https://api-docs.deepseek.com/news/news1226/",
-          "evidence": "DeepSeek's official release page dates the V3 release to December 26, 2024."
+          "namespace": "deepseek-api",
+          "value": "deepseek-chat",
+          "kind": "alias"
+        },
+        {
+          "namespace": "huggingface",
+          "value": "deepseek-ai/DeepSeek-V3",
+          "kind": "weights"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2024-12-26",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "DeepSeek",
+              "title": "Introducing DeepSeek-V3",
+              "url": "https://api-docs.deepseek.com/news/news1226/",
+              "evidence": "DeepSeek's official release page dates the V3 release to December 26, 2024."
+            }
+          ]
+        },
+        {
+          "channel": "weights",
+          "stage": "public",
+          "date": "2024-12-26",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "DeepSeek",
+              "title": "Introducing DeepSeek-V3",
+              "url": "https://api-docs.deepseek.com/news/news1226/",
+              "evidence": "DeepSeek's official release page dates the V3 release to December 26, 2024."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "retirement_scheduled",
+          "date": "2026-07-24",
+          "date_role": "scheduled",
+          "channel": "api",
+          "identifier": {
+            "namespace": "deepseek-api",
+            "value": "deepseek-chat"
+          },
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "DeepSeek",
+              "title": "DeepSeek API change log",
+              "url": "https://api-docs.deepseek.com/updates/",
+              "evidence": "DeepSeek schedules this model's legacy API identifier for retirement on 2026-07-24."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "meta/llama-3.1-8b",
+      "display_name": "Llama 3.1 8B",
+      "provider_id": "meta",
       "identifier_type": "weights",
-      "availability": ["weights"],
-      "release_date": "2024-07-23",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Meta",
-          "title": "Introducing Llama 3.1: Our most capable models to date",
-          "url": "https://ai.meta.com/blog/meta-llama-3-1/",
-          "evidence": "Meta released the upgraded Llama 3.1 8B weights on July 23, 2024."
+          "namespace": "huggingface",
+          "value": "meta-llama/Meta-Llama-3.1-8B",
+          "kind": "weights"
+        },
+        {
+          "namespace": "huggingface",
+          "value": "meta-llama/Meta-Llama-3.1-8B-Instruct",
+          "kind": "weights"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "weights",
+          "stage": "public",
+          "date": "2024-07-23",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Meta",
+              "title": "Introducing Llama 3.1: Our most capable models to date",
+              "url": "https://ai.meta.com/blog/meta-llama-3-1/",
+              "evidence": "Meta released the upgraded Llama 3.1 8B weights on July 23, 2024."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "weights",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Meta",
+              "title": "Official model repository",
+              "url": "https://huggingface.co/meta-llama/Meta-Llama-3.1-8B",
+              "evidence": "Meta's official model repository remained publicly available when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "meta/llama-3.1-70b",
+      "display_name": "Llama 3.1 70B",
+      "provider_id": "meta",
       "identifier_type": "weights",
-      "availability": ["weights"],
-      "release_date": "2024-07-23",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Meta",
-          "title": "Introducing Llama 3.1: Our most capable models to date",
-          "url": "https://ai.meta.com/blog/meta-llama-3-1/",
-          "evidence": "Meta released the upgraded Llama 3.1 70B weights on July 23, 2024."
+          "namespace": "huggingface",
+          "value": "meta-llama/Meta-Llama-3.1-70B",
+          "kind": "weights"
+        },
+        {
+          "namespace": "huggingface",
+          "value": "meta-llama/Meta-Llama-3.1-70B-Instruct",
+          "kind": "weights"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "weights",
+          "stage": "public",
+          "date": "2024-07-23",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Meta",
+              "title": "Introducing Llama 3.1: Our most capable models to date",
+              "url": "https://ai.meta.com/blog/meta-llama-3-1/",
+              "evidence": "Meta released the upgraded Llama 3.1 70B weights on July 23, 2024."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "weights",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Meta",
+              "title": "Official model repository",
+              "url": "https://huggingface.co/meta-llama/Meta-Llama-3.1-70B",
+              "evidence": "Meta's official model repository remained publicly available when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "meta/llama-3.2-1b",
+      "display_name": "Llama 3.2 1B",
+      "provider_id": "meta",
       "identifier_type": "weights",
-      "availability": ["weights"],
-      "release_date": "2024-09-25",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Meta",
-          "title": "Llama 3.2: Revolutionizing edge AI and vision with open, customizable models",
-          "url": "https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/",
-          "evidence": "Meta released the Llama 3.2 1B model on September 25, 2024."
+          "namespace": "huggingface",
+          "value": "meta-llama/Llama-3.2-1B",
+          "kind": "weights"
+        },
+        {
+          "namespace": "huggingface",
+          "value": "meta-llama/Llama-3.2-1B-Instruct",
+          "kind": "weights"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "weights",
+          "stage": "public",
+          "date": "2024-09-25",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Meta",
+              "title": "Llama 3.2: Revolutionizing edge AI and vision with open, customizable models",
+              "url": "https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/",
+              "evidence": "Meta released the Llama 3.2 1B model on September 25, 2024."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "weights",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Meta",
+              "title": "Official model repository",
+              "url": "https://huggingface.co/meta-llama/Llama-3.2-1B",
+              "evidence": "Meta's official model repository remained publicly available when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "meta/llama-3.2-3b",
+      "display_name": "Llama 3.2 3B",
+      "provider_id": "meta",
       "identifier_type": "weights",
-      "availability": ["weights"],
-      "release_date": "2024-09-25",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Meta",
-          "title": "Llama 3.2: Revolutionizing edge AI and vision with open, customizable models",
-          "url": "https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/",
-          "evidence": "Meta released the Llama 3.2 3B model on September 25, 2024."
+          "namespace": "huggingface",
+          "value": "meta-llama/Llama-3.2-3B",
+          "kind": "weights"
+        },
+        {
+          "namespace": "huggingface",
+          "value": "meta-llama/Llama-3.2-3B-Instruct",
+          "kind": "weights"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "weights",
+          "stage": "public",
+          "date": "2024-09-25",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Meta",
+              "title": "Llama 3.2: Revolutionizing edge AI and vision with open, customizable models",
+              "url": "https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/",
+              "evidence": "Meta released the Llama 3.2 3B model on September 25, 2024."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "weights",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Meta",
+              "title": "Official model repository",
+              "url": "https://huggingface.co/meta-llama/Llama-3.2-3B",
+              "evidence": "Meta's official model repository remained publicly available when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "meta/llama-3.2-11b",
+      "display_name": "Llama 3.2 11B",
+      "provider_id": "meta",
       "identifier_type": "weights",
-      "availability": ["weights"],
-      "release_date": "2024-09-25",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Meta",
-          "title": "Llama 3.2: Revolutionizing edge AI and vision with open, customizable models",
-          "url": "https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/",
-          "evidence": "Meta released the Llama 3.2 11B vision model on September 25, 2024."
+          "namespace": "huggingface",
+          "value": "meta-llama/Llama-3.2-11B-Vision",
+          "kind": "weights"
+        },
+        {
+          "namespace": "huggingface",
+          "value": "meta-llama/Llama-3.2-11B-Vision-Instruct",
+          "kind": "weights"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "weights",
+          "stage": "public",
+          "date": "2024-09-25",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Meta",
+              "title": "Llama 3.2: Revolutionizing edge AI and vision with open, customizable models",
+              "url": "https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/",
+              "evidence": "Meta released the Llama 3.2 11B vision model on September 25, 2024."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "weights",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Meta",
+              "title": "Official model repository",
+              "url": "https://huggingface.co/meta-llama/Llama-3.2-11B-Vision",
+              "evidence": "Meta's official model repository remained publicly available when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "meta/llama-3.2-90b",
+      "display_name": "Llama 3.2 90B",
+      "provider_id": "meta",
       "identifier_type": "weights",
-      "availability": ["weights"],
-      "release_date": "2024-09-25",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Meta",
-          "title": "Llama 3.2: Revolutionizing edge AI and vision with open, customizable models",
-          "url": "https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/",
-          "evidence": "Meta released the Llama 3.2 90B vision model on September 25, 2024."
+          "namespace": "huggingface",
+          "value": "meta-llama/Llama-3.2-90B-Vision",
+          "kind": "weights"
+        },
+        {
+          "namespace": "huggingface",
+          "value": "meta-llama/Llama-3.2-90B-Vision-Instruct",
+          "kind": "weights"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "weights",
+          "stage": "public",
+          "date": "2024-09-25",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Meta",
+              "title": "Llama 3.2: Revolutionizing edge AI and vision with open, customizable models",
+              "url": "https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/",
+              "evidence": "Meta released the Llama 3.2 90B vision model on September 25, 2024."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "weights",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Meta",
+              "title": "Official model repository",
+              "url": "https://huggingface.co/meta-llama/Llama-3.2-90B-Vision",
+              "evidence": "Meta's official model repository remained publicly available when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "meta/llama-3.3-70b",
+      "display_name": "Llama 3.3 70B",
+      "provider_id": "meta",
       "identifier_type": "weights",
-      "availability": ["weights"],
-      "release_date": "2024-12-06",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Meta on Hugging Face",
-          "title": "Llama-3.3-70B-Instruct model card",
-          "url": "https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct",
-          "evidence": "Meta's official model card and license both state a December 6, 2024 release date."
+          "namespace": "huggingface",
+          "value": "meta-llama/Llama-3.3-70B-Instruct",
+          "kind": "weights"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "weights",
+          "stage": "public",
+          "date": "2024-12-06",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Meta on Hugging Face",
+              "title": "Llama-3.3-70B-Instruct model card",
+              "url": "https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct",
+              "evidence": "Meta's official model card and license both state a December 6, 2024 release date."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "weights",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Meta",
+              "title": "Official model repository",
+              "url": "https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct",
+              "evidence": "Meta's official model repository remained publicly available when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "meta/llama-4-maverick",
+      "display_name": "Llama 4 Maverick",
+      "provider_id": "meta",
       "identifier_type": "weights",
-      "availability": ["weights"],
-      "release_date": "2025-04-05",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Meta",
-          "title": "The Llama 4 herd: The beginning of a new era of natively multimodal AI innovation",
-          "url": "https://ai.meta.com/blog/llama-4-multimodal-intelligence/",
-          "evidence": "Meta made Llama 4 Maverick available for download on April 5, 2025."
+          "namespace": "huggingface",
+          "value": "meta-llama/Llama-4-Maverick-17B-128E-Instruct",
+          "kind": "weights"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "weights",
+          "stage": "public",
+          "date": "2025-04-05",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Meta",
+              "title": "The Llama 4 herd: The beginning of a new era of natively multimodal AI innovation",
+              "url": "https://ai.meta.com/blog/llama-4-multimodal-intelligence/",
+              "evidence": "Meta made Llama 4 Maverick available for download on April 5, 2025."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "weights",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Meta",
+              "title": "Official model repository",
+              "url": "https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct",
+              "evidence": "Meta's official model repository remained publicly available when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     },
     {
       "model": "meta/llama-4-scout",
+      "display_name": "Llama 4 Scout",
+      "provider_id": "meta",
       "identifier_type": "weights",
-      "availability": ["weights"],
-      "release_date": "2025-04-05",
-      "confidence": "confirmed",
-      "sources": [
+      "identifiers": [
         {
-          "publisher": "Meta",
-          "title": "The Llama 4 herd: The beginning of a new era of natively multimodal AI innovation",
-          "url": "https://ai.meta.com/blog/llama-4-multimodal-intelligence/",
-          "evidence": "Meta made Llama 4 Scout available for download on April 5, 2025."
+          "namespace": "huggingface",
+          "value": "meta-llama/Llama-4-Scout-17B-16E-Instruct",
+          "kind": "weights"
         }
-      ]
+      ],
+      "relationships": [],
+      "availability_events": [
+        {
+          "channel": "weights",
+          "stage": "public",
+          "date": "2025-04-05",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Meta",
+              "title": "The Llama 4 herd: The beginning of a new era of natively multimodal AI innovation",
+              "url": "https://ai.meta.com/blog/llama-4-multimodal-intelligence/",
+              "evidence": "Meta made Llama 4 Scout available for download on April 5, 2025."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "active",
+          "date": "2026-07-20",
+          "date_role": "observed",
+          "channel": "weights",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Meta",
+              "title": "Official model repository",
+              "url": "https://huggingface.co/meta-llama/Llama-4-Scout-17B-16E-Instruct",
+              "evidence": "Meta's official model repository remained publicly available when verified on 2026-07-20."
+            }
+          ]
+        }
+      ],
+      "verified_at": "2026-07-20"
     }
   ]
 }

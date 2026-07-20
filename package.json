@@ -7,9 +7,10 @@
     "node": "24.x"
   },
   "scripts": {
-    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
-    "build": "npm run clean && tsc",
-    "check": "tsc --noEmit",
+    "clean": "node -e \"const fs = require('node:fs'); fs.rmSync('dist', { recursive: true, force: true }); fs.rmSync('public/app.js', { force: true }); fs.rmSync('public/api.js', { force: true })\"",
+    "build": "npm run clean && tsc && npm run build:web",
+    "build:web": "tsc -p tsconfig.web.json",
+    "check": "tsc --noEmit && tsc -p tsconfig.web.json --noEmit",
     "test": "npm run build && node --test dist/test/*.test.js",
     "test:coverage": "npm run build && node --test --experimental-test-coverage --test-coverage-lines=100 --test-coverage-branches=100 --test-coverage-functions=100 dist/test/*.test.js"
   },

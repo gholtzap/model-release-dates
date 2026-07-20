@@ -13,6 +13,7 @@ function get(request: Request): Response {
     meta: {
       schema_version: dataset.schema_version,
       researched_at: dataset.researched_at,
+      coverage: dataset.coverage,
     },
   });
 }

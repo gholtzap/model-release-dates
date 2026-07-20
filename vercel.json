@@ -1,6 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "public",
   "rewrites": [
+    {
+      "source": "/api/identifiers/:namespace/:identifier",
+      "destination": "/api/identifier"
+    },
     {
       "source": "/api/models/:provider/:model",
       "destination": "/api/model"
@@ -11,6 +17,9 @@
       "includeFiles": "model-release-dates.json"
     },
     "api/model.ts": {
+      "includeFiles": "model-release-dates.json"
+    },
+    "api/identifier.ts": {
       "includeFiles": "model-release-dates.json"
     }
   }

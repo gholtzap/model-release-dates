@@ -1,86 +1,138 @@
 # IN PROGRESS - NOT DONE YET
-# Model Release Date API
 
-This project provides one read-only, source-backed API for answering questions such as:
+# AI Model Release Date API
 
-- When was a specific model first available to developers?
-- Which models did a provider release during a date range?
-- Was a model released through an API, downloadable weights, or both?
+I was surprised there was no reliable, developer-friendly source for AI model release dates, so I built one. This read-only API answers practical questions about when a model became usable, which upstream identifiers refer to it, how aliases and snapshots relate, and whether an API model is active, deprecated, retired, or scheduled for retirement.
 
-A release date means the first public developer availability through an official API or downloadable weights. Public previews count; private previews and announcements without access do not.
+Every availability and lifecycle event is backed by first-party evidence. The catalog is curated and intentionally non-exhaustive; every response states its research date and inclusion criteria so missing records are not mistaken for confirmed absence.
 
-## Get one model
+## Try it
+
+Open the deployment root to use the web explorer. It can list and filter models, retrieve a canonical model, or resolve an exact provider API or Hugging Face identifier. It also shows the generated URL, cURL command, structured timelines, and raw JSON.
+
+Replace `https://<your-domain>` below with the Vercel deployment URL.
+
+### Resolve an upstream identifier
+
+Use this when the ID in your application does not match the catalog's canonical `provider/model` ID:
+
+```sh
+curl 'https://<your-domain>/api/identifiers/deepseek-api/deepseek-reasoner'
+```
+
+The response resolves `deepseek-reasoner` to `deepseek-ai/deepseek-r1` and includes the exact match in `meta.matched_identifier`. URL-encode identifiers containing `/`, such as Hugging Face repository IDs.
+
+Supported namespaces currently include `openai-api`, `anthropic-api`, `gemini-api`, `deepseek-api`, and `huggingface`. Identifier matching is exact and case-sensitive. Unknown identifiers return `404` with `error.code` set to `identifier_not_found`.
+
+### Get one canonical model
 
 ```sh
 curl 'https://<your-domain>/api/models/openai/gpt-4o'
 ```
 
-```json
-{
-  "data": {
-    "model": "openai/gpt-4o",
-    "identifier_type": "model",
-    "availability": ["api"],
-    "release_date": "2024-05-13",
-    "confidence": "confirmed",
-    "sources": [
-      {
-        "publisher": "OpenAI",
-        "title": "Hello GPT-4o",
-        "url": "https://openai.com/index/hello-gpt-4o/",
-        "evidence": "OpenAI publicly released GPT-4o text and image capabilities on May 13, 2024."
-      }
-    ]
-  },
-  "meta": {
-    "schema_version": 1,
-    "researched_at": "2026-07-20"
-  }
-}
-```
+Model IDs use `provider/model` format. Unknown models return `404` with `error.code` set to `model_not_found`.
 
-Model IDs use `provider/model` format. An unknown model returns `404` with `error.code` set to `model_not_found`.
-
-## Search models
+### Search and filter models
 
 ```sh
-curl 'https://<your-domain>/api/models?provider=openai&from=2025-01-01&to=2025-12-31&sort=release_date&order=desc'
+curl 'https://<your-domain>/api/models?provider=anthropic&lifecycle_status=retired&sort=release_date&order=desc'
 ```
 
-`GET /api/models` accepts these query parameters:
+`GET /api/models` accepts:
 
 | Parameter | Accepted value |
 | --- | --- |
-| `q` | Case-insensitive substring of a model ID |
-| `provider` | Provider prefix, such as `openai`, `anthropic`, or `meta` |
+| `q` | Case-insensitive substring of a canonical ID, display name, or upstream identifier |
+| `provider` | Provider ID such as `openai`, `anthropic`, `google`, `deepseek-ai`, or `meta` |
+| `identifier_namespace` | Exact namespace, such as `openai-api` or `huggingface` |
+| `identifier` | Exact upstream identifier; combine with `identifier_namespace` when possible |
 | `identifier_type` | `model`, `snapshot`, or `weights` |
 | `availability` | `api` or `weights` |
+| `availability_stage` | `public_preview` or `public` |
+| `lifecycle_status` | `unknown`, `active`, `deprecated`, `retired`, or `retirement_scheduled` |
 | `confidence` | `confirmed` |
-| `from` / `to` | Inclusive `YYYY-MM-DD` date bounds |
+| `from` / `to` | Inclusive `YYYY-MM-DD` bounds on the derived release date |
 | `sort` | `release_date` (default) or `model` |
 | `order` | `asc` (default) or `desc` |
-| `limit` | 1–100; defaults to 50 |
-| `offset` | Zero-based offset; defaults to 0 |
+| `limit` | 1–100; default 50 |
+| `offset` | Zero-based offset; default 0 |
 
-Filters can be combined. The response contains `data` plus pagination metadata:
+Filters can be combined. `meta.total` is the number of matches before pagination; `meta.count` is the number returned. Invalid, unknown, or repeated query parameters return `400` with `error.code` set to `invalid_query`.
+
+## Response model
+
+Schema version 2 keeps evidence on the event it supports:
 
 ```json
 {
-  "data": [],
+  "data": {
+    "model": "deepseek-ai/deepseek-r1",
+    "display_name": "DeepSeek R1",
+    "provider_id": "deepseek-ai",
+    "provider": {
+      "id": "deepseek-ai",
+      "name": "DeepSeek",
+      "website": "https://www.deepseek.com/"
+    },
+    "identifiers": [
+      { "namespace": "deepseek-api", "value": "deepseek-reasoner", "kind": "alias" },
+      { "namespace": "huggingface", "value": "deepseek-ai/DeepSeek-R1", "kind": "weights" }
+    ],
+    "relationships": [],
+    "availability_events": [
+      {
+        "channel": "api",
+        "stage": "public",
+        "date": "2025-01-20",
+        "confidence": "confirmed",
+        "sources": [{ "publisher": "DeepSeek", "title": "...", "url": "https://...", "evidence": "..." }]
+      }
+    ],
+    "lifecycle_events": [
+      {
+        "status": "retirement_scheduled",
+        "date": "2026-07-24",
+        "date_role": "scheduled",
+        "channel": "api",
+        "identifier": { "namespace": "deepseek-api", "value": "deepseek-reasoner" },
+        "confidence": "confirmed",
+        "sources": [{ "publisher": "DeepSeek", "title": "...", "url": "https://...", "evidence": "..." }]
+      }
+    ],
+    "verified_at": "2026-07-20",
+    "release_date": "2025-01-20",
+    "release_date_precision": "day",
+    "availability": ["api", "weights"],
+    "confidence": "confirmed",
+    "sources": [
+      { "publisher": "DeepSeek", "title": "...", "url": "https://...", "evidence": "..." }
+    ],
+    "lifecycle_status": "retirement_scheduled"
+  },
   "meta": {
-    "schema_version": 1,
+    "schema_version": 2,
     "researched_at": "2026-07-20",
-    "total": 0,
-    "count": 0,
-    "limit": 50,
-    "offset": 0
+    "coverage": {
+      "exhaustive": false,
+      "statement": "...",
+      "provider_inclusion_criteria": "...",
+      "model_inclusion_criteria": "..."
+    }
   }
 }
 ```
 
-`total` is the number of matching records before pagination; `count` is the number returned. Invalid or repeated parameters return `400` with `error.code` set to `invalid_query`.
+`release_date`, `release_date_precision`, `availability`, `confidence`, and `sources` are compatibility fields derived from the earliest qualifying availability event. New integrations should use `availability_events` when channel-specific timing matters. Dates can have `day`, `month`, or `year` precision; partial dates are normalized to the first day of their period only in the compatibility `release_date`.
 
-## Run locally
+`lifecycle_status` is the latest cataloged lifecycle state. Consult `lifecycle_events` for whether a date was observed, announced, effective, or scheduled and whether it applies to a particular channel or identifier.
+
+## Coverage policy
+
+The catalog includes notable foundation models from providers with authoritative, publicly accessible release evidence. A model is included when public developer availability through an official API or downloadable official weights can be dated. Public previews qualify; private previews and announcements without access do not.
+
+The catalog does not claim to list every provider, model, regional rollout, hosting platform, or post-research-date change. `verified_at` is model-specific; `meta.researched_at` is the dataset research cutoff.
+
+## Run and verify locally
 
 Node.js 24 is the deployment runtime.
 
@@ -92,12 +144,10 @@ npm run test:coverage
 npx vercel dev
 ```
 
-The tests exercise every published model lookup, combined filters, inclusive dates, sorting, complete pagination, request failures, HTTP headers, Vercel routing, and dataset corruption cases. Coverage is enforced at 100% for production lines, branches, and functions.
+The suite validates schema invariants and corrupt-data rejection, retrieves every canonical model, resolves every official identifier, exercises real combined filters and pagination, checks the browser client against the handlers, and verifies routing and HTTP behavior. Production source, branch, and function coverage are enforced at 100%.
 
-The project uses strict TypeScript, native Vercel Functions, and `model-release-dates.json` as its data source. The dataset is validated at startup; malformed dates, duplicate model IDs, unsupported enum values, or invalid sources prevent the API from serving bad data.
+## Deploy on Vercel
 
-## Deploy
+Import the repository without a framework preset, database, secrets, or environment variables. `vercel.json` builds the static explorer, bundles `model-release-dates.json` into each function, and configures the public item and identifier routes.
 
-Import the repository into Vercel without a framework preset, database, environment variables, or custom build command. `vercel.json` bundles the dataset and routes `/api/models/:provider/:model` to the individual-model handler.
-
-To update the API, edit `model-release-dates.json`, run `npm test`, and deploy the new commit.
+To update the catalog, edit `model-release-dates.json`, keep evidence on the relevant event, update `verified_at` and `researched_at`, run `npm run test:coverage`, and deploy the tested commit.

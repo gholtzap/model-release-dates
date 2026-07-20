@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 
 import modelHandler from "../api/model.js";
 import modelsHandler from "../api/models.js";
+import identifierHandler from "../api/identifier.js";
 
 export type JsonRecord = Record<string, unknown>;
 
@@ -34,6 +35,13 @@ export function itemRequest(provider: string, model: string, method = "GET"): Re
   url.searchParams.set("provider", provider);
   url.searchParams.set("model", model);
   return modelHandler.fetch(new Request(url, { method }));
+}
+
+export function identifierRequest(namespace: string, identifier: string, method = "GET"): Response {
+  const url = new URL("https://example.test/api/identifier");
+  url.searchParams.set("namespace", namespace);
+  url.searchParams.set("identifier", identifier);
+  return identifierHandler.fetch(new Request(url, { method }));
 }
 
 export async function modelsFrom(response: Response): Promise<JsonRecord[]> {

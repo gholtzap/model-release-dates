@@ -1,3 +1,5 @@
 dist/
 node_modules/
 .vercel/
+public/app.js
+public/api.js

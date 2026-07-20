@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { dataset } from "../src/data.js";
+import { dataset, models, modelsByIdentifier } from "../src/data.js";
+import { identifierKey } from "../src/types.js";
 import { handleRequest } from "../src/http.js";
 import {
   asArray,
   asRecord,
+  identifierRequest,
   itemRequest,
   listRequest,
   modelIds,
@@ -42,7 +44,7 @@ test("the default list returns every model in chronological order", async () => 
 });
 
 test("every published model can be retrieved by its public item URL", async (context) => {
-  for (const expected of dataset.models) {
+  for (const expected of models) {
     await context.test(expected.model, async () => {
       const separator = expected.model.indexOf("/");
       const provider = expected.model.slice(0, separator);
@@ -55,8 +57,33 @@ test("every published model can be retrieved by its public item URL", async (con
       assert.deepEqual(body["meta"], {
         schema_version: dataset.schema_version,
         researched_at: dataset.researched_at,
+        coverage: dataset.coverage,
       });
     });
+  }
+});
+
+test("every official identifier resolves to exactly its canonical model", async (context) => {
+  for (const catalogModel of dataset.models) {
+    for (const identifier of catalogModel.identifiers) {
+      const name = `${identifier.namespace}/${identifier.value}`;
+      await context.test(name, async () => {
+        const response = identifierRequest(identifier.namespace, identifier.value);
+        const body = await responseBody(response);
+        const resolved = asRecord(body["data"]);
+        const meta = asRecord(body["meta"]);
+        assert.equal(response.status, 200);
+        assert.equal(resolved["model"], catalogModel.model);
+        assert.deepEqual(meta["matched_identifier"], {
+          namespace: identifier.namespace,
+          value: identifier.value,
+        });
+        assert.equal(
+          modelsByIdentifier.get(identifierKey(identifier))?.model,
+          catalogModel.model,
+        );
+      });
+    }
   }
 });
 
@@ -123,6 +150,28 @@ test("model search is case-insensitive and can return related identifiers", asyn
     "openai/gpt-4o-2024-05-13",
     "openai/gpt-4o-mini",
   ]);
+});
+
+test("users can query exact upstream identifiers, namespaces, stages, and lifecycle states", async () => {
+  assert.deepEqual(
+    modelIds(await modelsFrom(listRequest("identifier_namespace=deepseek-api&identifier=deepseek-reasoner"))),
+    ["deepseek-ai/deepseek-r1"],
+  );
+  assert.ok(
+    (await modelsFrom(listRequest("identifier_namespace=huggingface"))).every((model) =>
+      asArray(model["identifiers"]).map(asRecord).some((identifier) => identifier["namespace"] === "huggingface"),
+    ),
+  );
+  const previews = await modelsFrom(listRequest("availability_stage=public_preview"));
+  assert.ok(previews.length > 0);
+  assert.ok(previews.every((model) => asArray(model["availability_events"]).map(asRecord).some((event) => event["stage"] === "public_preview")));
+  const retired = await modelsFrom(listRequest("lifecycle_status=retired"));
+  assert.ok(retired.length > 0);
+  assert.ok(retired.every((model) => model["lifecycle_status"] === "retired"));
+  assert.deepEqual(
+    modelIds(await modelsFrom(listRequest("q=DEEPSEEK-REASONER"))),
+    ["deepseek-ai/deepseek-r1"],
+  );
 });
 
 test("users can combine provider, channel, date, sorting, and pagination filters", async () => {
@@ -196,8 +245,13 @@ test("bad list queries fail loudly instead of returning misleading results", asy
     [`q=${"x".repeat(201)}`, "cannot exceed 200"],
     ["provider=OpenAI", "provider is malformed"],
     ["provider=openai&provider=google", "must appear once"],
+    ["identifier_namespace=OpenAI", "identifier_namespace is malformed"],
+    ["identifier=bad%20value", "identifier is malformed"],
+    [`identifier=${"x".repeat(201)}`, "identifier is malformed"],
     ["identifier_type=alias", "must be one of"],
     ["availability=private", "must be one of"],
+    ["availability_stage=private", "must be one of"],
+    ["lifecycle_status=sunset", "must be one of"],
     ["confidence=likely", "must be one of"],
     ["from=2025-02-30", "real ISO date"],
     ["to=2025-1-01", "real ISO date"],
@@ -222,6 +276,30 @@ test("bad list queries fail loudly instead of returning misleading results", asy
       assert.equal(response.headers.get("cache-control"), "no-store");
     });
   }
+});
+
+test("bad or unknown identifier lookups return stable errors", async (context) => {
+  const malformedRequests = [
+    "https://example.test/api/identifier?identifier=gpt-4o",
+    "https://example.test/api/identifier?namespace=openai-api",
+    "https://example.test/api/identifier?namespace=OpenAI&identifier=gpt-4o",
+    "https://example.test/api/identifier?namespace=openai-api&identifier=bad%20value",
+    "https://example.test/api/identifier?namespace=openai-api&identifier=gpt-4o&extra=true",
+  ];
+  const handler = (await import("../api/identifier.js")).default;
+  for (const url of malformedRequests) {
+    await context.test(url, async () => {
+      const response = handler.fetch(new Request(url));
+      const error = asRecord((await responseBody(response))["error"]);
+      assert.equal(response.status, 400);
+      assert.equal(error["code"], "invalid_query");
+    });
+  }
+
+  const missing = identifierRequest("openai-api", "not-real");
+  const error = asRecord((await responseBody(missing))["error"]);
+  assert.equal(missing.status, 404);
+  assert.equal(error["code"], "identifier_not_found");
 });
 
 test("bad or unknown item lookups return stable errors", async (context) => {
