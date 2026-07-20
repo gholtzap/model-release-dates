@@ -1,5 +1,3 @@
-# IN PROGRESS - NOT DONE YET
-
 # AI Model Release Date API
 
 I was surprised there was no reliable, developer-friendly source for AI model release dates, so I built one. This read-only API answers practical questions about when a model became usable, which upstream identifiers refer to it, how aliases and snapshots relate, and whether an API model is active, deprecated, retired, or scheduled for retirement.
@@ -10,14 +8,14 @@ Every availability and lifecycle event is source-backed, with first-party eviden
 
 Open the deployment root to use the web explorer. It can list and filter models, retrieve a canonical model, or resolve an exact provider API or Hugging Face identifier. It also shows the generated URL, cURL command, structured timelines, and raw JSON.
 
-Replace `https://<your-domain>` below with the Vercel deployment URL.
+The API is deployed at `https://model-release-dates.vercel.app`.
 
 ### Resolve an upstream identifier
 
 Use this when the ID in your application does not match the catalog's canonical `provider/model` ID:
 
 ```sh
-curl 'https://<your-domain>/api/identifiers/deepseek-api/deepseek-reasoner'
+curl 'https://model-release-dates.vercel.app/api/identifiers/deepseek-api/deepseek-reasoner'
 ```
 
 The response resolves `deepseek-reasoner` to `deepseek-ai/deepseek-r1` and includes the exact match in `meta.matched_identifier`. URL-encode identifiers containing `/`, such as Hugging Face repository IDs.
@@ -27,7 +25,7 @@ Supported namespaces currently include `openai-api`, `anthropic-api`, `gemini-ap
 ### Get one canonical model
 
 ```sh
-curl 'https://<your-domain>/api/models/openai/gpt-4o'
+curl 'https://model-release-dates.vercel.app/api/models/openai/gpt-4o'
 ```
 
 Canonical model IDs use `provider/model` format and remain stable even when a provider's exact identifier uses different spelling or changes aliases. Anthropic canonical lookups treat dots and dashes between numeric version components as equivalent, so `claude-3.5-sonnet` and `claude-3-5-sonnet` resolve to the same record. Exact upstream identifiers live in `identifiers` and can be resolved through `/api/identifiers/:namespace/:identifier`; those matches remain exact and case-sensitive. Unknown models return `404` with `error.code` set to `model_not_found`.
@@ -35,7 +33,7 @@ Canonical model IDs use `provider/model` format and remain stable even when a pr
 ### Search and filter models
 
 ```sh
-curl 'https://<your-domain>/api/models?provider=anthropic&lifecycle_status=retired&sort=release_date&order=desc'
+curl 'https://model-release-dates.vercel.app/api/models?provider=anthropic&lifecycle_status=retired&sort=release_date&order=desc'
 ```
 
 `GET /api/models` accepts:
