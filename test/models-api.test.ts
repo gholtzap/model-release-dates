@@ -63,6 +63,23 @@ test("every published model can be retrieved by its public item URL", async (con
   }
 });
 
+test("Anthropic canonical lookups treat numeric version dots and dashes as aliases", async (context) => {
+  const aliasedModels = models.filter(
+    (model) => model.provider_id === "anthropic" && /(\d)\.(?=\d)/.test(model.model),
+  );
+
+  for (const expected of aliasedModels) {
+    await context.test(expected.model, async () => {
+      const alias = expected.model.slice("anthropic/".length).replace(/(\d)\.(?=\d)/g, "$1-");
+      const response = itemRequest("anthropic", alias);
+      const body = await responseBody(response);
+
+      assert.equal(response.status, 200);
+      assert.deepEqual(body["data"], expected);
+    });
+  }
+});
+
 test("every official identifier resolves to exactly its canonical model", async (context) => {
   for (const catalogModel of dataset.models) {
     for (const identifier of catalogModel.identifiers) {

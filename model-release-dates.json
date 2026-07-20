@@ -1,10 +1,10 @@
 {
   "schema_version": 2,
-  "release_date_definition": "First public developer availability of the named upstream model through an official API or downloadable weights. Public preview or experimental availability counts; private previews and announcements without access do not.",
+  "release_date_definition": "First public developer availability of the named upstream model through an official API or downloadable weights. For canonical model-family records, availability through an earlier preview or experimental identifier counts; the exact identifiers and their kinds are listed separately. Private previews and announcements without access do not count.",
   "identifier_type_definition": {
-    "model": "A named API model that is not pinned to a dated snapshot.",
-    "snapshot": "A date-pinned API model identifier.",
-    "weights": "A named downloadable model-weight release."
+    "model": "A canonical catalog record for a named API model or model family that is not itself a dated snapshot.",
+    "snapshot": "A canonical catalog record for a date-pinned API model; exact provider spelling is stored in identifiers.",
+    "weights": "A canonical catalog record for a named downloadable model-weight release; exact repository identifiers are stored in identifiers."
   },
   "identifier_kind_definition": {
     "model": "A fixed official identifier that is neither a rolling alias nor a dated snapshot.",

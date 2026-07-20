@@ -1,10 +1,10 @@
-import { dataset, modelsById } from "../src/data.js";
+import { dataset, findModelById } from "../src/data.js";
 import { handleRequest, HttpError, jsonResponse } from "../src/http.js";
 import { parseModelId } from "../src/query.js";
 
 function get(request: Request): Response {
   const modelId = parseModelId(new URL(request.url));
-  const model = modelsById.get(modelId);
+  const model = findModelById(modelId);
   if (model === undefined) {
     throw new HttpError(404, "model_not_found", `Model ${modelId} was not found`);
   }

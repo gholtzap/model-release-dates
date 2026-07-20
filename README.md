@@ -4,7 +4,7 @@
 
 I was surprised there was no reliable, developer-friendly source for AI model release dates, so I built one. This read-only API answers practical questions about when a model became usable, which upstream identifiers refer to it, how aliases and snapshots relate, and whether an API model is active, deprecated, retired, or scheduled for retirement.
 
-Every availability and lifecycle event is backed by first-party evidence. The catalog is curated and intentionally non-exhaustive; every response states its research date and inclusion criteria so missing records are not mistaken for confirmed absence.
+Every availability and lifecycle event is source-backed, with first-party evidence used wherever a surviving dated source is available. The catalog is curated and intentionally non-exhaustive; every response states its research date and inclusion criteria so missing records are not mistaken for confirmed absence.
 
 ## Try it
 
@@ -30,7 +30,7 @@ Supported namespaces currently include `openai-api`, `anthropic-api`, `gemini-ap
 curl 'https://<your-domain>/api/models/openai/gpt-4o'
 ```
 
-Model IDs use `provider/model` format. Unknown models return `404` with `error.code` set to `model_not_found`.
+Canonical model IDs use `provider/model` format and remain stable even when a provider's exact identifier uses different spelling or changes aliases. Anthropic canonical lookups treat dots and dashes between numeric version components as equivalent, so `claude-3.5-sonnet` and `claude-3-5-sonnet` resolve to the same record. Exact upstream identifiers live in `identifiers` and can be resolved through `/api/identifiers/:namespace/:identifier`; those matches remain exact and case-sensitive. Unknown models return `404` with `error.code` set to `model_not_found`.
 
 ### Search and filter models
 
