@@ -125,7 +125,7 @@ let mobilePanel: MobilePanel = "query";
 let offset = 0;
 let total = 0;
 let selectedModelId: string | undefined;
-let lastResponse: unknown = {};
+let lastResponse: object = {};
 
 function sortField(): SortField {
   return sortInput.value === "model" ? "model" : "release_date";
@@ -211,8 +211,8 @@ function clearError(): void {
   errorBanner.textContent = "";
 }
 
-function showError(error: unknown): void {
-  const message = error instanceof Error ? error.message : "The request failed";
+function showError(error: Error): void {
+  const message = error.message;
   const code = error instanceof ApiClientError ? error.code : "client_error";
   errorBanner.textContent = `${code}: ${message}`;
   errorBanner.hidden = false;
@@ -532,8 +532,8 @@ async function runListRequest(): Promise<void> {
       clearDetail();
     }
     showMobilePanel("results", true);
-  } catch (error: unknown) {
-    showError(error);
+  } catch (error) {
+    showError(error instanceof Error ? error : new Error("The request failed"));
     showMobilePanel("results", true);
   } finally {
     setBusy(false);
@@ -556,12 +556,12 @@ async function runItemRequest(): Promise<void> {
     renderCoverage(response.meta.coverage, response.meta.researched_at);
     setStatus("success", `200 OK · 1 model · ${Math.round(performance.now() - startedAt)} ms`);
     showMobilePanel("detail", true);
-  } catch (error: unknown) {
+  } catch (error) {
     total = 0;
     renderModels([]);
     renderPagination(0);
     clearDetail();
-    showError(error);
+    showError(error instanceof Error ? error : new Error("The request failed"));
     showMobilePanel("results", true);
   } finally {
     setBusy(false);
@@ -588,12 +588,12 @@ async function runIdentifierRequest(): Promise<void> {
     renderCoverage(response.meta.coverage, response.meta.researched_at);
     setStatus("success", `200 OK · identifier resolved · ${Math.round(performance.now() - startedAt)} ms`);
     showMobilePanel("detail", true);
-  } catch (error: unknown) {
+  } catch (error) {
     total = 0;
     renderModels([]);
     renderPagination(0);
     clearDetail();
-    showError(error);
+    showError(error instanceof Error ? error : new Error("The request failed"));
     showMobilePanel("results", true);
   } finally {
     setBusy(false);
@@ -617,8 +617,8 @@ async function inspectModel(modelId: string): Promise<void> {
     renderCoverage(response.meta.coverage, response.meta.researched_at);
     setStatus("success", `200 OK · item endpoint · ${Math.round(performance.now() - startedAt)} ms`);
     showMobilePanel("detail", true);
-  } catch (error: unknown) {
-    showError(error);
+  } catch (error) {
+    showError(error instanceof Error ? error : new Error("The request failed"));
   } finally {
     detailPanel.setAttribute("aria-busy", "false");
   }

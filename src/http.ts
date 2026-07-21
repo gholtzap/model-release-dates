@@ -30,7 +30,7 @@ function headers(cache: boolean): Headers {
   return result;
 }
 
-export function jsonResponse(value: unknown, status = 200): Response {
+export function jsonResponse(value: object, status = 200): Response {
   return new Response(JSON.stringify(value), {
     status,
     headers: headers(status >= 200 && status < 300),
@@ -69,7 +69,7 @@ export function handleRequest(request: Request, get: GetHandler): Response {
       return new Response(null, { status: response.status, headers: response.headers });
     }
     return response;
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof HttpError) {
       return errorResponse(error);
     }

@@ -10,6 +10,7 @@ import {
   parseDataset,
   projectModel,
   type CatalogModel,
+  type JsonValue,
   type Provider,
 } from "../src/types.js";
 import { asArray, asRecord, type JsonRecord } from "./helpers.js";
@@ -44,10 +45,10 @@ interface InvalidDatasetCase {
   readonly mutate: (candidate: JsonRecord) => void;
 }
 
-function assertInvalid(candidate: unknown, message: RegExp): void {
+function assertInvalid(candidate: JsonValue, message: RegExp): void {
   assert.throws(
     () => parseDataset(candidate),
-    (error: unknown) => error instanceof DatasetValidationError && message.test(error.message),
+    (error) => error instanceof DatasetValidationError && message.test(error.message),
   );
 }
 
@@ -148,7 +149,7 @@ test("top-level, coverage, definition, and provider violations are rejected", as
     { name: "provider ID malformed", message: /providers\[0\].id is malformed/, mutate: (value) => { asRecord(asArray(value["providers"])[0])["id"] = "Open AI"; } },
     { name: "provider URL invalid", message: /website must be a valid URL/, mutate: (value) => { asRecord(asArray(value["providers"])[0])["website"] = "nope"; } },
     { name: "provider URL insecure", message: /website must use HTTPS/, mutate: (value) => { asRecord(asArray(value["providers"])[0])["website"] = "http://example.com"; } },
-    { name: "duplicate provider", message: /duplicate provider IDs/, mutate: (value) => { const providers = asArray(value["providers"]); providers.push(structuredClone(providers[0])); } },
+    { name: "duplicate provider", message: /duplicate provider IDs/, mutate: (value) => { const providers = asArray(value["providers"]); providers.push(structuredClone(providers[0]!)); } },
   ]);
 });
 
@@ -172,15 +173,15 @@ test("model, identifier, and relationship violations are rejected", async (conte
     { name: "identifier value malformed", message: /value is malformed/, mutate: (value) => { firstIdentifier(value)["value"] = "bad value"; } },
     { name: "identifier value too long", message: /value is malformed/, mutate: (value) => { firstIdentifier(value)["value"] = "x".repeat(201); } },
     { name: "identifier kind unsupported", message: /kind is not supported/, mutate: (value) => { firstIdentifier(value)["kind"] = "route"; } },
-    { name: "identifier duplicate within model", message: /identifiers contains duplicates/, mutate: (value) => { const list = asArray(firstModel(value)["identifiers"]); list.push(structuredClone(list[0])); } },
-    { name: "identifier duplicate across models", message: /duplicate identifier/, mutate: (value) => { const modelsValue = asArray(value["models"]); asRecord(asArray(asRecord(modelsValue[1])["identifiers"])[0])["namespace"] = firstIdentifier(value)["namespace"]; asRecord(asArray(asRecord(modelsValue[1])["identifiers"])[0])["value"] = firstIdentifier(value)["value"]; } },
-    { name: "duplicate model", message: /duplicate model/, mutate: (value) => { const list = asArray(value["models"]); list.push(structuredClone(list[0])); } },
+    { name: "identifier duplicate within model", message: /identifiers contains duplicates/, mutate: (value) => { const list = asArray(firstModel(value)["identifiers"]); list.push(structuredClone(list[0]!)); } },
+    { name: "identifier duplicate across models", message: /duplicate identifier/, mutate: (value) => { const modelsValue = asArray(value["models"]); asRecord(asArray(asRecord(modelsValue[1])["identifiers"])[0])["namespace"] = firstIdentifier(value)["namespace"]!; asRecord(asArray(asRecord(modelsValue[1])["identifiers"])[0])["value"] = firstIdentifier(value)["value"]!; } },
+    { name: "duplicate model", message: /duplicate model/, mutate: (value) => { const list = asArray(value["models"]); list.push(structuredClone(list[0]!)); } },
     { name: "relationships not array", message: /relationships must be an array/, mutate: (value) => { firstModel(value)["relationships"] = null; } },
     { name: "relationship unknown field", message: /relationships\[0\].extra is not supported/, mutate: (value) => { const model = asRecord(asArray(value["models"])[4]); asRecord(asArray(model["relationships"])[0])["extra"] = true; } },
     { name: "relationship unsupported", message: /type is not supported/, mutate: (value) => { const model = asRecord(asArray(value["models"])[4]); asRecord(asArray(model["relationships"])[0])["type"] = "variant_of"; } },
     { name: "relationship target unknown", message: /references unknown model/, mutate: (value) => { const model = asRecord(asArray(value["models"])[4]); asRecord(asArray(model["relationships"])[0])["target_model"] = "openai/missing"; } },
-    { name: "relationship self reference", message: /cannot relate to itself/, mutate: (value) => { const model = asRecord(asArray(value["models"])[4]); asRecord(asArray(model["relationships"])[0])["target_model"] = model["model"]; } },
-    { name: "duplicate relationship", message: /duplicate relationships/, mutate: (value) => { const model = asRecord(asArray(value["models"])[4]); const list = asArray(model["relationships"]); list.push(structuredClone(list[0])); } },
+    { name: "relationship self reference", message: /cannot relate to itself/, mutate: (value) => { const model = asRecord(asArray(value["models"])[4]); asRecord(asArray(model["relationships"])[0])["target_model"] = model["model"]!; } },
+    { name: "duplicate relationship", message: /duplicate relationships/, mutate: (value) => { const model = asRecord(asArray(value["models"])[4]); const list = asArray(model["relationships"]); list.push(structuredClone(list[0]!)); } },
   ]);
 });
 

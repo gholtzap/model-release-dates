@@ -3,10 +3,11 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import test from "node:test";
 
-import { asArray, asRecord } from "./helpers.js";
+import { asArray, asRecord, type JsonRecord } from "./helpers.js";
+import type { JsonValue } from "../src/types.js";
 
-function vercelConfig(): Record<string, unknown> {
-  const rawConfig: unknown = JSON.parse(
+function vercelConfig(): JsonRecord {
+  const rawConfig: JsonValue = JSON.parse(
     readFileSync(resolve(process.cwd(), "vercel.json"), "utf8"),
   );
   return asRecord(rawConfig);

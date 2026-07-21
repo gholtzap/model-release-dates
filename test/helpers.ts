@@ -3,17 +3,18 @@ import assert from "node:assert/strict";
 import modelHandler from "../api/model.js";
 import modelsHandler from "../api/models.js";
 import identifierHandler from "../api/identifier.js";
+import type { JsonObject, JsonValue } from "../src/types.js";
 
-export type JsonRecord = Record<string, unknown>;
+export type JsonRecord = JsonObject;
 
-export function asRecord(value: unknown): JsonRecord {
+export function asRecord(value: JsonValue | object | undefined): JsonRecord {
   assert.equal(typeof value, "object");
   assert.notEqual(value, null);
   assert.equal(Array.isArray(value), false);
   return value as JsonRecord;
 }
 
-export function asArray(value: unknown): unknown[] {
+export function asArray(value: JsonValue | object | undefined): JsonValue[] {
   if (!Array.isArray(value)) {
     throw new TypeError("Expected an array");
   }
@@ -21,7 +22,7 @@ export function asArray(value: unknown): unknown[] {
 }
 
 export async function responseBody(response: Response): Promise<JsonRecord> {
-  const value: unknown = await response.json();
+  const value: JsonValue = await response.json();
   return asRecord(value);
 }
 

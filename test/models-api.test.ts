@@ -374,7 +374,7 @@ test("success, preflight, HEAD, and method errors expose usable HTTP headers", a
 
 test("unexpected handler failures return a generic 500 without leaking details", async () => {
   const originalError = console.error;
-  console.error = (..._values: readonly unknown[]): void => {};
+  console.error = (..._values: Parameters<typeof console.error>): void => {};
   try {
     const response = handleRequest(new Request("https://example.test/api/test"), () => {
       throw new Error("private implementation detail");

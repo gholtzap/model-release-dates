@@ -23,6 +23,9 @@ export type LifecycleEventStatus = (typeof LIFECYCLE_EVENT_STATUSES)[number];
 export type LifecycleDateRole = (typeof LIFECYCLE_DATE_ROLES)[number];
 export type LifecycleStatus = "unknown" | LifecycleEventStatus;
 export type RelationshipType = (typeof RELATIONSHIP_TYPES)[number];
+export type JsonValue = string | number | boolean | null | JsonObject | JsonValue[];
+export type JsonObject = { [key: string]: JsonValue };
+type JsonInput = JsonValue | undefined;
 
 export interface Source {
   readonly publisher: string;
@@ -126,11 +129,11 @@ export class DatasetValidationError extends Error {
   }
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+function isRecord(value: JsonInput | Dataset): value is JsonObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function readRecord(value: unknown, path: string): Record<string, unknown> {
+function readRecord(value: JsonInput | Dataset, path: string): JsonObject {
   if (!isRecord(value)) {
     throw new DatasetValidationError(`${path} must be an object`);
   }
@@ -138,7 +141,7 @@ function readRecord(value: unknown, path: string): Record<string, unknown> {
 }
 
 function requireKeys(
-  record: Record<string, unknown>,
+  record: JsonObject,
   required: readonly string[],
   optional: readonly string[],
   path: string,
@@ -157,14 +160,14 @@ function requireKeys(
 }
 
 function requireExactKeys(
-  record: Record<string, unknown>,
+  record: JsonObject,
   keys: readonly string[],
   path: string,
 ): void {
   requireKeys(record, keys, [], path);
 }
 
-function readString(record: Record<string, unknown>, key: string, path: string): string {
+function readString(record: JsonObject, key: string, path: string): string {
   const value = record[key];
   if (typeof value !== "string" || value.trim() === "") {
     throw new DatasetValidationError(`${path}.${key} must be a non-empty string`);
@@ -173,7 +176,7 @@ function readString(record: Record<string, unknown>, key: string, path: string):
 }
 
 function readOptionalString(
-  record: Record<string, unknown>,
+  record: JsonObject,
   key: string,
   path: string,
 ): string | undefined {
@@ -184,11 +187,11 @@ function readOptionalString(
 }
 
 function readArray(
-  record: Record<string, unknown>,
+  record: JsonObject,
   key: string,
   path: string,
   allowEmpty = false,
-): readonly unknown[] {
+): readonly JsonValue[] {
   const value = record[key];
   if (!Array.isArray(value) || (!allowEmpty && value.length === 0)) {
     const qualifier = allowEmpty ? "an array" : "a non-empty array";
@@ -218,7 +221,7 @@ function includes<T extends string>(values: readonly T[], value: string): value 
 }
 
 function readEnum<T extends string>(
-  record: Record<string, unknown>,
+  record: JsonObject,
   key: string,
   values: readonly T[],
   path: string,
@@ -231,7 +234,7 @@ function readEnum<T extends string>(
 }
 
 function readDefinitions<T extends string>(
-  value: unknown,
+  value: JsonInput,
   keys: readonly T[],
   path: string,
 ): Readonly<Record<T, string>> {
@@ -241,7 +244,7 @@ function readDefinitions<T extends string>(
   return Object.fromEntries(entries) as Readonly<Record<T, string>>;
 }
 
-function readHttpsUrl(record: Record<string, unknown>, key: string, path: string): string {
+function readHttpsUrl(record: JsonObject, key: string, path: string): string {
   const value = readString(record, key, path);
   let parsed: URL;
   try {
@@ -255,7 +258,7 @@ function readHttpsUrl(record: Record<string, unknown>, key: string, path: string
   return value;
 }
 
-function readDatePrecision(record: Record<string, unknown>, path: string): DatePrecision {
+function readDatePrecision(record: JsonObject, path: string): DatePrecision {
   const value = readOptionalString(record, "date_precision", path);
   if (value === undefined) {
     return "day";
@@ -286,7 +289,7 @@ export function normalizedDate(date: string, precision: DatePrecision = "day"): 
   return date;
 }
 
-function parseSource(value: unknown, path: string): Source {
+function parseSource(value: JsonInput, path: string): Source {
   const record = readRecord(value, path);
   requireExactKeys(record, ["publisher", "title", "url", "evidence"], path);
   return {
@@ -297,13 +300,13 @@ function parseSource(value: unknown, path: string): Source {
   };
 }
 
-function parseSources(record: Record<string, unknown>, path: string): readonly Source[] {
+function parseSources(record: JsonObject, path: string): readonly Source[] {
   return readArray(record, "sources", path).map((source, index) =>
     parseSource(source, `${path}.sources[${index}]`),
   );
 }
 
-function parseProvider(value: unknown, index: number): Provider {
+function parseProvider(value: JsonInput, index: number): Provider {
   const path = `providers[${index}]`;
   const record = readRecord(value, path);
   requireExactKeys(record, ["id", "name", "website"], path);
@@ -318,7 +321,7 @@ function parseProvider(value: unknown, index: number): Provider {
   };
 }
 
-function parseIdentifierReference(value: unknown, path: string): IdentifierReference {
+function parseIdentifierReference(value: JsonInput, path: string): IdentifierReference {
   const record = readRecord(value, path);
   requireExactKeys(record, ["namespace", "value"], path);
   const namespace = readString(record, "namespace", path);
@@ -332,7 +335,7 @@ function parseIdentifierReference(value: unknown, path: string): IdentifierRefer
   return { namespace, value: identifierValue };
 }
 
-function parseIdentifier(value: unknown, path: string): ModelIdentifier {
+function parseIdentifier(value: JsonInput, path: string): ModelIdentifier {
   const record = readRecord(value, path);
   requireExactKeys(record, ["namespace", "value", "kind"], path);
   const namespace = readString(record, "namespace", path);
@@ -350,7 +353,7 @@ function parseIdentifier(value: unknown, path: string): ModelIdentifier {
   };
 }
 
-function parseAvailabilityEvent(value: unknown, path: string): AvailabilityEvent {
+function parseAvailabilityEvent(value: JsonInput, path: string): AvailabilityEvent {
   const record = readRecord(value, path);
   requireKeys(
     record,
@@ -373,7 +376,7 @@ function parseAvailabilityEvent(value: unknown, path: string): AvailabilityEvent
   };
 }
 
-function parseLifecycleEvent(value: unknown, path: string): LifecycleEvent {
+function parseLifecycleEvent(value: JsonInput, path: string): LifecycleEvent {
   const record = readRecord(value, path);
   requireKeys(
     record,
@@ -406,7 +409,7 @@ function parseLifecycleEvent(value: unknown, path: string): LifecycleEvent {
   };
 }
 
-function parseRelationship(value: unknown, path: string): ModelRelationship {
+function parseRelationship(value: JsonInput, path: string): ModelRelationship {
   const record = readRecord(value, path);
   requireExactKeys(record, ["type", "target_model"], path);
   return {
@@ -415,7 +418,7 @@ function parseRelationship(value: unknown, path: string): ModelRelationship {
   };
 }
 
-function parseModel(value: unknown, index: number): CatalogModel {
+function parseModel(value: JsonInput, index: number): CatalogModel {
   const path = `models[${index}]`;
   const record = readRecord(value, path);
   requireExactKeys(
@@ -489,7 +492,7 @@ function parseModel(value: unknown, index: number): CatalogModel {
   };
 }
 
-function parseCoverage(value: unknown): CatalogCoverage {
+function parseCoverage(value: JsonInput): CatalogCoverage {
   const path = "dataset.coverage";
   const record = readRecord(value, path);
   requireExactKeys(
@@ -550,7 +553,7 @@ export function projectModel(model: CatalogModel, provider: Provider): ModelRele
   };
 }
 
-export function parseDataset(value: unknown): Dataset {
+export function parseDataset(value: JsonInput | Dataset): Dataset {
   const record = readRecord(value, "dataset");
   requireExactKeys(
     record,

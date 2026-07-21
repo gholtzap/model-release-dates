@@ -15,6 +15,7 @@ import {
   fetchModel,
   fetchModels,
   type Fetcher,
+  type JsonValue,
   type ListFilters,
 } from "../web/api.js";
 
@@ -63,14 +64,14 @@ const handlerFetch: Fetcher = async (input, init) => {
 };
 
 async function expectClientError(
-  action: () => Promise<unknown>,
+  action: () => Promise<object>,
   status: number,
   code: string,
   message: RegExp,
 ): Promise<void> {
   await assert.rejects(
     action,
-    (error: unknown) =>
+    (error) =>
       error instanceof ApiClientError &&
       error.status === status &&
       error.code === code &&
@@ -79,8 +80,8 @@ async function expectClientError(
 }
 
 function validListBody(): JsonRecord {
-  return {
-    data: [structuredClone(models[0])],
+  return asRecord({
+    data: [structuredClone(models[0]!)],
     meta: {
       schema_version: dataset.schema_version,
       researched_at: dataset.researched_at,
@@ -90,7 +91,7 @@ function validListBody(): JsonRecord {
       limit: 50,
       offset: 0,
     },
-  };
+  });
 }
 
 function responseModel(body: JsonRecord): JsonRecord {
@@ -134,7 +135,7 @@ test("the explorer builds and validates public item URLs", () => {
   for (const modelId of ["", "openai", "openai/", "/gpt-4o", "a/b/c"]) {
     assert.throws(
       () => buildItemPath(modelId),
-      (error: unknown) =>
+      (error) =>
         error instanceof ApiClientError &&
         error.status === 0 &&
         error.code === "invalid_model",
@@ -154,7 +155,7 @@ test("the explorer builds and validates exact identifier URLs", () => {
   for (const [namespace, identifier] of [["Bad Namespace", "value"], ["openai-api", ""], ["openai-api", "bad value"], ["openai-api", "x".repeat(201)]]) {
     assert.throws(
       () => buildIdentifierPath(namespace ?? "", identifier ?? ""),
-      (error: unknown) => error instanceof ApiClientError && error.code === "invalid_identifier",
+      (error) => error instanceof ApiClientError && error.code === "invalid_identifier",
     );
   }
 });
@@ -263,7 +264,7 @@ test("non-JSON and unstructured failures become safe client errors", async () =>
 });
 
 test("malformed successful list responses are rejected at the browser boundary", async (context) => {
-  const structuralCases: ReadonlyArray<readonly [string, unknown, RegExp]> = [
+  const structuralCases: ReadonlyArray<readonly [string, JsonValue, RegExp]> = [
     ["response object", null, /response is not an object/],
     ["data array", { data: {}, meta: {} }, /response.data is not an array/],
     ["model object", { data: [null], meta: {} }, /data\[0\] is not an object/],

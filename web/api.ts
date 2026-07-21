@@ -14,6 +14,9 @@ export type LifecycleDateRole = "announced" | "effective" | "scheduled" | "obser
 export type RelationshipType = "snapshot_of" | "alias_of";
 export type SortField = "model" | "release_date";
 export type SortOrder = "asc" | "desc";
+export type JsonValue = string | number | boolean | null | JsonObject | JsonValue[];
+type JsonObject = { [key: string]: JsonValue };
+type JsonInput = JsonValue | undefined;
 
 export interface ApiSource {
   readonly publisher: string;
@@ -142,18 +145,18 @@ export class ApiClientError extends Error {
   }
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+function isRecord(value: JsonInput): value is JsonObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function readRecord(value: unknown, path: string): Record<string, unknown> {
+function readRecord(value: JsonInput, path: string): JsonObject {
   if (!isRecord(value)) {
     throw new ApiClientError(502, "invalid_response", `${path} is not an object`);
   }
   return value;
 }
 
-function readString(record: Record<string, unknown>, key: string, path: string): string {
+function readString(record: JsonObject, key: string, path: string): string {
   const value = record[key];
   if (typeof value !== "string") {
     throw new ApiClientError(502, "invalid_response", `${path}.${key} is not a string`);
@@ -162,14 +165,14 @@ function readString(record: Record<string, unknown>, key: string, path: string):
 }
 
 function readOptionalString(
-  record: Record<string, unknown>,
+  record: JsonObject,
   key: string,
   path: string,
 ): string | undefined {
   return key in record ? readString(record, key, path) : undefined;
 }
 
-function readNumber(record: Record<string, unknown>, key: string, path: string): number {
+function readNumber(record: JsonObject, key: string, path: string): number {
   const value = record[key];
   if (typeof value !== "number" || !Number.isFinite(value)) {
     throw new ApiClientError(502, "invalid_response", `${path}.${key} is not a number`);
@@ -177,7 +180,7 @@ function readNumber(record: Record<string, unknown>, key: string, path: string):
   return value;
 }
 
-function readArray(record: Record<string, unknown>, key: string, path: string): readonly unknown[] {
+function readArray(record: JsonObject, key: string, path: string): readonly JsonValue[] {
   const value = record[key];
   if (!Array.isArray(value)) {
     throw new ApiClientError(502, "invalid_response", `${path}.${key} is not an array`);
@@ -193,7 +196,7 @@ function parseEnum<T extends string>(value: string, values: readonly T[], path: 
   return match;
 }
 
-function parseSource(value: unknown, path: string): ApiSource {
+function parseSource(value: JsonInput, path: string): ApiSource {
   const record = readRecord(value, path);
   return {
     publisher: readString(record, "publisher", path),
@@ -203,13 +206,13 @@ function parseSource(value: unknown, path: string): ApiSource {
   };
 }
 
-function parseSources(record: Record<string, unknown>, path: string): readonly ApiSource[] {
+function parseSources(record: JsonObject, path: string): readonly ApiSource[] {
   return readArray(record, "sources", path).map((source, index) =>
     parseSource(source, `${path}.sources[${index}]`),
   );
 }
 
-function parseProvider(value: unknown, path: string): ApiProvider {
+function parseProvider(value: JsonInput, path: string): ApiProvider {
   const record = readRecord(value, path);
   return {
     id: readString(record, "id", path),
@@ -219,7 +222,7 @@ function parseProvider(value: unknown, path: string): ApiProvider {
 }
 
 function parseIdentifierReference(
-  value: unknown,
+  value: JsonInput,
   path: string,
 ): Readonly<Pick<ApiIdentifier, "namespace" | "value">> {
   const record = readRecord(value, path);
@@ -229,7 +232,7 @@ function parseIdentifierReference(
   };
 }
 
-function parseIdentifier(value: unknown, path: string): ApiIdentifier {
+function parseIdentifier(value: JsonInput, path: string): ApiIdentifier {
   const record = readRecord(value, path);
   return {
     ...parseIdentifierReference(record, path),
@@ -241,7 +244,7 @@ function parseIdentifier(value: unknown, path: string): ApiIdentifier {
   };
 }
 
-function parseAvailabilityEvent(value: unknown, path: string): ApiAvailabilityEvent {
+function parseAvailabilityEvent(value: JsonInput, path: string): ApiAvailabilityEvent {
   const record = readRecord(value, path);
   const datePrecision = readOptionalString(record, "date_precision", path);
   return {
@@ -260,7 +263,7 @@ function parseAvailabilityEvent(value: unknown, path: string): ApiAvailabilityEv
   };
 }
 
-function parseLifecycleEvent(value: unknown, path: string): ApiLifecycleEvent {
+function parseLifecycleEvent(value: JsonInput, path: string): ApiLifecycleEvent {
   const record = readRecord(value, path);
   const datePrecision = readOptionalString(record, "date_precision", path);
   const channel = readOptionalString(record, "channel", path);
@@ -291,7 +294,7 @@ function parseLifecycleEvent(value: unknown, path: string): ApiLifecycleEvent {
   };
 }
 
-function parseRelationship(value: unknown, path: string): ApiRelationship {
+function parseRelationship(value: JsonInput, path: string): ApiRelationship {
   const record = readRecord(value, path);
   return {
     type: parseEnum(
@@ -303,7 +306,7 @@ function parseRelationship(value: unknown, path: string): ApiRelationship {
   };
 }
 
-function parseCoverage(value: unknown): CatalogCoverage {
+function parseCoverage(value: JsonInput): CatalogCoverage {
   const record = readRecord(value, "meta.coverage");
   if (record["exhaustive"] !== false) {
     throw new ApiClientError(502, "invalid_response", "meta.coverage.exhaustive is not false");
@@ -316,7 +319,7 @@ function parseCoverage(value: unknown): CatalogCoverage {
   };
 }
 
-function parseModel(value: unknown, path: string): ApiModel {
+function parseModel(value: JsonInput, path: string): ApiModel {
   const record = readRecord(value, path);
   return {
     model: readString(record, "model", path),
@@ -360,7 +363,7 @@ function parseModel(value: unknown, path: string): ApiModel {
   };
 }
 
-function parseMeta(value: unknown, includePagination: boolean): ListMeta {
+function parseMeta(value: JsonInput, includePagination: boolean): ListMeta {
   const record = readRecord(value, "meta");
   return {
     schema_version: readNumber(record, "schema_version", "meta"),
@@ -423,9 +426,9 @@ export function buildIdentifierPath(namespace: string, identifier: string): stri
   return `/api/identifiers/${encodeURIComponent(normalizedNamespace)}/${encodeURIComponent(normalizedIdentifier)}`;
 }
 
-async function requestJson(fetcher: Fetcher, path: string): Promise<unknown> {
+async function requestJson(fetcher: Fetcher, path: string): Promise<JsonValue> {
   const response = await fetcher(path, { headers: { Accept: "application/json" } });
-  let body: unknown;
+  let body: JsonValue;
   try {
     body = await response.json();
   } catch {
@@ -450,7 +453,7 @@ export async function fetchModels(fetcher: Fetcher, filters: ListFilters): Promi
   };
 }
 
-function parseItemResponse(bodyValue: unknown): ItemResponse {
+function parseItemResponse(bodyValue: JsonInput): ItemResponse {
   const body = readRecord(bodyValue, "response");
   const meta = parseMeta(body["meta"], false);
   return {

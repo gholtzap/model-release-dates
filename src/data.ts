@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-import { identifierKey, parseDataset, projectModel } from "./types.js";
+import { identifierKey, parseDataset, projectModel, type JsonValue } from "./types.js";
 
 const dataPath = resolve(process.cwd(), "model-release-dates.json");
-const rawDataset: unknown = JSON.parse(readFileSync(dataPath, "utf8"));
+const rawDataset: JsonValue = JSON.parse(readFileSync(dataPath, "utf8"));
 
 export const dataset = parseDataset(rawDataset);
 export const providersById = new Map(
