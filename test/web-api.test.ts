@@ -184,10 +184,10 @@ test("the browser list client consumes the real filtered API response", async ()
 
   assert.deepEqual(
     response.data.map((model) => model.model),
-    ["openai/codex-mini-latest", "openai/o3", "openai/o4-mini"],
+    ["openai/o3", "openai/o4-mini"],
   );
-  assert.equal(response.meta.total, 3);
-  assert.equal(response.meta.count, 3);
+  assert.equal(response.meta.total, 2);
+  assert.equal(response.meta.count, 2);
   assert.equal(response.meta.offset, 0);
   assert.ok(response.data.every((model) => model.availability.includes("api")));
 });

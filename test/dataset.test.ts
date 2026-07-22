@@ -92,12 +92,12 @@ test("the production schema-v2 catalog satisfies every identity and event invari
     "utf8",
   ).trim().split("\n");
   assert.equal(dataset.schema_version, 2);
-  assert.equal(requiredModels.length, 193);
+  assert.equal(requiredModels.length, 188);
   assert.deepEqual(requiredModels.filter((model) => !modelsById.has(model)), []);
-  assert.equal(dataset.providers.length, 21);
-  assert.equal(dataset.models.length, 195);
-  assert.equal(models.length, 195);
-  assert.equal(modelsByIdentifier.size, 232);
+  assert.equal(dataset.providers.length, 20);
+  assert.equal(dataset.models.length, 190);
+  assert.equal(models.length, 190);
+  assert.equal(modelsByIdentifier.size, 248);
   assert.equal(dataset.coverage.exhaustive, false);
   assert.match(dataset.coverage.statement, /non-exhaustive/);
   assert.deepEqual(parseDataset(dataset), dataset);

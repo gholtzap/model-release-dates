@@ -211,7 +211,6 @@ test("deprecated models expose validated replacement hints", async () => {
 test("date bounds are inclusive", async () => {
   const models = await modelsFrom(listRequest("from=2025-04-16&to=2025-04-16"));
   assert.deepEqual(modelIds(models), [
-    "openai/codex-mini-latest",
     "openai/o3",
     "openai/o4-mini",
   ]);

@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "dataset_version": "2026-07-22.2",
+  "dataset_version": "2026-07-22.3",
   "changelog_url": "https://github.com/gholtzap/model-release-dates/commits/main/model-release-dates.json",
   "release_date_definition": "First public developer availability of the named upstream model through an official API or downloadable weights. For canonical model-family records, availability through an earlier preview or experimental identifier counts; the exact identifiers and their kinds are listed separately. Private previews and announcements without access do not count.",
   "identifier_type_definition": {
@@ -118,11 +118,6 @@
       "id": "moonshotai",
       "name": "Moonshot AI",
       "website": "https://www.moonshot.ai/"
-    },
-    {
-      "id": "morph",
-      "name": "Morph",
-      "website": "https://www.morphllm.com/"
     },
     {
       "id": "nousresearch",
@@ -1377,9 +1372,15 @@
           "sources": [
             {
               "publisher": "Anthropic",
-              "title": "Claude Sonnet 4 Above 200K release documentation",
-              "url": "https://www.anthropic.com/claude/sonnet",
-              "evidence": "Anthropic's release documentation confirms public developer availability for Claude Sonnet 4 Above 200K on 2025-05-22."
+              "title": "Introducing Claude 4",
+              "url": "https://www.anthropic.com/news/claude-4",
+              "evidence": "Anthropic's launch announcement dates the upstream Claude Sonnet 4 API release to 2025-05-22."
+            },
+            {
+              "publisher": "Vercel",
+              "title": "Claude Sonnet 4 Above 200K on AI Gateway",
+              "url": "https://vercel.com/ai-gateway/models/claude-sonnet-4-above200k/about",
+              "evidence": "Vercel AI Gateway identifies anthropic/claude-sonnet-4-above200k as an alias of Claude Sonnet 4."
             }
           ]
         }
@@ -2494,9 +2495,15 @@
           "sources": [
             {
               "publisher": "Google",
-              "title": "Gemini 2.5 Pro Above 200K release documentation",
+              "title": "Gemini API changelog",
               "url": "https://ai.google.dev/gemini-api/docs/changelog",
-              "evidence": "Google's release documentation confirms public developer availability for Gemini 2.5 Pro Above 200K on 2025-03-25."
+              "evidence": "Google's API changelog dates the upstream Gemini 2.5 Pro preview release to 2025-03-25."
+            },
+            {
+              "publisher": "Vercel",
+              "title": "Gemini 2.5 Pro Above 200K on AI Gateway",
+              "url": "https://vercel.com/ai-gateway/models/gemini-2.5-pro-above200k/about",
+              "evidence": "Vercel AI Gateway identifies google/gemini-2.5-pro-above200k as an alias of Gemini 2.5 Pro."
             }
           ]
         }
@@ -3691,6 +3698,11 @@
       "identifier_type": "model",
       "identifiers": [
         {
+          "namespace": "minimax-api",
+          "value": "MiniMax-M2.5-highspeed",
+          "kind": "model"
+        },
+        {
           "namespace": "vercel-ai-gateway",
           "value": "minimax/minimax-m2.5-highspeed",
           "kind": "model"
@@ -3706,15 +3718,15 @@
           "sources": [
             {
               "publisher": "MiniMax",
-              "title": "MiniMax M2.5 High Speed release documentation",
+              "title": "MiniMax M2.5 launch",
               "url": "https://www.minimax.io/news/minimax-m25",
-              "evidence": "MiniMax's release documentation confirms public developer availability for MiniMax M2.5 High Speed on 2026-02-12."
+              "evidence": "MiniMax's dated launch announcement establishes the M2.5 series release on 2026-02-12."
             },
             {
-              "publisher": "Vercel",
-              "title": "MiniMax M2.5 High Speed on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/minimax-m2.5-highspeed/about",
-              "evidence": "Vercel AI Gateway exposes the model with the identifier minimax/minimax-m2.5-highspeed."
+              "publisher": "MiniMax",
+              "title": "MiniMax model release notes",
+              "url": "https://platform.minimax.io/docs/release-notes/models",
+              "evidence": "MiniMax's model release notes identify MiniMax-M2.5-highspeed as part of the M2.5 release series."
             }
           ]
         }
@@ -3777,6 +3789,11 @@
       "identifier_type": "model",
       "identifiers": [
         {
+          "namespace": "minimax-api",
+          "value": "MiniMax-M2.7-highspeed",
+          "kind": "model"
+        },
+        {
           "namespace": "vercel-ai-gateway",
           "value": "minimax/minimax-m2.7-highspeed",
           "kind": "model"
@@ -3792,15 +3809,15 @@
           "sources": [
             {
               "publisher": "MiniMax",
-              "title": "MiniMax M2.7 High Speed release documentation",
+              "title": "MiniMax M2.7 launch",
               "url": "https://www.minimax.io/news/minimax-m27-en",
-              "evidence": "MiniMax's release documentation confirms public developer availability for MiniMax M2.7 High Speed on 2026-03-18."
+              "evidence": "MiniMax's dated launch announcement establishes the M2.7 series release on 2026-03-18."
             },
             {
-              "publisher": "Vercel",
-              "title": "MiniMax M2.7 High Speed on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/minimax-m2.7-highspeed/about",
-              "evidence": "Vercel AI Gateway exposes the model with the identifier minimax/minimax-m2.7-highspeed."
+              "publisher": "MiniMax",
+              "title": "MiniMax model release notes",
+              "url": "https://platform.minimax.io/docs/release-notes/models",
+              "evidence": "MiniMax's model release notes identify MiniMax-M2.7-highspeed and date the release to 2026-03-18."
             }
           ]
         }
@@ -4161,14 +4178,14 @@
         {
           "channel": "api",
           "stage": "public",
-          "date": "2024-10-16",
+          "date": "2024-10-09",
           "confidence": "confirmed",
           "sources": [
             {
               "publisher": "Mistral AI",
               "title": "Ministral 3B release documentation",
               "url": "https://docs.mistral.ai/resources/changelogs",
-              "evidence": "Mistral AI's release documentation confirms public developer availability for Ministral 3B on 2024-10-16."
+              "evidence": "Mistral AI's changelog records the release of Ministral 3B on 2024-10-09."
             },
             {
               "publisher": "Vercel",
@@ -4203,14 +4220,14 @@
         {
           "channel": "api",
           "stage": "public",
-          "date": "2024-10-16",
+          "date": "2024-10-09",
           "confidence": "confirmed",
           "sources": [
             {
               "publisher": "Mistral AI",
               "title": "Ministral 8B release documentation",
               "url": "https://docs.mistral.ai/resources/changelogs",
-              "evidence": "Mistral AI's release documentation confirms public developer availability for Ministral 8B on 2024-10-16."
+              "evidence": "Mistral AI's changelog records the release of Ministral 8B on 2024-10-09."
             },
             {
               "publisher": "Vercel",
@@ -4277,6 +4294,11 @@
       "identifier_type": "model",
       "identifiers": [
         {
+          "namespace": "mistral-api",
+          "value": "mistral-medium-2312",
+          "kind": "snapshot"
+        },
+        {
           "namespace": "vercel-ai-gateway",
           "value": "mistralai/mistral-medium",
           "kind": "model"
@@ -4292,9 +4314,9 @@
           "sources": [
             {
               "publisher": "Mistral AI",
-              "title": "Mistral Medium release documentation",
-              "url": "https://docs.mistral.ai/resources/changelogs",
-              "evidence": "Mistral AI's release documentation confirms public developer availability for Mistral Medium on 2023-12-11."
+              "title": "Mistral Medium 1.0 model card",
+              "url": "https://docs.mistral.ai/models/model-cards/mistral-medium-1-0-23-12",
+              "evidence": "Mistral AI's model card dates Mistral Medium 1.0 and its mistral-medium-2312 API identifier to 2023-12-11."
             },
             {
               "publisher": "Vercel",
@@ -4597,6 +4619,11 @@
       "identifier_type": "snapshot",
       "identifiers": [
         {
+          "namespace": "moonshot-api",
+          "value": "kimi-k2-0905-preview",
+          "kind": "snapshot"
+        },
+        {
           "namespace": "vercel-ai-gateway",
           "value": "moonshotai/kimi-k2-0905",
           "kind": "snapshot"
@@ -4616,10 +4643,10 @@
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Moonshot AI on Hugging Face",
-              "title": "Kimi K2 Instruct 0905",
-              "url": "https://huggingface.co/moonshotai/Kimi-K2-Instruct-0905",
-              "evidence": "Moonshot AI's official repository publishes the Kimi K2 0905 model and weights."
+              "publisher": "Moonshot AI",
+              "title": "Kimi K2 0905",
+              "url": "https://platform.kimi.com/blog/posts/kimi-k2-0905",
+              "evidence": "Moonshot AI's dated launch post says kimi-k2-0905-preview became available through its API on 2025-09-05."
             }
           ]
         }
@@ -4675,6 +4702,11 @@
       "identifier_type": "model",
       "identifiers": [
         {
+          "namespace": "moonshot-api",
+          "value": "kimi-k2-thinking-turbo",
+          "kind": "model"
+        },
+        {
           "namespace": "vercel-ai-gateway",
           "value": "moonshotai/kimi-k2-thinking-turbo",
           "kind": "model"
@@ -4690,9 +4722,9 @@
           "sources": [
             {
               "publisher": "Moonshot AI",
-              "title": "Kimi Agent SDK quickstart",
-              "url": "https://github.com/MoonshotAI/kimi-agent-sdk/blob/main/guides/python/quickstart.md",
-              "evidence": "Moonshot AI's SDK documentation names kimi-k2-thinking-turbo as an API model."
+              "title": "Kimi API changelog",
+              "url": "https://platform.kimi.com/blog/posts/changelog",
+              "evidence": "Moonshot AI's API changelog records the release of kimi-k2-thinking-turbo on 2025-11-06."
             }
           ]
         }
@@ -4712,6 +4744,11 @@
       "identifier_type": "model",
       "identifiers": [
         {
+          "namespace": "moonshot-api",
+          "value": "kimi-k2-turbo-preview",
+          "kind": "alias"
+        },
+        {
           "namespace": "vercel-ai-gateway",
           "value": "moonshotai/kimi-k2-turbo",
           "kind": "model"
@@ -4722,14 +4759,14 @@
         {
           "channel": "api",
           "stage": "public",
-          "date": "2025-07-11",
+          "date": "2025-08-01",
           "confidence": "confirmed",
           "sources": [
             {
               "publisher": "Moonshot AI",
-              "title": "Kimi K2",
-              "url": "https://github.com/MoonshotAI/Kimi-K2",
-              "evidence": "Moonshot AI's official Kimi K2 release documents public API availability for the model family."
+              "title": "Kimi K2 Turbo",
+              "url": "https://platform.kimi.com/blog/posts/k2-turbo",
+              "evidence": "Moonshot AI's dated launch post says kimi-k2-turbo-preview became available through its API on 2025-08-01."
             }
           ]
         }
@@ -4779,95 +4816,16 @@
       "verified_at": "2026-07-22"
     },
     {
-      "model": "morph/morph-v3-fast",
-      "display_name": "Morph V3 Fast",
-      "provider_id": "morph",
-      "identifier_type": "model",
-      "identifiers": [
-        {
-          "namespace": "vercel-ai-gateway",
-          "value": "morph/morph-v3-fast",
-          "kind": "model"
-        }
-      ],
-      "relationships": [],
-      "availability_events": [
-        {
-          "channel": "api",
-          "stage": "public",
-          "date": "2025-07-07",
-          "confidence": "confirmed",
-          "sources": [
-            {
-              "publisher": "OpenRouter",
-              "title": "Morph V3 Fast on OpenRouter",
-              "url": "https://openrouter.ai/morph/morph-v3-fast",
-              "evidence": "OpenRouter's public model record dates the exact morph/morph-v3-fast identifier to 2025-07-07."
-            },
-            {
-              "publisher": "Morph",
-              "title": "Morph Fast Apply documentation",
-              "url": "https://docs.morphllm.com/models/apply",
-              "evidence": "Morph's official documentation confirms morph-v3-fast as a publicly available API model."
-            }
-          ]
-        }
-      ],
-      "lifecycle_events": [],
-      "capabilities": [
-        "text"
-      ],
-      "last_changed_at": "2026-07-22",
-      "verified_at": "2026-07-22"
-    },
-    {
-      "model": "morph/morph-v3-large",
-      "display_name": "Morph V3 Large",
-      "provider_id": "morph",
-      "identifier_type": "model",
-      "identifiers": [
-        {
-          "namespace": "vercel-ai-gateway",
-          "value": "morph/morph-v3-large",
-          "kind": "model"
-        }
-      ],
-      "relationships": [],
-      "availability_events": [
-        {
-          "channel": "api",
-          "stage": "public",
-          "date": "2025-07-07",
-          "confidence": "confirmed",
-          "sources": [
-            {
-              "publisher": "OpenRouter",
-              "title": "Morph V3 Large on OpenRouter",
-              "url": "https://openrouter.ai/morph/morph-v3-large",
-              "evidence": "OpenRouter's public model record dates the exact morph/morph-v3-large identifier to 2025-07-07."
-            },
-            {
-              "publisher": "Morph",
-              "title": "Morph Fast Apply documentation",
-              "url": "https://docs.morphllm.com/models/apply",
-              "evidence": "Morph's official documentation confirms morph-v3-large as a publicly available API model."
-            }
-          ]
-        }
-      ],
-      "lifecycle_events": [],
-      "capabilities": [
-        "text"
-      ],
-      "last_changed_at": "2026-07-22",
-      "verified_at": "2026-07-22"
-    },
-    {
       "model": "nousresearch/hermes-4-405b",
       "display_name": "Hermes 4 405B",
       "provider_id": "nousresearch",
-      "identifier_type": "model",
+      "identifier_type": "weights",
       "identifiers": [
+        {
+          "namespace": "huggingface",
+          "value": "NousResearch/Hermes-4-405B",
+          "kind": "weights"
+        },
         {
           "namespace": "vercel-ai-gateway",
           "value": "nousresearch/hermes-4-405b",
@@ -4877,23 +4835,24 @@
       "relationships": [],
       "availability_events": [
         {
-          "channel": "api",
+          "channel": "weights",
           "stage": "public",
           "date": "2025-08-26",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Nous Research on Hugging Face",
-              "title": "Hermes 4 405B",
-              "url": "https://huggingface.co/NousResearch/Hermes-4-405B",
-              "evidence": "Nous Research's official repository publishes Hermes 4 405B and its model weights."
+              "publisher": "Hugging Face",
+              "title": "Hermes 4 405B repository metadata",
+              "url": "https://huggingface.co/api/models/NousResearch/Hermes-4-405B",
+              "evidence": "Hugging Face's repository metadata dates Nous Research's public Hermes-4-405B weight repository to 2025-08-26."
             }
           ]
         }
       ],
       "lifecycle_events": [],
       "capabilities": [
-        "text"
+        "text",
+        "weights"
       ],
       "last_changed_at": "2026-07-22",
       "verified_at": "2026-07-22"
@@ -4902,8 +4861,13 @@
       "model": "nousresearch/hermes-4-70b",
       "display_name": "Hermes 4 70B",
       "provider_id": "nousresearch",
-      "identifier_type": "model",
+      "identifier_type": "weights",
       "identifiers": [
+        {
+          "namespace": "huggingface",
+          "value": "NousResearch/Hermes-4-70B",
+          "kind": "weights"
+        },
         {
           "namespace": "vercel-ai-gateway",
           "value": "nousresearch/hermes-4-70b",
@@ -4913,23 +4877,24 @@
       "relationships": [],
       "availability_events": [
         {
-          "channel": "api",
+          "channel": "weights",
           "stage": "public",
           "date": "2025-08-26",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Nous Research on Hugging Face",
-              "title": "Hermes 4 70B",
-              "url": "https://huggingface.co/NousResearch/Hermes-4-70B",
-              "evidence": "Nous Research's official repository publishes Hermes 4 70B and its model weights."
+              "publisher": "Hugging Face",
+              "title": "Hermes 4 70B repository metadata",
+              "url": "https://huggingface.co/api/models/NousResearch/Hermes-4-70B",
+              "evidence": "Hugging Face's repository metadata dates Nous Research's public Hermes-4-70B weight repository to 2025-08-26."
             }
           ]
         }
       ],
       "lifecycle_events": [],
       "capabilities": [
-        "text"
+        "text",
+        "weights"
       ],
       "last_changed_at": "2026-07-22",
       "verified_at": "2026-07-22"
@@ -5096,14 +5061,14 @@
         {
           "channel": "api",
           "stage": "public",
-          "date": "2025-04-16",
+          "date": "2025-05-15",
           "confidence": "confirmed",
           "sources": [
             {
               "publisher": "OpenAI",
-              "title": "Codex Mini Latest model documentation",
-              "url": "https://developers.openai.com/api/docs/models/codex-mini-latest",
-              "evidence": "OpenAI's model documentation lists codex-mini-latest as an API model."
+              "title": "OpenAI API changelog",
+              "url": "https://developers.openai.com/api/docs/changelog",
+              "evidence": "OpenAI's API changelog records the launch of codex-mini-latest in the API on 2025-05-15."
             }
           ]
         }
@@ -5174,65 +5139,6 @@
               "title": "OpenAI API model catalog",
               "url": "https://developers.openai.com/api/docs/models/all",
               "evidence": "OpenAI's model catalog marked openai/gpt-3.5-turbo as deprecated when verified on 2026-07-20."
-            }
-          ]
-        }
-      ],
-      "capabilities": [
-        "text",
-        "deprecated"
-      ],
-      "last_changed_at": "2026-07-22",
-      "verified_at": "2026-07-22"
-    },
-    {
-      "model": "openai/gpt-3.5-turbo-instruct",
-      "display_name": "GPT-3.5 Turbo Instruct",
-      "provider_id": "openai",
-      "identifier_type": "model",
-      "identifiers": [
-        {
-          "namespace": "openai-api",
-          "value": "gpt-3.5-turbo-instruct",
-          "kind": "model"
-        }
-      ],
-      "relationships": [],
-      "availability_events": [
-        {
-          "channel": "api",
-          "stage": "public",
-          "date": "2023-09-18",
-          "confidence": "confirmed",
-          "sources": [
-            {
-              "publisher": "OpenAI",
-              "title": "gpt-3.5-turbo-instruct Model",
-              "url": "https://developers.openai.com/api/docs/models/gpt-3.5-turbo-instruct",
-              "evidence": "OpenAI's model documentation confirms the exact legacy Completions model identifier."
-            },
-            {
-              "publisher": "Vercel",
-              "title": "GPT-3.5 Turbo Instruct",
-              "url": "https://vercel.com/ai-gateway/models/gpt-3.5-turbo-instruct/about",
-              "evidence": "Vercel's model catalog dates the launch to September 18, 2023."
-            }
-          ]
-        }
-      ],
-      "lifecycle_events": [
-        {
-          "status": "deprecated",
-          "date": "2026-07-20",
-          "date_role": "observed",
-          "channel": "api",
-          "confidence": "confirmed",
-          "sources": [
-            {
-              "publisher": "OpenAI",
-              "title": "OpenAI API model catalog",
-              "url": "https://developers.openai.com/api/docs/models/all",
-              "evidence": "OpenAI's model catalog marked openai/gpt-3.5-turbo-instruct as deprecated when verified on 2026-07-20."
             }
           ]
         }
@@ -5701,10 +5607,10 @@
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "GPT-4o 2024 08 06 on AI Gateway",
-              "url": "https://ai-gateway.vercel.sh/v1/models/openai/gpt-4o-2024-08-06",
-              "evidence": "Vercel AI Gateway's model endpoint exposes the exact identifier openai/gpt-4o-2024-08-06."
+              "publisher": "OpenAI",
+              "title": "OpenAI API changelog",
+              "url": "https://developers.openai.com/api/docs/changelog",
+              "evidence": "OpenAI's API changelog records the release of gpt-4o-2024-08-06 on 2024-08-06."
             },
             {
               "publisher": "OpenAI",
@@ -5924,13 +5830,13 @@
               "publisher": "Vercel",
               "title": "GPT-5 Chat on AI Gateway",
               "url": "https://vercel.com/ai-gateway/models/gpt-5-chat/about",
-              "evidence": "Vercel AI Gateway identifies openai/gpt-5-chat as a public developer model and dates its release to 2025-08-07."
+              "evidence": "Vercel AI Gateway identifies openai/gpt-5-chat as an alias for gpt-5-chat-latest."
             },
             {
               "publisher": "OpenAI",
-              "title": "GPT-5 Chat model documentation",
-              "url": "https://developers.openai.com/api/docs/models/gpt-5-chat",
-              "evidence": "OpenAI's model documentation lists gpt-5-chat as an API model."
+              "title": "Introducing GPT-5 for developers",
+              "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
+              "evidence": "OpenAI's launch announcement dates the upstream GPT-5 API release to 2025-08-07."
             }
           ]
         }
@@ -6022,14 +5928,14 @@
         {
           "channel": "api",
           "stage": "public",
-          "date": "2025-09-15",
+          "date": "2025-09-23",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "GPT-5 Codex on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/gpt-5-codex/about",
-              "evidence": "Vercel AI Gateway identifies openai/gpt-5-codex as a public developer model and dates its release to 2025-09-15."
+              "publisher": "OpenAI",
+              "title": "OpenAI API changelog",
+              "url": "https://developers.openai.com/api/docs/changelog",
+              "evidence": "OpenAI's API changelog records the launch of gpt-5-codex in the Responses API on 2025-09-23."
             },
             {
               "publisher": "OpenAI",
@@ -6240,14 +6146,14 @@
         {
           "channel": "api",
           "stage": "public",
-          "date": "2025-11-12",
+          "date": "2025-11-13",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "GPT-5.1 on AI Gateway",
-              "url": "https://ai-gateway.vercel.sh/v1/models/openai/gpt-5.1",
-              "evidence": "Vercel AI Gateway's model endpoint exposes the exact identifier openai/gpt-5.1."
+              "publisher": "OpenAI",
+              "title": "OpenAI API changelog",
+              "url": "https://developers.openai.com/api/docs/changelog",
+              "evidence": "OpenAI's API changelog records the release of gpt-5.1 on 2025-11-13."
             },
             {
               "publisher": "OpenAI",
@@ -6284,14 +6190,14 @@
         {
           "channel": "api",
           "stage": "public",
-          "date": "2025-11-12",
+          "date": "2025-11-13",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "GPT-5.1 Chat Latest on AI Gateway",
-              "url": "https://ai-gateway.vercel.sh/v1/models/openai/gpt-5.1-chat-latest",
-              "evidence": "Vercel AI Gateway's model endpoint exposes the exact identifier openai/gpt-5.1-chat-latest."
+              "publisher": "OpenAI",
+              "title": "OpenAI API changelog",
+              "url": "https://developers.openai.com/api/docs/changelog",
+              "evidence": "OpenAI's API changelog records the release of gpt-5.1-chat-latest on 2025-11-13."
             },
             {
               "publisher": "OpenAI",
@@ -6328,14 +6234,14 @@
         {
           "channel": "api",
           "stage": "public",
-          "date": "2025-11-12",
+          "date": "2025-11-13",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "GPT-5.1 Codex on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/gpt-5.1-codex/about",
-              "evidence": "Vercel AI Gateway identifies openai/gpt-5.1-codex as a public developer model and dates its release to 2025-11-12."
+              "publisher": "OpenAI",
+              "title": "OpenAI API changelog",
+              "url": "https://developers.openai.com/api/docs/changelog",
+              "evidence": "OpenAI's API changelog records the release of gpt-5.1-codex to the Responses API on 2025-11-13."
             },
             {
               "publisher": "OpenAI",
@@ -6372,14 +6278,14 @@
         {
           "channel": "api",
           "stage": "public",
-          "date": "2025-11-19",
+          "date": "2025-12-04",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "GPT-5.1 Codex Max on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/gpt-5.1-codex-max/about",
-              "evidence": "Vercel AI Gateway identifies openai/gpt-5.1-codex-max as a public developer model and dates its release to 2025-11-19."
+              "publisher": "OpenAI",
+              "title": "OpenAI API changelog",
+              "url": "https://developers.openai.com/api/docs/changelog",
+              "evidence": "OpenAI's API changelog records the release of gpt-5.1-codex-max to the Responses API on 2025-12-04."
             },
             {
               "publisher": "OpenAI",
@@ -6416,14 +6322,14 @@
         {
           "channel": "api",
           "stage": "public",
-          "date": "2025-11-12",
+          "date": "2025-11-13",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "GPT-5.1 Codex Mini on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/gpt-5.1-codex-mini/about",
-              "evidence": "Vercel AI Gateway identifies openai/gpt-5.1-codex-mini as a public developer model and dates its release to 2025-11-12."
+              "publisher": "OpenAI",
+              "title": "OpenAI API changelog",
+              "url": "https://developers.openai.com/api/docs/changelog",
+              "evidence": "OpenAI's API changelog records the release of gpt-5.1-codex-mini to the Responses API on 2025-11-13."
             },
             {
               "publisher": "OpenAI",
@@ -6455,25 +6361,30 @@
           "kind": "model"
         }
       ],
-      "relationships": [],
+      "relationships": [
+        {
+          "type": "alias_of",
+          "target_model": "openai/gpt-5.1-chat-latest"
+        }
+      ],
       "availability_events": [
         {
           "channel": "api",
           "stage": "public",
-          "date": "2025-11-12",
+          "date": "2025-11-13",
           "confidence": "confirmed",
           "sources": [
             {
               "publisher": "Vercel",
               "title": "GPT-5.1 Instant on AI Gateway",
               "url": "https://vercel.com/ai-gateway/models/gpt-5.1-instant/about",
-              "evidence": "Vercel AI Gateway identifies openai/gpt-5.1-instant as a public developer model and dates its release to 2025-11-12."
+              "evidence": "Vercel AI Gateway identifies openai/gpt-5.1-instant as an alias for the GPT-5.1 Instant model."
             },
             {
               "publisher": "OpenAI",
-              "title": "GPT-5.1 Instant model documentation",
-              "url": "https://developers.openai.com/api/docs/models/gpt-5.1-instant",
-              "evidence": "OpenAI's model documentation lists gpt-5.1-instant as an API model."
+              "title": "OpenAI API changelog",
+              "url": "https://developers.openai.com/api/docs/changelog",
+              "evidence": "OpenAI's API changelog dates the upstream gpt-5.1-chat-latest API release to 2025-11-13."
             }
           ]
         }
@@ -6499,25 +6410,30 @@
           "kind": "model"
         }
       ],
-      "relationships": [],
+      "relationships": [
+        {
+          "type": "alias_of",
+          "target_model": "openai/gpt-5.1"
+        }
+      ],
       "availability_events": [
         {
           "channel": "api",
           "stage": "public",
-          "date": "2025-11-12",
+          "date": "2025-11-13",
           "confidence": "confirmed",
           "sources": [
             {
               "publisher": "Vercel",
               "title": "GPT-5.1 Thinking on AI Gateway",
               "url": "https://vercel.com/ai-gateway/models/gpt-5.1-thinking/about",
-              "evidence": "Vercel AI Gateway identifies openai/gpt-5.1-thinking as a public developer model and dates its release to 2025-11-12."
+              "evidence": "Vercel AI Gateway identifies openai/gpt-5.1-thinking as an alias for the GPT-5.1 reasoning model."
             },
             {
               "publisher": "OpenAI",
-              "title": "GPT-5.1 Thinking model documentation",
-              "url": "https://developers.openai.com/api/docs/models/gpt-5.1-thinking",
-              "evidence": "OpenAI's model documentation lists gpt-5.1-thinking as an API model."
+              "title": "OpenAI API changelog",
+              "url": "https://developers.openai.com/api/docs/changelog",
+              "evidence": "OpenAI's API changelog dates the upstream gpt-5.1 API release to 2025-11-13."
             }
           ]
         }
@@ -6552,10 +6468,10 @@
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "GPT-5.2 on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/gpt-5.2/about",
-              "evidence": "Vercel AI Gateway identifies openai/gpt-5.2 as a public developer model and dates its release to 2025-12-11."
+              "publisher": "OpenAI",
+              "title": "OpenAI API changelog",
+              "url": "https://developers.openai.com/api/docs/changelog",
+              "evidence": "OpenAI's API changelog records the release of gpt-5.2 on 2025-12-11."
             },
             {
               "publisher": "OpenAI",
@@ -6604,13 +6520,13 @@
               "publisher": "Vercel",
               "title": "GPT-5.2 Chat on AI Gateway",
               "url": "https://vercel.com/ai-gateway/models/gpt-5.2-chat/about",
-              "evidence": "Vercel AI Gateway identifies openai/gpt-5.2-chat as a public developer model and dates its release to 2025-12-11."
+              "evidence": "Vercel AI Gateway identifies openai/gpt-5.2-chat as an alias for gpt-5.2-chat-latest."
             },
             {
               "publisher": "OpenAI",
-              "title": "GPT-5.2 Chat model documentation",
-              "url": "https://developers.openai.com/api/docs/models/gpt-5.2-chat",
-              "evidence": "OpenAI's model documentation lists gpt-5.2-chat as an API model."
+              "title": "OpenAI API changelog",
+              "url": "https://developers.openai.com/api/docs/changelog",
+              "evidence": "OpenAI's API changelog dates the upstream gpt-5.2-chat-latest API release to 2025-12-11."
             }
           ]
         }
@@ -6645,10 +6561,10 @@
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "GPT-5.2 Chat Latest on AI Gateway",
-              "url": "https://ai-gateway.vercel.sh/v1/models/openai/gpt-5.2-chat-latest",
-              "evidence": "Vercel AI Gateway's model endpoint exposes the exact identifier openai/gpt-5.2-chat-latest."
+              "publisher": "OpenAI",
+              "title": "OpenAI API changelog",
+              "url": "https://developers.openai.com/api/docs/changelog",
+              "evidence": "OpenAI's API changelog records the release of gpt-5.2-chat-latest on 2025-12-11."
             },
             {
               "publisher": "OpenAI",
@@ -6685,14 +6601,14 @@
         {
           "channel": "api",
           "stage": "public",
-          "date": "2025-12-18",
+          "date": "2026-01-14",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "GPT-5.2 Codex on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/gpt-5.2-codex/about",
-              "evidence": "Vercel AI Gateway identifies openai/gpt-5.2-codex as a public developer model and dates its release to 2025-12-18."
+              "publisher": "OpenAI",
+              "title": "OpenAI API changelog",
+              "url": "https://developers.openai.com/api/docs/changelog",
+              "evidence": "OpenAI's API changelog records the release of gpt-5.2-codex to the Responses API on 2026-01-14."
             },
             {
               "publisher": "OpenAI",
@@ -6733,10 +6649,10 @@
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "GPT-5.2 Pro on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/gpt-5.2-pro/about",
-              "evidence": "Vercel AI Gateway identifies openai/gpt-5.2-pro as a public developer model and dates its release to 2025-12-11."
+              "publisher": "OpenAI",
+              "title": "Introducing GPT-5.2",
+              "url": "https://openai.com/index/introducing-gpt-5-2/",
+              "evidence": "OpenAI's dated launch announcement says GPT-5.2 Pro became available in the API on 2025-12-11."
             },
             {
               "publisher": "OpenAI",
@@ -6757,15 +6673,15 @@
       "verified_at": "2026-07-22"
     },
     {
-      "model": "openai/gpt-5.3-chat",
-      "display_name": "GPT-5.3 Chat",
+      "model": "openai/gpt-5.3-chat-latest",
+      "display_name": "GPT-5.3 Chat Latest",
       "provider_id": "openai",
       "identifier_type": "model",
       "identifiers": [
         {
-          "namespace": "vercel-ai-gateway",
-          "value": "openai/gpt-5.3-chat",
-          "kind": "model"
+          "namespace": "openai-api",
+          "value": "gpt-5.3-chat-latest",
+          "kind": "alias"
         }
       ],
       "relationships": [],
@@ -6777,16 +6693,16 @@
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "GPT-5.3 Chat on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/gpt-5.3-chat/about",
-              "evidence": "Vercel AI Gateway identifies openai/gpt-5.3-chat as a public developer model and dates its release to 2026-03-03."
+              "publisher": "OpenAI",
+              "title": "OpenAI API changelog",
+              "url": "https://developers.openai.com/api/docs/changelog",
+              "evidence": "OpenAI's API changelog records the release of gpt-5.3-chat-latest on 2026-03-03."
             },
             {
               "publisher": "OpenAI",
-              "title": "GPT-5.3 Chat model documentation",
-              "url": "https://developers.openai.com/api/docs/models/gpt-5.3-chat",
-              "evidence": "OpenAI's model documentation lists gpt-5.3-chat as an API model."
+              "title": "GPT-5.3 Chat Latest model documentation",
+              "url": "https://developers.openai.com/api/docs/models/gpt-5.3-chat-latest",
+              "evidence": "OpenAI's model documentation lists gpt-5.3-chat-latest as an API model."
             }
           ]
         }
@@ -6817,14 +6733,14 @@
         {
           "channel": "api",
           "stage": "public",
-          "date": "2026-02-05",
+          "date": "2026-02-24",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "GPT-5.3 Codex on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/gpt-5.3-codex/about",
-              "evidence": "Vercel AI Gateway identifies openai/gpt-5.3-codex as a public developer model and dates its release to 2026-02-05."
+              "publisher": "OpenAI",
+              "title": "OpenAI API changelog",
+              "url": "https://developers.openai.com/api/docs/changelog",
+              "evidence": "OpenAI's API changelog records the release of gpt-5.3-codex to the Responses API on 2026-02-24."
             },
             {
               "publisher": "OpenAI",
@@ -7041,10 +6957,10 @@
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "GPT-5.6 Luna on AI Gateway",
-              "url": "https://ai-gateway.vercel.sh/v1/models/openai/gpt-5.6-luna",
-              "evidence": "Vercel AI Gateway's model endpoint exposes the exact identifier openai/gpt-5.6-luna."
+              "publisher": "OpenAI",
+              "title": "OpenAI API changelog",
+              "url": "https://developers.openai.com/api/docs/changelog",
+              "evidence": "OpenAI's API changelog records the release of gpt-5.6-luna on 2026-07-09."
             },
             {
               "publisher": "OpenAI",
@@ -7085,10 +7001,10 @@
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "GPT-5.6 Sol on AI Gateway",
-              "url": "https://ai-gateway.vercel.sh/v1/models/openai/gpt-5.6-sol",
-              "evidence": "Vercel AI Gateway's model endpoint exposes the exact identifier openai/gpt-5.6-sol."
+              "publisher": "OpenAI",
+              "title": "OpenAI API changelog",
+              "url": "https://developers.openai.com/api/docs/changelog",
+              "evidence": "OpenAI's API changelog records the release of gpt-5.6-sol on 2026-07-09."
             },
             {
               "publisher": "OpenAI",
@@ -7129,10 +7045,10 @@
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "GPT-5.6 Terra on AI Gateway",
-              "url": "https://ai-gateway.vercel.sh/v1/models/openai/gpt-5.6-terra",
-              "evidence": "Vercel AI Gateway's model endpoint exposes the exact identifier openai/gpt-5.6-terra."
+              "publisher": "OpenAI",
+              "title": "OpenAI API changelog",
+              "url": "https://developers.openai.com/api/docs/changelog",
+              "evidence": "OpenAI's API changelog records the release of gpt-5.6-terra on 2026-07-09."
             },
             {
               "publisher": "OpenAI",
@@ -7274,8 +7190,13 @@
       "model": "openai/gpt-oss-safeguard-20b",
       "display_name": "GPT OSS Safeguard 20B",
       "provider_id": "openai",
-      "identifier_type": "model",
+      "identifier_type": "weights",
       "identifiers": [
+        {
+          "namespace": "huggingface",
+          "value": "openai/gpt-oss-safeguard-20b",
+          "kind": "weights"
+        },
         {
           "namespace": "vercel-ai-gateway",
           "value": "openai/gpt-oss-safeguard-20b",
@@ -7285,29 +7206,30 @@
       "relationships": [],
       "availability_events": [
         {
-          "channel": "api",
+          "channel": "weights",
           "stage": "public",
           "date": "2025-10-29",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "GPT OSS Safeguard 20B on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/gpt-oss-safeguard-20b/about",
-              "evidence": "Vercel AI Gateway identifies openai/gpt-oss-safeguard-20b as a public developer model and dates its release to 2025-10-29."
+              "publisher": "OpenAI",
+              "title": "Introducing gpt-oss-safeguard",
+              "url": "https://openai.com/index/introducing-gpt-oss-safeguard/",
+              "evidence": "OpenAI's dated launch announcement released the gpt-oss-safeguard-20b weights on 2025-10-29."
             },
             {
               "publisher": "OpenAI",
-              "title": "GPT OSS Safeguard 20B model documentation",
-              "url": "https://developers.openai.com/api/docs/models/gpt-oss-safeguard-20b",
-              "evidence": "OpenAI's model documentation lists gpt-oss-safeguard-20b as an API model."
+              "title": "gpt-oss-safeguard-20b weights",
+              "url": "https://huggingface.co/openai/gpt-oss-safeguard-20b",
+              "evidence": "OpenAI's official repository identifies the downloadable gpt-oss-safeguard-20b weights."
             }
           ]
         }
       ],
       "lifecycle_events": [],
       "capabilities": [
-        "text"
+        "text",
+        "weights"
       ],
       "last_changed_at": "2026-07-22",
       "verified_at": "2026-07-22"
@@ -7930,91 +7852,16 @@
       "verified_at": "2026-07-22"
     },
     {
-      "model": "perplexity/sonar-reasoning",
-      "display_name": "Sonar Reasoning",
-      "provider_id": "perplexity",
-      "identifier_type": "model",
-      "identifiers": [
-        {
-          "namespace": "vercel-ai-gateway",
-          "value": "perplexity/sonar-reasoning",
-          "kind": "model"
-        }
-      ],
-      "relationships": [],
-      "availability_events": [
-        {
-          "channel": "api",
-          "stage": "public",
-          "date": "2025-02-19",
-          "confidence": "confirmed",
-          "sources": [
-            {
-              "publisher": "Perplexity",
-              "title": "Sonar Reasoning release documentation",
-              "url": "https://www.perplexity.ai/hub/blog/introducing-the-sonar-pro-api",
-              "evidence": "Perplexity's release documentation confirms public developer availability for Sonar Reasoning on 2025-02-19."
-            }
-          ]
-        }
-      ],
-      "lifecycle_events": [],
-      "capabilities": [
-        "text",
-        "reasoning"
-      ],
-      "last_changed_at": "2026-07-22",
-      "verified_at": "2026-07-22"
-    },
-    {
-      "model": "perplexity/sonar-reasoning-pro",
-      "display_name": "Sonar Reasoning Pro",
-      "provider_id": "perplexity",
-      "identifier_type": "model",
-      "identifiers": [
-        {
-          "namespace": "vercel-ai-gateway",
-          "value": "perplexity/sonar-reasoning-pro",
-          "kind": "model"
-        }
-      ],
-      "relationships": [],
-      "availability_events": [
-        {
-          "channel": "api",
-          "stage": "public",
-          "date": "2025-02-19",
-          "confidence": "confirmed",
-          "sources": [
-            {
-              "publisher": "Perplexity",
-              "title": "Sonar Reasoning Pro release documentation",
-              "url": "https://www.perplexity.ai/hub/blog/introducing-the-sonar-pro-api",
-              "evidence": "Perplexity's release documentation confirms public developer availability for Sonar Reasoning Pro on 2025-02-19."
-            },
-            {
-              "publisher": "Vercel",
-              "title": "Sonar Reasoning Pro on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/sonar-reasoning-pro/about",
-              "evidence": "Vercel AI Gateway exposes the model with the identifier perplexity/sonar-reasoning-pro."
-            }
-          ]
-        }
-      ],
-      "lifecycle_events": [],
-      "capabilities": [
-        "text",
-        "reasoning"
-      ],
-      "last_changed_at": "2026-07-22",
-      "verified_at": "2026-07-22"
-    },
-    {
       "model": "qwen/qwen-3-14b",
       "display_name": "Qwen 3 14B",
       "provider_id": "qwen",
-      "identifier_type": "model",
+      "identifier_type": "weights",
       "identifiers": [
+        {
+          "namespace": "huggingface",
+          "value": "Qwen/Qwen3-14B",
+          "kind": "weights"
+        },
         {
           "namespace": "vercel-ai-gateway",
           "value": "qwen/qwen-3-14b",
@@ -8024,16 +7871,16 @@
       "relationships": [],
       "availability_events": [
         {
-          "channel": "api",
+          "channel": "weights",
           "stage": "public",
           "date": "2025-04-28",
           "confidence": "confirmed",
           "sources": [
             {
               "publisher": "Qwen",
-              "title": "Qwen 3 14B release documentation",
+              "title": "Qwen3 launch",
               "url": "https://qwen.ai/blog?id=qwen3",
-              "evidence": "Qwen's release documentation confirms public developer availability for Qwen 3 14B on 2025-04-28."
+              "evidence": "Qwen's dated launch announcement released the Qwen3-14B weights on 2025-04-28."
             },
             {
               "publisher": "Vercel",
@@ -8046,7 +7893,8 @@
       ],
       "lifecycle_events": [],
       "capabilities": [
-        "text"
+        "text",
+        "weights"
       ],
       "last_changed_at": "2026-07-22",
       "verified_at": "2026-07-22"
@@ -8055,8 +7903,13 @@
       "model": "qwen/qwen-3-235b",
       "display_name": "Qwen 3 235B",
       "provider_id": "qwen",
-      "identifier_type": "model",
+      "identifier_type": "weights",
       "identifiers": [
+        {
+          "namespace": "huggingface",
+          "value": "Qwen/Qwen3-235B-A22B",
+          "kind": "weights"
+        },
         {
           "namespace": "vercel-ai-gateway",
           "value": "qwen/qwen-3-235b",
@@ -8066,16 +7919,16 @@
       "relationships": [],
       "availability_events": [
         {
-          "channel": "api",
+          "channel": "weights",
           "stage": "public",
           "date": "2025-04-28",
           "confidence": "confirmed",
           "sources": [
             {
               "publisher": "Qwen",
-              "title": "Qwen 3 235B release documentation",
+              "title": "Qwen3 launch",
               "url": "https://qwen.ai/blog?id=qwen3",
-              "evidence": "Qwen's release documentation confirms public developer availability for Qwen 3 235B on 2025-04-28."
+              "evidence": "Qwen's dated launch announcement released the Qwen3-235B-A22B weights on 2025-04-28."
             },
             {
               "publisher": "Vercel",
@@ -8088,7 +7941,8 @@
       ],
       "lifecycle_events": [],
       "capabilities": [
-        "text"
+        "text",
+        "weights"
       ],
       "last_changed_at": "2026-07-22",
       "verified_at": "2026-07-22"
@@ -8097,8 +7951,13 @@
       "model": "qwen/qwen-3-30b",
       "display_name": "Qwen 3 30B",
       "provider_id": "qwen",
-      "identifier_type": "model",
+      "identifier_type": "weights",
       "identifiers": [
+        {
+          "namespace": "huggingface",
+          "value": "Qwen/Qwen3-30B-A3B",
+          "kind": "weights"
+        },
         {
           "namespace": "vercel-ai-gateway",
           "value": "qwen/qwen-3-30b",
@@ -8108,16 +7967,16 @@
       "relationships": [],
       "availability_events": [
         {
-          "channel": "api",
+          "channel": "weights",
           "stage": "public",
           "date": "2025-04-28",
           "confidence": "confirmed",
           "sources": [
             {
               "publisher": "Qwen",
-              "title": "Qwen 3 30B release documentation",
+              "title": "Qwen3 launch",
               "url": "https://qwen.ai/blog?id=qwen3",
-              "evidence": "Qwen's release documentation confirms public developer availability for Qwen 3 30B on 2025-04-28."
+              "evidence": "Qwen's dated launch announcement released the Qwen3-30B-A3B weights on 2025-04-28."
             },
             {
               "publisher": "Vercel",
@@ -8130,7 +7989,8 @@
       ],
       "lifecycle_events": [],
       "capabilities": [
-        "text"
+        "text",
+        "weights"
       ],
       "last_changed_at": "2026-07-22",
       "verified_at": "2026-07-22"
@@ -8139,8 +7999,13 @@
       "model": "qwen/qwen-3-32b",
       "display_name": "Qwen 3 32B",
       "provider_id": "qwen",
-      "identifier_type": "model",
+      "identifier_type": "weights",
       "identifiers": [
+        {
+          "namespace": "huggingface",
+          "value": "Qwen/Qwen3-32B",
+          "kind": "weights"
+        },
         {
           "namespace": "vercel-ai-gateway",
           "value": "qwen/qwen-3-32b",
@@ -8150,16 +8015,16 @@
       "relationships": [],
       "availability_events": [
         {
-          "channel": "api",
+          "channel": "weights",
           "stage": "public",
           "date": "2025-04-28",
           "confidence": "confirmed",
           "sources": [
             {
               "publisher": "Qwen",
-              "title": "Qwen 3 32B release documentation",
+              "title": "Qwen3 launch",
               "url": "https://qwen.ai/blog?id=qwen3",
-              "evidence": "Qwen's release documentation confirms public developer availability for Qwen 3 32B on 2025-04-28."
+              "evidence": "Qwen's dated launch announcement released the Qwen3-32B weights on 2025-04-28."
             },
             {
               "publisher": "Vercel",
@@ -8172,7 +8037,8 @@
       ],
       "lifecycle_events": [],
       "capabilities": [
-        "text"
+        "text",
+        "weights"
       ],
       "last_changed_at": "2026-07-22",
       "verified_at": "2026-07-22"
@@ -8189,19 +8055,24 @@
           "kind": "model"
         }
       ],
-      "relationships": [],
+      "relationships": [
+        {
+          "type": "alias_of",
+          "target_model": "qwen/qwen3-235b-a22b-thinking-2507"
+        }
+      ],
       "availability_events": [
         {
-          "channel": "api",
+          "channel": "weights",
           "stage": "public",
           "date": "2025-07-25",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Qwen",
-              "title": "Qwen3 235B A22B Thinking release documentation",
-              "url": "https://qwen.ai/blog?id=qwen3",
-              "evidence": "Qwen's release documentation confirms public developer availability for Qwen3 235B A22B Thinking on 2025-07-25."
+              "publisher": "Hugging Face",
+              "title": "Qwen3 235B A22B Thinking 2507 repository metadata",
+              "url": "https://huggingface.co/api/models/Qwen/Qwen3-235B-A22B-Thinking-2507",
+              "evidence": "Hugging Face's repository metadata dates Qwen's public Qwen3-235B-A22B-Thinking-2507 weights to 2025-07-25."
             },
             {
               "publisher": "Vercel",
@@ -8215,7 +8086,8 @@
       "lifecycle_events": [],
       "capabilities": [
         "text",
-        "reasoning"
+        "reasoning",
+        "weights"
       ],
       "last_changed_at": "2026-07-22",
       "verified_at": "2026-07-22"
@@ -8224,8 +8096,13 @@
       "model": "qwen/qwen3-235b-a22b-thinking-2507",
       "display_name": "Qwen3 235B A22B Thinking 2507",
       "provider_id": "qwen",
-      "identifier_type": "snapshot",
+      "identifier_type": "weights",
       "identifiers": [
+        {
+          "namespace": "huggingface",
+          "value": "Qwen/Qwen3-235B-A22B-Thinking-2507",
+          "kind": "weights"
+        },
         {
           "namespace": "vercel-ai-gateway",
           "value": "qwen/qwen3-235b-a22b-thinking-2507",
@@ -8240,16 +8117,16 @@
       ],
       "availability_events": [
         {
-          "channel": "api",
+          "channel": "weights",
           "stage": "public",
           "date": "2025-07-25",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Qwen",
-              "title": "Qwen3 235B A22B Thinking 2507 release documentation",
-              "url": "https://qwen.ai/blog?id=qwen3",
-              "evidence": "Qwen's release documentation confirms public developer availability for Qwen3 235B A22B Thinking 2507 on 2025-07-25."
+              "publisher": "Hugging Face",
+              "title": "Qwen3 235B A22B Thinking 2507 repository metadata",
+              "url": "https://huggingface.co/api/models/Qwen/Qwen3-235B-A22B-Thinking-2507",
+              "evidence": "Hugging Face's repository metadata dates Qwen's public Qwen3-235B-A22B-Thinking-2507 weights to 2025-07-25."
             }
           ]
         }
@@ -8257,7 +8134,8 @@
       "lifecycle_events": [],
       "capabilities": [
         "text",
-        "reasoning"
+        "reasoning",
+        "weights"
       ],
       "last_changed_at": "2026-07-22",
       "verified_at": "2026-07-22"
@@ -8266,8 +8144,13 @@
       "model": "qwen/qwen3-30b-a3b-instruct-2507",
       "display_name": "Qwen3 30B A3B Instruct 2507",
       "provider_id": "qwen",
-      "identifier_type": "snapshot",
+      "identifier_type": "weights",
       "identifiers": [
+        {
+          "namespace": "huggingface",
+          "value": "Qwen/Qwen3-30B-A3B-Instruct-2507",
+          "kind": "weights"
+        },
         {
           "namespace": "vercel-ai-gateway",
           "value": "qwen/qwen3-30b-a3b-instruct-2507",
@@ -8277,23 +8160,24 @@
       "relationships": [],
       "availability_events": [
         {
-          "channel": "api",
+          "channel": "weights",
           "stage": "public",
-          "date": "2025-07-29",
+          "date": "2025-07-28",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Qwen",
-              "title": "Qwen3 30B A3B Instruct 2507 release documentation",
-              "url": "https://qwen.ai/blog?id=qwen3",
-              "evidence": "Qwen's release documentation confirms public developer availability for Qwen3 30B A3B Instruct 2507 on 2025-07-29."
+              "publisher": "Hugging Face",
+              "title": "Qwen3 30B A3B Instruct 2507 repository metadata",
+              "url": "https://huggingface.co/api/models/Qwen/Qwen3-30B-A3B-Instruct-2507",
+              "evidence": "Hugging Face's repository metadata dates Qwen's public Qwen3-30B-A3B-Instruct-2507 weights to 2025-07-28."
             }
           ]
         }
       ],
       "lifecycle_events": [],
       "capabilities": [
-        "text"
+        "text",
+        "weights"
       ],
       "last_changed_at": "2026-07-22",
       "verified_at": "2026-07-22"
@@ -8302,8 +8186,13 @@
       "model": "qwen/qwen3-30b-a3b-thinking-2507",
       "display_name": "Qwen3 30B A3B Thinking 2507",
       "provider_id": "qwen",
-      "identifier_type": "snapshot",
+      "identifier_type": "weights",
       "identifiers": [
+        {
+          "namespace": "huggingface",
+          "value": "Qwen/Qwen3-30B-A3B-Thinking-2507",
+          "kind": "weights"
+        },
         {
           "namespace": "vercel-ai-gateway",
           "value": "qwen/qwen3-30b-a3b-thinking-2507",
@@ -8313,16 +8202,16 @@
       "relationships": [],
       "availability_events": [
         {
-          "channel": "api",
+          "channel": "weights",
           "stage": "public",
           "date": "2025-07-29",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Qwen",
-              "title": "Qwen3 30B A3B Thinking 2507 release documentation",
-              "url": "https://qwen.ai/blog?id=qwen3",
-              "evidence": "Qwen's release documentation confirms public developer availability for Qwen3 30B A3B Thinking 2507 on 2025-07-29."
+              "publisher": "Hugging Face",
+              "title": "Qwen3 30B A3B Thinking 2507 repository metadata",
+              "url": "https://huggingface.co/api/models/Qwen/Qwen3-30B-A3B-Thinking-2507",
+              "evidence": "Hugging Face's repository metadata dates Qwen's public Qwen3-30B-A3B-Thinking-2507 weights to 2025-07-29."
             }
           ]
         }
@@ -8330,7 +8219,8 @@
       "lifecycle_events": [],
       "capabilities": [
         "text",
-        "reasoning"
+        "reasoning",
+        "weights"
       ],
       "last_changed_at": "2026-07-22",
       "verified_at": "2026-07-22"
@@ -8339,8 +8229,13 @@
       "model": "qwen/qwen3-coder",
       "display_name": "Qwen3 Coder",
       "provider_id": "qwen",
-      "identifier_type": "model",
+      "identifier_type": "weights",
       "identifiers": [
+        {
+          "namespace": "huggingface",
+          "value": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
+          "kind": "weights"
+        },
         {
           "namespace": "vercel-ai-gateway",
           "value": "qwen/qwen3-coder",
@@ -8350,16 +8245,16 @@
       "relationships": [],
       "availability_events": [
         {
-          "channel": "api",
+          "channel": "weights",
           "stage": "public",
           "date": "2025-07-22",
           "confidence": "confirmed",
           "sources": [
             {
               "publisher": "Qwen",
-              "title": "Qwen3 Coder release documentation",
-              "url": "https://qwen.ai/blog?id=qwen3-coder",
-              "evidence": "Qwen's release documentation confirms public developer availability for Qwen3 Coder on 2025-07-22."
+              "title": "Qwen3-Coder: Agentic Coding in the World",
+              "url": "https://qwen.ai/blog?from=research.research-list&id=d927d7d2e59d059045ce758ded34f98c0186d2d7",
+              "evidence": "Qwen's dated launch announcement released the Qwen3-Coder-480B-A35B-Instruct weights on 2025-07-22."
             },
             {
               "publisher": "Vercel",
@@ -8372,7 +8267,8 @@
       ],
       "lifecycle_events": [],
       "capabilities": [
-        "text"
+        "text",
+        "weights"
       ],
       "last_changed_at": "2026-07-22",
       "verified_at": "2026-07-22"
@@ -8381,8 +8277,13 @@
       "model": "qwen/qwen3-coder-30b-a3b",
       "display_name": "Qwen3 Coder 30B A3B",
       "provider_id": "qwen",
-      "identifier_type": "model",
+      "identifier_type": "weights",
       "identifiers": [
+        {
+          "namespace": "huggingface",
+          "value": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+          "kind": "weights"
+        },
         {
           "namespace": "vercel-ai-gateway",
           "value": "qwen/qwen3-coder-30b-a3b",
@@ -8392,16 +8293,16 @@
       "relationships": [],
       "availability_events": [
         {
-          "channel": "api",
+          "channel": "weights",
           "stage": "public",
           "date": "2025-07-31",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Qwen",
-              "title": "Qwen3 Coder 30B A3B release documentation",
-              "url": "https://qwen.ai/blog?id=qwen3-coder",
-              "evidence": "Qwen's release documentation confirms public developer availability for Qwen3 Coder 30B A3B on 2025-07-31."
+              "publisher": "Hugging Face",
+              "title": "Qwen3 Coder 30B A3B repository metadata",
+              "url": "https://huggingface.co/api/models/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+              "evidence": "Hugging Face's repository metadata dates Qwen's public Qwen3-Coder-30B-A3B-Instruct weights to 2025-07-31."
             },
             {
               "publisher": "Vercel",
@@ -8414,7 +8315,8 @@
       ],
       "lifecycle_events": [],
       "capabilities": [
-        "text"
+        "text",
+        "weights"
       ],
       "last_changed_at": "2026-07-22",
       "verified_at": "2026-07-22"
@@ -8423,8 +8325,13 @@
       "model": "qwen/qwen3-coder-next",
       "display_name": "Qwen3 Coder Next",
       "provider_id": "qwen",
-      "identifier_type": "model",
+      "identifier_type": "weights",
       "identifiers": [
+        {
+          "namespace": "huggingface",
+          "value": "Qwen/Qwen3-Coder-Next",
+          "kind": "weights"
+        },
         {
           "namespace": "vercel-ai-gateway",
           "value": "qwen/qwen3-coder-next",
@@ -8434,16 +8341,16 @@
       "relationships": [],
       "availability_events": [
         {
-          "channel": "api",
+          "channel": "weights",
           "stage": "public",
-          "date": "2026-02-03",
+          "date": "2026-01-30",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Qwen",
-              "title": "Qwen3 Coder Next release documentation",
-              "url": "https://qwen.ai/blog?id=qwen3-coder",
-              "evidence": "Qwen's release documentation confirms public developer availability for Qwen3 Coder Next on 2026-02-03."
+              "publisher": "Hugging Face",
+              "title": "Qwen3 Coder Next repository metadata",
+              "url": "https://huggingface.co/api/models/Qwen/Qwen3-Coder-Next",
+              "evidence": "Hugging Face's repository metadata dates Qwen's public Qwen3-Coder-Next weights to 2026-01-30."
             },
             {
               "publisher": "Vercel",
@@ -8456,7 +8363,8 @@
       ],
       "lifecycle_events": [],
       "capabilities": [
-        "text"
+        "text",
+        "weights"
       ],
       "last_changed_at": "2026-07-22",
       "verified_at": "2026-07-22"
@@ -8483,9 +8391,9 @@
           "sources": [
             {
               "publisher": "Qwen",
-              "title": "Qwen3 Max release documentation",
+              "title": "Qwen3-Max: Our Largest and Most Capable Model So Far",
               "url": "https://qwen.ai/blog?id=qwen3-max",
-              "evidence": "Qwen's release documentation confirms public developer availability for Qwen3 Max on 2025-09-24."
+              "evidence": "Qwen's dated launch announcement says qwen3-max became available through Model Studio on 2025-09-24."
             },
             {
               "publisher": "Vercel",
@@ -8525,9 +8433,9 @@
           "sources": [
             {
               "publisher": "Qwen",
-              "title": "Qwen3 Next 80B A3B Instruct release documentation",
+              "title": "Qwen3-Next: Towards Ultimate Training and Inference Efficiency",
               "url": "https://qwen.ai/blog?id=qwen3-next",
-              "evidence": "Qwen's release documentation confirms public developer availability for Qwen3 Next 80B A3B Instruct on 2025-09-10."
+              "evidence": "Qwen's dated launch announcement released Qwen3-Next-80B-A3B-Instruct through official APIs and weight repositories on 2025-09-10."
             },
             {
               "publisher": "Vercel",
@@ -8567,9 +8475,9 @@
           "sources": [
             {
               "publisher": "Qwen",
-              "title": "Qwen3 Next 80B A3B Thinking release documentation",
+              "title": "Qwen3-Next: Towards Ultimate Training and Inference Efficiency",
               "url": "https://qwen.ai/blog?id=qwen3-next",
-              "evidence": "Qwen's release documentation confirms public developer availability for Qwen3 Next 80B A3B Thinking on 2025-09-10."
+              "evidence": "Qwen's dated launch announcement released Qwen3-Next-80B-A3B-Thinking through official APIs and weight repositories on 2025-09-10."
             },
             {
               "publisher": "Vercel",
@@ -8592,8 +8500,13 @@
       "model": "qwen/qwen3-vl-instruct",
       "display_name": "Qwen3 VL Instruct",
       "provider_id": "qwen",
-      "identifier_type": "model",
+      "identifier_type": "weights",
       "identifiers": [
+        {
+          "namespace": "huggingface",
+          "value": "Qwen/Qwen3-VL-235B-A22B-Instruct",
+          "kind": "weights"
+        },
         {
           "namespace": "vercel-ai-gateway",
           "value": "qwen/qwen3-vl-instruct",
@@ -8603,16 +8516,16 @@
       "relationships": [],
       "availability_events": [
         {
-          "channel": "api",
+          "channel": "weights",
           "stage": "public",
-          "date": "2025-09-23",
+          "date": "2025-09-22",
           "confidence": "confirmed",
           "sources": [
             {
               "publisher": "Qwen",
-              "title": "Qwen3 VL Instruct release documentation",
-              "url": "https://qwen.ai/blog?id=qwen3",
-              "evidence": "Qwen's release documentation confirms public developer availability for Qwen3 VL Instruct on 2025-09-23."
+              "title": "Qwen3-VL: Sharper Vision, Deeper Thought, Broader Action",
+              "url": "https://qwen.ai/blog?from=research.research-list&id=b550154aa5ba6b812cdebba2b9dc1156c4369d40",
+              "evidence": "Qwen's dated launch announcement open-sourced Qwen3-VL-235B-A22B-Instruct on 2025-09-22."
             },
             {
               "publisher": "Vercel",
@@ -8626,7 +8539,8 @@
       "lifecycle_events": [],
       "capabilities": [
         "text",
-        "vision"
+        "vision",
+        "weights"
       ],
       "last_changed_at": "2026-07-22",
       "verified_at": "2026-07-22"
@@ -8635,8 +8549,13 @@
       "model": "qwen/qwen3-vl-thinking",
       "display_name": "Qwen3 VL Thinking",
       "provider_id": "qwen",
-      "identifier_type": "model",
+      "identifier_type": "weights",
       "identifiers": [
+        {
+          "namespace": "huggingface",
+          "value": "Qwen/Qwen3-VL-235B-A22B-Thinking",
+          "kind": "weights"
+        },
         {
           "namespace": "vercel-ai-gateway",
           "value": "qwen/qwen3-vl-thinking",
@@ -8646,16 +8565,16 @@
       "relationships": [],
       "availability_events": [
         {
-          "channel": "api",
+          "channel": "weights",
           "stage": "public",
-          "date": "2025-09-23",
+          "date": "2025-09-22",
           "confidence": "confirmed",
           "sources": [
             {
               "publisher": "Qwen",
-              "title": "Qwen3 VL Thinking release documentation",
-              "url": "https://qwen.ai/blog?id=qwen3",
-              "evidence": "Qwen's release documentation confirms public developer availability for Qwen3 VL Thinking on 2025-09-23."
+              "title": "Qwen3-VL: Sharper Vision, Deeper Thought, Broader Action",
+              "url": "https://qwen.ai/blog?from=research.research-list&id=b550154aa5ba6b812cdebba2b9dc1156c4369d40",
+              "evidence": "Qwen's dated launch announcement open-sourced Qwen3-VL-235B-A22B-Thinking on 2025-09-22."
             },
             {
               "publisher": "Vercel",
@@ -8670,7 +8589,8 @@
       "capabilities": [
         "text",
         "vision",
-        "reasoning"
+        "reasoning",
+        "weights"
       ],
       "last_changed_at": "2026-07-22",
       "verified_at": "2026-07-22"
@@ -8696,10 +8616,10 @@
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Qwen",
-              "title": "Qwen3.5 Flash release documentation",
-              "url": "https://qwen.ai/blog?id=qwen3",
-              "evidence": "Qwen's release documentation confirms public developer availability for Qwen3.5 Flash on 2026-02-24."
+              "publisher": "Alibaba Cloud",
+              "title": "Model Studio newly released models",
+              "url": "https://www.alibabacloud.com/help/en/model-studio/newly-released-models",
+              "evidence": "Alibaba Cloud's official Model Studio release log dates qwen3.5-flash API availability to 2026-02-24."
             },
             {
               "publisher": "Vercel",
@@ -8738,10 +8658,10 @@
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Qwen",
-              "title": "Qwen3.6 Plus release documentation",
-              "url": "https://qwen.ai/blog?id=qwen3",
-              "evidence": "Qwen's release documentation confirms public developer availability for Qwen3.6 Plus on 2026-04-02."
+              "publisher": "Alibaba Cloud",
+              "title": "Model Studio newly released models",
+              "url": "https://www.alibabacloud.com/help/en/model-studio/newly-released-models",
+              "evidence": "Alibaba Cloud's official Model Studio release log dates qwen3.6-plus API availability to 2026-04-02."
             },
             {
               "publisher": "Vercel",
