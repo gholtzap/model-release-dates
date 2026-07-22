@@ -15,29 +15,30 @@ function vercelConfig(): JsonRecord {
 }
 
 test("Vercel routes the documented public item URL to the item handler", () => {
-  const rewrites = asArray(vercelConfig()["rewrites"]).map(asRecord);
+  const routes = asArray(vercelConfig()["routes"]).map(asRecord);
   assert.ok(
-    rewrites.some(
-      (rewrite) =>
-        rewrite["source"] === "/api/models/:provider/:model" &&
-        rewrite["destination"] === "/api/model",
+    routes.some(
+      (route) =>
+        route["src"] === "/api/models/(?<provider>[^/]+)/(?<model>[^/]+)" &&
+        route["dest"] === "/api/model?provider=$provider&model=$model",
     ),
   );
   assert.ok(
-    rewrites.some(
-      (rewrite) =>
-        rewrite["source"] === "/api/identifiers/:namespace/:identifier" &&
-        rewrite["destination"] === "/api/identifier",
-    ),
+    routes.some(
+      (route) =>
+        route["src"] === "/api/identifiers/(?<namespace>[^/]+)/(?<identifier>[^/]+)" &&
+        route["dest"] === "/api/identifier?namespace=$namespace&identifier=$identifier",
+      ),
   );
-  assert.deepEqual(rewrites.at(-1), {
-    source: "/api/:path*",
-    destination: "/api/not-found",
+  assert.ok(routes.some((route) => route["handle"] === "filesystem"));
+  assert.deepEqual(routes.at(-1), {
+    src: "/api/(.*)",
+    dest: "/api/not-found",
   });
 });
 
 test("unknown API routes return the JSON API envelope with CORS and no caching", async () => {
-  for (const method of ["GET", "POST", "PUT", "PATCH", "DELETE"]) {
+  for (const method of ["GET", "POST"]) {
     const response = notFoundHandler.fetch(new Request("https://example.test/api/not-a-route", { method }));
     assert.equal(response.status, 404);
     assert.deepEqual(await responseBody(response), {
@@ -48,9 +49,16 @@ test("unknown API routes return the JSON API envelope with CORS and no caching",
     assert.equal(response.headers.get("access-control-allow-origin"), "*");
     assert.equal(
       response.headers.get("access-control-allow-methods"),
-      "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+      "GET, HEAD, POST, OPTIONS",
     );
     assert.equal(response.headers.get("x-content-type-options"), "nosniff");
+  }
+
+  for (const method of ["PUT", "PATCH", "DELETE"]) {
+    const response = notFoundHandler.fetch(new Request("https://example.test/api/not-a-route", { method }));
+    assert.equal(response.status, 405);
+    assert.equal(asRecord((await responseBody(response))["error"])["code"], "method_not_allowed");
+    assert.equal(response.headers.get("allow"), "GET, HEAD, POST, OPTIONS");
   }
 
   const head = notFoundHandler.fetch(new Request("https://example.test/api/not-a-route", { method: "HEAD" }));
@@ -139,17 +147,11 @@ test("the explorer ships the accessible responsive workbench contract", () => {
 });
 
 test("Vercel applies the public-site security policy to every route", () => {
-  const rules = asArray(vercelConfig()["headers"]).map(asRecord);
-  const rule = rules.find((candidate) => candidate["source"] === "/(.*)");
+  const rules = asArray(vercelConfig()["routes"]).map(asRecord);
+  const rule = rules.find((candidate) => candidate["src"] === "/(.*)");
   assert.notEqual(rule, undefined);
-
-  const headers = Object.fromEntries(
-    asArray(rule!["headers"]).map((value) => {
-      const header = asRecord(value);
-      return [header["key"], header["value"]];
-    }),
-  );
-  assert.deepEqual(headers, {
+  assert.equal(rule!["continue"], true);
+  assert.deepEqual(asRecord(rule!["headers"]), {
     "Content-Security-Policy":
       "default-src 'self'; base-uri 'none'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'",
     "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
@@ -158,19 +160,45 @@ test("Vercel applies the public-site security policy to every route", () => {
   });
 });
 
-test("Vercel applies common CORS headers before API responses reach the function", () => {
-  const rules = asArray(vercelConfig()["headers"]).map(asRecord);
-  const rule = rules.find((candidate) => candidate["source"] === "/api/(.*)");
-  assert.notEqual(rule, undefined);
-  const headers = Object.fromEntries(
-    asArray(rule!["headers"]).map((value) => {
-      const header = asRecord(value);
-      return [header["key"], header["value"]];
-    }),
-  );
-  assert.deepEqual(headers, {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type, If-None-Match",
-    "Access-Control-Expose-Headers": "ETag",
+test("Vercel preserves API conditional-request and CORS behavior at the edge", () => {
+  const routes = asArray(vercelConfig()["routes"]).map(asRecord);
+  const postResolve = routes.find((route) => route["src"] === "/api/resolve");
+  assert.deepEqual(postResolve, {
+    src: "/api/resolve",
+    methods: ["POST"],
+    continue: true,
+    transforms: [
+      {
+        type: "request.headers",
+        op: "delete",
+        target: { key: "if-none-match" },
+      },
+    ],
+  });
+
+  const api = routes.find((route) => route["src"] === "/api/(.*)");
+  assert.deepEqual(api, {
+    src: "/api/(.*)",
+    continue: true,
+    transforms: [
+      {
+        type: "response.headers",
+        op: "set",
+        target: { key: "access-control-allow-origin" },
+        args: "*",
+      },
+      {
+        type: "response.headers",
+        op: "set",
+        target: { key: "access-control-allow-headers" },
+        args: "Content-Type, If-None-Match",
+      },
+      {
+        type: "response.headers",
+        op: "set",
+        target: { key: "access-control-expose-headers" },
+        args: "ETag",
+      },
+    ],
   });
 });

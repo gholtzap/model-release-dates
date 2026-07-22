@@ -2,58 +2,75 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm run build",
   "outputDirectory": "public",
-  "headers": [
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "headers": [
+      "src": "/api/resolve",
+      "methods": ["POST"],
+      "continue": true,
+      "transforms": [
         {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type, If-None-Match"
-        },
-        {
-          "key": "Access-Control-Expose-Headers",
-          "value": "ETag"
+          "type": "request.headers",
+          "op": "delete",
+          "target": {
+            "key": "if-none-match"
+          }
         }
       ]
     },
     {
-      "source": "/(.*)",
-      "headers": [
+      "src": "/api/(.*)",
+      "continue": true,
+      "transforms": [
         {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'self'; base-uri 'none'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'"
+          "type": "response.headers",
+          "op": "set",
+          "target": {
+            "key": "access-control-allow-origin"
+          },
+          "args": "*"
         },
         {
-          "key": "Permissions-Policy",
-          "value": "camera=(), microphone=(), geolocation=()"
+          "type": "response.headers",
+          "op": "set",
+          "target": {
+            "key": "access-control-allow-headers"
+          },
+          "args": "Content-Type, If-None-Match"
         },
         {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
+          "type": "response.headers",
+          "op": "set",
+          "target": {
+            "key": "access-control-expose-headers"
+          },
+          "args": "ETag"
         }
       ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/identifiers/:namespace/:identifier",
-      "destination": "/api/identifier"
     },
     {
-      "source": "/api/models/:provider/:model",
-      "destination": "/api/model"
+      "src": "/(.*)",
+      "continue": true,
+      "headers": {
+        "Content-Security-Policy": "default-src 'self'; base-uri 'none'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "X-Content-Type-Options": "nosniff"
+      }
     },
     {
-      "source": "/api/:path*",
-      "destination": "/api/not-found"
+      "src": "/api/identifiers/(?<namespace>[^/]+)/(?<identifier>[^/]+)",
+      "dest": "/api/identifier?namespace=$namespace&identifier=$identifier"
+    },
+    {
+      "src": "/api/models/(?<provider>[^/]+)/(?<model>[^/]+)",
+      "dest": "/api/model?provider=$provider&model=$model"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/not-found"
     }
   ],
   "functions": {

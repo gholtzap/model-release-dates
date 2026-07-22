@@ -1,6 +1,6 @@
 import { handleRequest, HttpError } from "../src/http.js";
 
-const API_METHODS = "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS";
+const API_METHODS = "GET, HEAD, POST, OPTIONS";
 
 function notFound(): never {
   throw new HttpError(404, "not_found", "API route was not found");
