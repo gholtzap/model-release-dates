@@ -33,6 +33,10 @@
     {
       "source": "/api/models/:provider/:model",
       "destination": "/api/model"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "/api/not-found"
     }
   ],
   "functions": {

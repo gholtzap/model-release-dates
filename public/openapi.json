@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "AI Model Release Date API",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "A source-backed catalog of AI model release dates, identifiers, lifecycle states, replacement hints, capabilities, and record changes."
   },
   "servers": [
@@ -393,7 +393,7 @@
       "NamespaceIndexResponse": { "type": "object", "required": ["data", "meta"], "properties": { "data": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["namespace", "identifier_count", "model_count"], "properties": { "namespace": { "type": "string" }, "identifier_count": { "type": "integer" }, "model_count": { "type": "integer" } } } }, "meta": { "allOf": [{ "$ref": "#/components/schemas/CatalogMeta" }, { "$ref": "#/components/schemas/IndexTotal" }] } } },
       "LifecycleIndexResponse": { "type": "object", "required": ["data", "meta"], "properties": { "data": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["status", "definition", "model_count"], "properties": { "status": { "$ref": "#/components/schemas/LifecycleStatus" }, "definition": { "type": "string" }, "model_count": { "type": "integer" } } } }, "meta": { "allOf": [{ "$ref": "#/components/schemas/CatalogMeta" }, { "$ref": "#/components/schemas/IndexTotal" }] } } },
       "IndexTotal": { "type": "object", "required": ["total"], "properties": { "total": { "type": "integer" } } },
-      "Error": { "type": "object", "additionalProperties": false, "required": ["code", "message"], "properties": { "code": { "type": "string", "enum": ["invalid_query", "invalid_request", "invalid_json", "model_not_found", "identifier_not_found", "request_too_large", "unsupported_media_type", "method_not_allowed", "internal_error"] }, "message": { "type": "string" } } },
+      "Error": { "type": "object", "additionalProperties": false, "required": ["code", "message"], "properties": { "code": { "type": "string", "enum": ["invalid_query", "invalid_request", "invalid_json", "model_not_found", "identifier_not_found", "not_found", "request_too_large", "unsupported_media_type", "method_not_allowed", "internal_error"] }, "message": { "type": "string" } } },
       "ErrorResponse": { "type": "object", "additionalProperties": false, "required": ["error"], "properties": { "error": { "$ref": "#/components/schemas/Error" } } },
       "IdentifierNotFoundResponse": { "type": "object", "additionalProperties": false, "required": ["error"], "properties": { "error": { "$ref": "#/components/schemas/Error" }, "suggestions": { "type": "array", "maxItems": 5, "items": { "$ref": "#/components/schemas/IdentifierSuggestion" } } } }
     }

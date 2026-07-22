@@ -89,13 +89,15 @@ function earlyResponse(request: Request, allowedMethods: string): Response | und
     const response = errorResponse(
       new HttpError(405, "method_not_allowed", `Method ${request.method} is not allowed`),
     );
+    response.headers.set("Access-Control-Allow-Methods", allowedMethods);
     response.headers.set("Allow", allowedMethods);
     return response;
   }
   return undefined;
 }
 
-function finishResponse(request: Request, response: Response): Response {
+function finishResponse(request: Request, response: Response, allowedMethods: string): Response {
+  response.headers.set("Access-Control-Allow-Methods", allowedMethods);
   return request.method === "HEAD"
     ? new Response(null, { status: response.status, headers: response.headers })
     : response;
@@ -113,14 +115,18 @@ function caughtResponse(error: unknown): Response {
 
 export type GetHandler = (request: Request) => Response;
 
-export function handleRequest(request: Request, get: GetHandler): Response {
-  const early = earlyResponse(request, READ_METHODS);
+export function handleRequest(
+  request: Request,
+  get: GetHandler,
+  allowedMethods = READ_METHODS,
+): Response {
+  const early = earlyResponse(request, allowedMethods);
   if (early !== undefined) return early;
 
   try {
-    return finishResponse(request, get(request));
+    return finishResponse(request, get(request), allowedMethods);
   } catch (error) {
-    return caughtResponse(error);
+    return finishResponse(request, caughtResponse(error), allowedMethods);
   }
 }
 
@@ -136,8 +142,8 @@ export async function handlePostRequest(
 
   try {
     const response = request.method === "POST" ? await post(request) : get(request);
-    return finishResponse(request, response);
+    return finishResponse(request, response, READ_WRITE_METHODS);
   } catch (error) {
-    return caughtResponse(error);
+    return finishResponse(request, caughtResponse(error), READ_WRITE_METHODS);
   }
 }

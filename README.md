@@ -107,6 +107,8 @@ curl 'https://model-release-dates.vercel.app/api/changes?since=2026-07-01&fields
 
 Requests to `/api/*` are limited to 100 requests per 60-second fixed window per source IP and Vercel region. Requests over the limit receive HTTP `429`.
 
+Unknown `/api/*` routes return JSON with HTTP `404` and `error.code` set to `not_found`.
+
 ## Response model
 
 Schema version 2 keeps evidence on the event it supports:

@@ -3,7 +3,8 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import test from "node:test";
 
-import { asArray, asRecord, type JsonRecord } from "./helpers.js";
+import notFoundHandler from "../api/not-found.js";
+import { asArray, asRecord, responseBody, type JsonRecord } from "./helpers.js";
 import type { JsonValue } from "../src/types.js";
 
 function vercelConfig(): JsonRecord {
@@ -29,6 +30,35 @@ test("Vercel routes the documented public item URL to the item handler", () => {
         rewrite["destination"] === "/api/identifier",
     ),
   );
+  assert.deepEqual(rewrites.at(-1), {
+    source: "/api/:path*",
+    destination: "/api/not-found",
+  });
+});
+
+test("unknown API routes return the JSON API envelope with CORS and no caching", async () => {
+  for (const method of ["GET", "POST", "PUT", "PATCH", "DELETE"]) {
+    const response = notFoundHandler.fetch(new Request("https://example.test/api/not-a-route", { method }));
+    assert.equal(response.status, 404);
+    assert.deepEqual(await responseBody(response), {
+      error: { code: "not_found", message: "API route was not found" },
+    });
+    assert.equal(response.headers.get("content-type"), "application/json; charset=utf-8");
+    assert.equal(response.headers.get("cache-control"), "no-store");
+    assert.equal(response.headers.get("access-control-allow-origin"), "*");
+    assert.equal(
+      response.headers.get("access-control-allow-methods"),
+      "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+    );
+    assert.equal(response.headers.get("x-content-type-options"), "nosniff");
+  }
+
+  const head = notFoundHandler.fetch(new Request("https://example.test/api/not-a-route", { method: "HEAD" }));
+  assert.equal(head.status, 404);
+  assert.equal(await head.text(), "");
+  const options = notFoundHandler.fetch(new Request("https://example.test/api/not-a-route", { method: "OPTIONS" }));
+  assert.equal(options.status, 204);
+  assert.equal(options.headers.get("cache-control"), "no-store");
 });
 
 test("all deployed functions explicitly bundle the JSON dataset", () => {

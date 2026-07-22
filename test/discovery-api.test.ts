@@ -49,6 +49,7 @@ function changesGet(query: string, method = "GET"): Response {
 test("the OpenAPI document describes every public endpoint, schema, parameter, example, and error", () => {
   const document = asRecord(JSON.parse(readFileSync(resolve(process.cwd(), "public/openapi.json"), "utf8")));
   assert.equal(document["openapi"], "3.1.0");
+  assert.equal(asRecord(document["info"])["version"], "1.2.1");
   const paths = asRecord(document["paths"]);
   assert.deepEqual(Object.keys(paths).sort(), [
     "/api/changes",
@@ -265,6 +266,16 @@ test("batch resolve accepts case-insensitive JSON media types", async () => {
     { headers: { "Content-Type": "Application/JSON; Charset=UTF-8" } },
   );
   assert.equal(response.status, 200);
+});
+
+test("POST resolve responses consistently advertise POST", async () => {
+  const success = await resolvePost({ identifiers: ["gpt-4o"] });
+  assert.equal(success.status, 200);
+  assert.equal(success.headers.get("access-control-allow-methods"), "GET, HEAD, POST, OPTIONS");
+
+  const error = await resolvePost("{");
+  assert.equal(error.status, 400);
+  assert.equal(error.headers.get("access-control-allow-methods"), "GET, HEAD, POST, OPTIONS");
 });
 
 test("the change feed returns stable incremental pages and compact fields", async () => {
