@@ -162,20 +162,6 @@ test("Vercel applies the public-site security policy to every route", () => {
 
 test("Vercel preserves API conditional-request and CORS behavior at the edge", () => {
   const routes = asArray(vercelConfig()["routes"]).map(asRecord);
-  const postResolve = routes.find((route) => route["src"] === "/api/resolve");
-  assert.deepEqual(postResolve, {
-    src: "/api/resolve",
-    methods: ["POST"],
-    continue: true,
-    transforms: [
-      {
-        type: "request.headers",
-        op: "delete",
-        target: { key: "if-none-match" },
-      },
-    ],
-  });
-
   const api = routes.find((route) => route["src"] === "/api/(.*)");
   assert.deepEqual(api, {
     src: "/api/(.*)",

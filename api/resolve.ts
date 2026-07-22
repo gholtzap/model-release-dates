@@ -1,6 +1,11 @@
 import { catalogMeta, selectModelFields } from "../src/catalog-api.js";
 import { models, modelsByIdentifierValue } from "../src/data.js";
-import { handlePostRequest, HttpError, jsonResponse } from "../src/http.js";
+import {
+  handlePostRequest,
+  hasWildcardIfNoneMatch,
+  HttpError,
+  jsonResponse,
+} from "../src/http.js";
 import {
   parseBatchIdentifiers,
   parseFieldsQuery,
@@ -61,6 +66,13 @@ function get(request: Request): Response {
 }
 
 async function post(request: Request): Promise<Response> {
+  if (hasWildcardIfNoneMatch(request)) {
+    throw new HttpError(
+      412,
+      "precondition_failed",
+      "If-None-Match * cannot be used with batch resolution",
+    );
+  }
   const fields = parseFieldsQuery(new URL(request.url));
   if (
     request.headers.get("Content-Type")?.split(";", 1)[0]?.trim().toLowerCase() !==

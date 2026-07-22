@@ -49,7 +49,7 @@ function changesGet(query: string, method = "GET"): Response {
 test("the OpenAPI document describes every public endpoint, schema, parameter, example, and error", () => {
   const document = asRecord(JSON.parse(readFileSync(resolve(process.cwd(), "public/openapi.json"), "utf8")));
   assert.equal(document["openapi"], "3.1.0");
-  assert.equal(asRecord(document["info"])["version"], "1.2.2");
+  assert.equal(asRecord(document["info"])["version"], "1.2.3");
   const paths = asRecord(document["paths"]);
   assert.deepEqual(Object.keys(paths).sort(), [
     "/api/changes",
@@ -332,6 +332,7 @@ test("batch resolve rejects malformed media, bodies, identifiers, and oversized 
     ["too long", () => resolvePost({ identifiers: ["x".repeat(201)] }), 400, "invalid_request"],
     ["unknown query", () => resolvePost({ identifiers: ["gpt-4o"] }, { query: "?extra=1" }), 400, "invalid_query"],
     ["suggest mode", () => resolvePost({ identifiers: ["gpt-4o"] }, { query: "?mode=suggest" }), 400, "invalid_query"],
+    ["wildcard precondition", () => resolvePost({ identifiers: ["gpt-4o"] }, { headers: { "If-None-Match": "*" } }), 412, "precondition_failed"],
     ["declared too large", () => resolvePost({ identifiers: ["gpt-4o"] }, { headers: { "Content-Length": "65537" } }), 413, "request_too_large"],
     ["actually too large", () => resolvePost(`{"identifiers":["${"x".repeat(65_536)}"]}`), 413, "request_too_large"],
   ];
@@ -386,7 +387,8 @@ test("ETags are strong, representation-specific, and honor conditional reads", a
   assert.equal(listRequest("unknown=1").headers.get("etag"), null);
 
   const post = await resolvePost({ identifiers: ["gpt-4o"] }, { headers: { "If-None-Match": "*" } });
-  assert.equal(post.status, 200);
+  assert.equal(post.status, 412);
+  assert.equal(asRecord((await responseBody(post))["error"])["code"], "precondition_failed");
   assert.equal(post.headers.get("etag"), null);
   assert.equal(post.headers.get("cache-control"), "no-store");
   assert.equal(post.headers.get("vercel-cdn-cache-control"), null);

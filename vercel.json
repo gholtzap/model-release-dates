@@ -4,20 +4,6 @@
   "outputDirectory": "public",
   "routes": [
     {
-      "src": "/api/resolve",
-      "methods": ["POST"],
-      "continue": true,
-      "transforms": [
-        {
-          "type": "request.headers",
-          "op": "delete",
-          "target": {
-            "key": "if-none-match"
-          }
-        }
-      ]
-    },
-    {
       "src": "/api/(.*)",
       "continue": true,
       "transforms": [

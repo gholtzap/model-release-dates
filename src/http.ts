@@ -42,10 +42,17 @@ function headers(cache: boolean, allowedMethods = READ_METHODS): Headers {
   return result;
 }
 
+function ifNoneMatchValues(request: Request): readonly string[] {
+  return (request.headers.get("If-None-Match") ?? "").split(",").map((value) => value.trim());
+}
+
+export function hasWildcardIfNoneMatch(request: Request): boolean {
+  return ifNoneMatchValues(request).includes("*");
+}
+
 function matchesEtag(request: Request, etag: string): boolean {
-  return (request.headers.get("If-None-Match") ?? "")
-    .split(",")
-    .some((candidate) => candidate.trim().replace(/^W\//, "") === etag || candidate.trim() === "*");
+  return ifNoneMatchValues(request)
+    .some((candidate) => candidate.replace(/^W\//, "") === etag || candidate === "*");
 }
 
 export function jsonResponse(value: object, status = 200, request?: Request): Response {
