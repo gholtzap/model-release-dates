@@ -49,7 +49,7 @@ function changesGet(query: string, method = "GET"): Response {
 test("the OpenAPI document describes every public endpoint, schema, parameter, example, and error", () => {
   const document = asRecord(JSON.parse(readFileSync(resolve(process.cwd(), "public/openapi.json"), "utf8")));
   assert.equal(document["openapi"], "3.1.0");
-  assert.equal(asRecord(document["info"])["version"], "1.2.1");
+  assert.equal(asRecord(document["info"])["version"], "1.2.2");
   const paths = asRecord(document["paths"]);
   assert.deepEqual(Object.keys(paths).sort(), [
     "/api/changes",
@@ -377,6 +377,9 @@ test("ETags are strong, representation-specific, and honor conditional reads", a
     const response = modelsHandler.fetch(new Request("https://example.test/api/models?q=gpt-4o&limit=1", { headers: { "If-None-Match": ifNoneMatch } }));
     assert.equal(response.status, 304);
     assert.equal(await response.text(), "");
+    assert.equal(response.headers.get("access-control-allow-origin"), "*");
+    assert.equal(response.headers.get("access-control-allow-headers"), "Content-Type, If-None-Match");
+    assert.equal(response.headers.get("access-control-expose-headers"), "ETag");
   }
   const miss = modelsHandler.fetch(new Request("https://example.test/api/models?q=gpt-4o&limit=1", { headers: { "If-None-Match": "\"miss\"" } }));
   assert.equal(miss.status, 200);
@@ -384,9 +387,12 @@ test("ETags are strong, representation-specific, and honor conditional reads", a
 
   const post = await resolvePost({ identifiers: ["gpt-4o"] }, { headers: { "If-None-Match": "*" } });
   assert.equal(post.status, 200);
-  assert.notEqual(post.headers.get("etag"), null);
+  assert.equal(post.headers.get("etag"), null);
+  assert.equal(post.headers.get("cache-control"), "no-store");
+  assert.equal(post.headers.get("vercel-cdn-cache-control"), null);
 
   const direct = jsonResponse({ ok: true });
   assert.equal(direct.status, 200);
-  assert.notEqual(direct.headers.get("etag"), null);
+  assert.equal(direct.headers.get("etag"), null);
+  assert.equal(direct.headers.get("cache-control"), "no-store");
 });

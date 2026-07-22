@@ -4,6 +4,23 @@
   "outputDirectory": "public",
   "headers": [
     {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, If-None-Match"
+        },
+        {
+          "key": "Access-Control-Expose-Headers",
+          "value": "ETag"
+        }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         {

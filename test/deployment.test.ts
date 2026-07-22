@@ -157,3 +157,20 @@ test("Vercel applies the public-site security policy to every route", () => {
     "X-Content-Type-Options": "nosniff",
   });
 });
+
+test("Vercel applies common CORS headers before API responses reach the function", () => {
+  const rules = asArray(vercelConfig()["headers"]).map(asRecord);
+  const rule = rules.find((candidate) => candidate["source"] === "/api/(.*)");
+  assert.notEqual(rule, undefined);
+  const headers = Object.fromEntries(
+    asArray(rule!["headers"]).map((value) => {
+      const header = asRecord(value);
+      return [header["key"], header["value"]];
+    }),
+  );
+  assert.deepEqual(headers, {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type, If-None-Match",
+    "Access-Control-Expose-Headers": "ETag",
+  });
+});

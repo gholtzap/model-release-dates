@@ -183,7 +183,7 @@ Schema version 2 keeps evidence on the event it supports:
 
 `capabilities` uses the tags `text`, `vision`, `reasoning`, `audio`, `weights`, `embedding`, and `deprecated`. `last_changed_at` records when the catalog record itself changed; `verified_at` records when its evidence was checked.
 
-Every successful JSON representation includes a strong `ETag`. Send it back in `If-None-Match` on `GET` or `HEAD`; unchanged representations return `304`. Response metadata includes the dataset version and changelog URL.
+Successful `GET` and `HEAD` representations include a strong `ETag`. Send it back in `If-None-Match`; unchanged representations return `304`. Successful `POST` responses are not cacheable and do not include an ETag. Response metadata includes the dataset version and changelog URL.
 
 ## Coverage policy
 

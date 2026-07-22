@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "AI Model Release Date API",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "description": "A source-backed catalog of AI model release dates, identifiers, lifecycle states, replacement hints, capabilities, and record changes."
   },
   "servers": [
@@ -208,7 +208,6 @@
         "responses": {
           "200": {
             "description": "One ordered result per requested identifier; unknown identifiers have an empty matches array",
-            "headers": { "ETag": { "$ref": "#/components/headers/ETag" } },
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BatchResolveResponse" } } }
           },
           "400": { "$ref": "#/components/responses/InvalidRequest" },
@@ -313,7 +312,7 @@
       }
     },
     "responses": {
-      "NotModified": { "description": "The supplied If-None-Match validator still matches" },
+      "NotModified": { "description": "The supplied If-None-Match validator still matches this GET or HEAD representation" },
       "InvalidQuery": { "description": "A query or path parameter is invalid", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" }, "example": { "error": { "code": "invalid_query", "message": "Unknown query parameter: extra" } } } } },
       "InvalidRequest": { "description": "The JSON body is malformed or violates the batch contract", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" }, "example": { "error": { "code": "invalid_request", "message": "identifiers must contain between 1 and 100 values" } } } } },
       "ModelNotFound": { "description": "No canonical model matched", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" }, "example": { "error": { "code": "model_not_found", "message": "Model openai/not-real was not found" } } } } },

@@ -50,15 +50,16 @@ function matchesEtag(request: Request, etag: string): boolean {
 
 export function jsonResponse(value: object, status = 200, request?: Request): Response {
   const body = JSON.stringify(value);
-  const responseHeaders = headers(status >= 200 && status < 300);
-  if (status >= 200 && status < 300) {
+  const cacheable =
+    status >= 200 &&
+    status < 300 &&
+    request !== undefined &&
+    (request.method === "GET" || request.method === "HEAD");
+  const responseHeaders = headers(cacheable);
+  if (cacheable) {
     const etag = `"${createHash("sha256").update(body).digest("base64url")}"`;
     responseHeaders.set("ETag", etag);
-    if (
-      request !== undefined &&
-      (request.method === "GET" || request.method === "HEAD") &&
-      matchesEtag(request, etag)
-    ) {
+    if (matchesEtag(request, etag)) {
       return new Response(null, { status: 304, headers: responseHeaders });
     }
   }
