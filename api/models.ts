@@ -1,4 +1,5 @@
-import { dataset, models } from "../src/data.js";
+import { models } from "../src/data.js";
+import { catalogMeta, selectModelFields } from "../src/catalog-api.js";
 import { handleRequest, jsonResponse } from "../src/http.js";
 import { parseModelQuery, queryModels } from "../src/query.js";
 
@@ -6,17 +7,15 @@ function get(request: Request): Response {
   const query = parseModelQuery(new URL(request.url));
   const result = queryModels(models, query);
   return jsonResponse({
-    data: result.models,
+    data: result.models.map((model) => selectModelFields(model, query.fields)),
     meta: {
-      schema_version: dataset.schema_version,
-      researched_at: dataset.researched_at,
-      coverage: dataset.coverage,
+      ...catalogMeta(query.fields),
       total: result.total,
       count: result.models.length,
       limit: query.limit,
       offset: query.offset,
     },
-  });
+  }, 200, request);
 }
 
 export default {

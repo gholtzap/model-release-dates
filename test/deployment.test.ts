@@ -33,7 +33,15 @@ test("Vercel routes the documented public item URL to the item handler", () => {
 
 test("all deployed functions explicitly bundle the JSON dataset", () => {
   const functions = asRecord(vercelConfig()["functions"]);
-  for (const functionName of ["api/models.ts", "api/model.ts", "api/identifier.ts"]) {
+  for (const functionName of [
+    "api/models.ts",
+    "api/model.ts",
+    "api/identifier.ts",
+    "api/resolve.ts",
+    "api/providers.ts",
+    "api/identifier-namespaces.ts",
+    "api/lifecycle-statuses.ts",
+  ]) {
     assert.equal(
       asRecord(functions[functionName])["includeFiles"],
       "model-release-dates.json",
@@ -53,6 +61,7 @@ test("Vercel builds and serves the static explorer", () => {
   assert.match(html, /id="identifier-namespace"/);
   assert.match(html, /id="availability-events-list"/);
   assert.match(html, /src="\/app\.js"/);
+  assert.doesNotThrow(() => JSON.parse(readFileSync(resolve(process.cwd(), "public/openapi.json"), "utf8")));
 });
 
 test("the explorer ships the accessible responsive workbench contract", () => {
@@ -63,6 +72,7 @@ test("the explorer ships the accessible responsive workbench contract", () => {
   assert.match(html, /id="mobile-query-tab"[^>]+aria-controls="request-panel"/);
   assert.match(html, /id="mode-list-tab"[^>]+aria-controls="list-fields"/);
   assert.match(html, /id="detail-overview-tab"[^>]+aria-controls="detail-overview"/);
+  assert.match(html, /id="detail-json-tab"[^>]+is-active[^>]+aria-selected="true"/);
   assert.match(html, /<option value="desc" selected>Descending<\/option>/);
   assert.match(html, /list="model-id-options"/);
   assert.match(html, /<datalist id="model-id-options"><\/datalist>/);
@@ -71,8 +81,16 @@ test("the explorer ships the accessible responsive workbench contract", () => {
   assert.match(css, /grid-template-columns: 360px minmax\(470px, 1fr\) minmax\(360px, 430px\)/);
   assert.match(css, /height: calc\(100dvh - 68px\)/);
   assert.doesNotMatch(css, /\bInter\b/);
+  assert.doesNotMatch(css, /text-transform:\s*uppercase/);
+  assert.doesNotMatch(html, /API playground|Request URL|panel-kicker/);
+  assert.match(html, /id="run-request" class="quiet-button"/);
+  assert.doesNotMatch(html, /aria-hidden="true">→/);
+  assert.doesNotMatch(html, /Quick queries|data-preset/);
+  assert.match(html, /id="results-search-form"[^>]+role="search"/);
+  assert.match(app, /syncSearchInputs/);
   assert.match(css, /\.model-cell:hover \.copy-model-button/);
   assert.match(app, /event\.key === "ArrowRight"/);
+  assert.match(app, /let detailTab: DetailTab = "json"/);
   assert.match(app, /populateModelIdOptions/);
   assert.match(app, /className = "copy-model-button"/);
   assert.match(app, /writeClipboard\(model\.model\)/);

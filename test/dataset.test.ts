@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import test from "node:test";
 
-import { dataset, models, modelsByIdentifier } from "../src/data.js";
+import { dataset, models, modelsById, modelsByIdentifier } from "../src/data.js";
 import {
   DatasetValidationError,
   identifierKey,
@@ -32,7 +34,17 @@ function firstAvailabilityEvent(candidate: JsonRecord): JsonRecord {
 }
 
 function firstLifecycleEvent(candidate: JsonRecord): JsonRecord {
-  return asRecord(asArray(firstModel(candidate)["lifecycle_events"])[0]);
+  const model = asArray(candidate["models"])
+    .map(asRecord)
+    .find((item) => asArray(item["lifecycle_events"]).length > 0);
+  return asRecord(asArray(model?.["lifecycle_events"])[0]);
+}
+
+function firstRelationshipModel(candidate: JsonRecord): JsonRecord {
+  const model = asArray(candidate["models"])
+    .map(asRecord)
+    .find((item) => asArray(item["relationships"]).length > 0);
+  return asRecord(model);
 }
 
 function firstSource(candidate: JsonRecord): JsonRecord {
@@ -66,11 +78,17 @@ async function runInvalidCases(
 }
 
 test("the production schema-v2 catalog satisfies every identity and event invariant", () => {
+  const requiredModels = readFileSync(
+    resolve(process.cwd(), "test/required-models.txt"),
+    "utf8",
+  ).trim().split("\n");
   assert.equal(dataset.schema_version, 2);
-  assert.equal(dataset.providers.length, 5);
-  assert.equal(dataset.models.length, 48);
-  assert.equal(models.length, 48);
-  assert.equal(modelsByIdentifier.size, 85);
+  assert.equal(requiredModels.length, 193);
+  assert.deepEqual(requiredModels.filter((model) => !modelsById.has(model)), []);
+  assert.equal(dataset.providers.length, 21);
+  assert.equal(dataset.models.length, 194);
+  assert.equal(models.length, 194);
+  assert.equal(modelsByIdentifier.size, 231);
   assert.equal(dataset.coverage.exhaustive, false);
   assert.match(dataset.coverage.statement, /non-exhaustive/);
   assert.deepEqual(parseDataset(dataset), dataset);
@@ -87,12 +105,12 @@ test("the production schema-v2 catalog satisfies every identity and event invari
   assert.equal(
     modelsByIdentifier.get(identifierKey({ namespace: "deepseek-api", value: "deepseek-reasoner" }))
       ?.model,
-    "deepseek-ai/deepseek-r1",
+    "deepseek/deepseek-r1",
   );
 });
 
 test("compatibility fields are derived from event-level data", () => {
-  const deepseek = models.find((model) => model.model === "deepseek-ai/deepseek-r1");
+  const deepseek = models.find((model) => model.model === "deepseek/deepseek-r1");
   assert.ok(deepseek !== undefined);
   assert.equal(deepseek.release_date, "2025-01-20");
   assert.equal(deepseek.release_date_precision, "day");
@@ -134,6 +152,10 @@ test("top-level, coverage, definition, and provider violations are rejected", as
     { name: "unknown top-level field", message: /dataset.extra is not supported/, mutate: (value) => { value["extra"] = true; } },
     { name: "missing top-level field", message: /dataset.models is required/, mutate: (value) => { delete value["models"]; } },
     { name: "wrong schema", message: /schema_version must be 2/, mutate: (value) => { value["schema_version"] = 1; } },
+    { name: "invalid dataset version", message: /dataset_version must be a date-based version/, mutate: (value) => { value["dataset_version"] = "v2"; } },
+    { name: "dataset version after research", message: /dataset_version cannot exceed researched_at/, mutate: (value) => { value["dataset_version"] = "2026-07-23"; } },
+    { name: "changelog URL invalid", message: /changelog_url must be a valid URL/, mutate: (value) => { value["changelog_url"] = "nope"; } },
+    { name: "changelog URL insecure", message: /changelog_url must use HTTPS/, mutate: (value) => { value["changelog_url"] = "http://example.com"; } },
     { name: "invalid research date", message: /researched_at must be a real ISO date/, mutate: (value) => { value["researched_at"] = "2026-02-30"; } },
     { name: "models is not an array", message: /models must be a non-empty array/, mutate: (value) => { value["models"] = {}; } },
     { name: "models is empty", message: /models must be a non-empty array/, mutate: (value) => { value["models"] = []; } },
@@ -164,7 +186,17 @@ test("model, identifier, and relationship violations are rejected", async (conte
     { name: "provider prefix differs", message: /provider_id must match/, mutate: (value) => { firstModel(value)["provider_id"] = "anthropic"; } },
     { name: "unknown provider", message: /references unknown provider/, mutate: (value) => { const model = firstModel(value); model["model"] = "missing/model"; model["provider_id"] = "missing"; } },
     { name: "invalid verification date", message: /verified_at must be a real ISO date/, mutate: (value) => { firstModel(value)["verified_at"] = "2026-02-30"; } },
-    { name: "verification after research", message: /verified_at cannot exceed researched_at/, mutate: (value) => { firstModel(value)["verified_at"] = "2026-07-21"; } },
+    { name: "verification after research", message: /verified_at cannot exceed researched_at/, mutate: (value) => { firstModel(value)["verified_at"] = "2026-07-23"; } },
+    { name: "invalid last-changed date", message: /last_changed_at must be a real ISO date/, mutate: (value) => { firstModel(value)["last_changed_at"] = "2026-02-30"; } },
+    { name: "last-changed after verification", message: /last_changed_at cannot exceed verified_at/, mutate: (value) => { firstModel(value)["last_changed_at"] = "2026-07-23"; } },
+    { name: "capability not string", message: /capabilities\[0\] is not supported/, mutate: (value) => { asArray(firstModel(value)["capabilities"])[0] = 1; } },
+    { name: "capability unsupported", message: /capabilities\[0\] is not supported/, mutate: (value) => { asArray(firstModel(value)["capabilities"])[0] = "video"; } },
+    { name: "capability duplicate", message: /capabilities contains duplicates/, mutate: (value) => { const capabilities = asArray(firstModel(value)["capabilities"]); capabilities.push(capabilities[0]!); } },
+    { name: "text capability required", message: /capabilities must include text/, mutate: (value) => { firstModel(value)["capabilities"] = ["vision"]; } },
+    { name: "unexpected weights capability", message: /capabilities weights must match/, mutate: (value) => { asArray(firstModel(value)["capabilities"]).push("weights"); } },
+    { name: "missing weights capability", message: /capabilities weights must match/, mutate: (value) => { const model = asArray(value["models"]).map(asRecord).find((item) => asArray(item["capabilities"]).includes("weights")); model!["capabilities"] = asArray(model!["capabilities"]).filter((capability) => capability !== "weights"); } },
+    { name: "unexpected deprecated capability", message: /capabilities deprecated must match/, mutate: (value) => { asArray(firstModel(value)["capabilities"]).push("deprecated"); } },
+    { name: "missing deprecated capability", message: /capabilities deprecated must match/, mutate: (value) => { const model = asArray(value["models"]).map(asRecord).find((item) => asArray(item["capabilities"]).includes("deprecated")); model!["capabilities"] = asArray(model!["capabilities"]).filter((capability) => capability !== "deprecated"); } },
     { name: "unsupported identifier type", message: /identifier_type is not supported/, mutate: (value) => { firstModel(value)["identifier_type"] = "alias"; } },
     { name: "identifiers empty", message: /identifiers must be a non-empty array/, mutate: (value) => { firstModel(value)["identifiers"] = []; } },
     { name: "identifier not object", message: /identifiers\[0\] must be an object/, mutate: (value) => { asArray(firstModel(value)["identifiers"])[0] = null; } },
@@ -177,11 +209,11 @@ test("model, identifier, and relationship violations are rejected", async (conte
     { name: "identifier duplicate across models", message: /duplicate identifier/, mutate: (value) => { const modelsValue = asArray(value["models"]); asRecord(asArray(asRecord(modelsValue[1])["identifiers"])[0])["namespace"] = firstIdentifier(value)["namespace"]!; asRecord(asArray(asRecord(modelsValue[1])["identifiers"])[0])["value"] = firstIdentifier(value)["value"]!; } },
     { name: "duplicate model", message: /duplicate model/, mutate: (value) => { const list = asArray(value["models"]); list.push(structuredClone(list[0]!)); } },
     { name: "relationships not array", message: /relationships must be an array/, mutate: (value) => { firstModel(value)["relationships"] = null; } },
-    { name: "relationship unknown field", message: /relationships\[0\].extra is not supported/, mutate: (value) => { const model = asRecord(asArray(value["models"])[4]); asRecord(asArray(model["relationships"])[0])["extra"] = true; } },
-    { name: "relationship unsupported", message: /type is not supported/, mutate: (value) => { const model = asRecord(asArray(value["models"])[4]); asRecord(asArray(model["relationships"])[0])["type"] = "variant_of"; } },
-    { name: "relationship target unknown", message: /references unknown model/, mutate: (value) => { const model = asRecord(asArray(value["models"])[4]); asRecord(asArray(model["relationships"])[0])["target_model"] = "openai/missing"; } },
-    { name: "relationship self reference", message: /cannot relate to itself/, mutate: (value) => { const model = asRecord(asArray(value["models"])[4]); asRecord(asArray(model["relationships"])[0])["target_model"] = model["model"]!; } },
-    { name: "duplicate relationship", message: /duplicate relationships/, mutate: (value) => { const model = asRecord(asArray(value["models"])[4]); const list = asArray(model["relationships"]); list.push(structuredClone(list[0]!)); } },
+    { name: "relationship unknown field", message: /relationships\[0\].extra is not supported/, mutate: (value) => { const model = firstRelationshipModel(value); asRecord(asArray(model["relationships"])[0])["extra"] = true; } },
+    { name: "relationship unsupported", message: /type is not supported/, mutate: (value) => { const model = firstRelationshipModel(value); asRecord(asArray(model["relationships"])[0])["type"] = "variant_of"; } },
+    { name: "relationship target unknown", message: /references unknown model/, mutate: (value) => { const model = firstRelationshipModel(value); asRecord(asArray(model["relationships"])[0])["target_model"] = "openai/missing"; } },
+    { name: "relationship self reference", message: /cannot relate to itself/, mutate: (value) => { const model = firstRelationshipModel(value); asRecord(asArray(model["relationships"])[0])["target_model"] = model["model"]!; } },
+    { name: "duplicate relationship", message: /duplicate relationships/, mutate: (value) => { const model = firstRelationshipModel(value); const list = asArray(model["relationships"]); list.push(structuredClone(list[0]!)); } },
   ]);
 });
 
@@ -212,9 +244,11 @@ test("availability and lifecycle event violations are rejected", async (context)
   const event = firstAvailabilityEvent(candidate);
   event["date_precision"] = "day";
   firstLifecycleEvent(candidate)["date_precision"] = "day";
-  const parsed = parseDataset(candidate).models[0];
-  assert.equal(parsed?.availability_events[0]?.date_precision, "day");
-  assert.equal(parsed?.lifecycle_events[0]?.date_precision, "day");
+  const parsed = parseDataset(candidate);
+  assert.equal(parsed.models[0]?.availability_events[0]?.date_precision, "day");
+  assert.ok(
+    parsed.models.some((model) => model.lifecycle_events[0]?.date_precision === "day"),
+  );
 });
 
 test("source validation rejects incomplete, unsafe, and malformed evidence", async (context) => {

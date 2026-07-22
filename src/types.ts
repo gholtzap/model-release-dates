@@ -12,6 +12,15 @@ export const LIFECYCLE_EVENT_STATUSES = [
 ] as const;
 export const LIFECYCLE_DATE_ROLES = ["announced", "effective", "scheduled", "observed"] as const;
 export const RELATIONSHIP_TYPES = ["snapshot_of", "alias_of"] as const;
+export const CAPABILITY_TAGS = [
+  "text",
+  "vision",
+  "reasoning",
+  "audio",
+  "weights",
+  "embedding",
+  "deprecated",
+] as const;
 
 export type IdentifierType = (typeof IDENTIFIER_TYPES)[number];
 export type IdentifierKind = (typeof IDENTIFIER_KINDS)[number];
@@ -23,6 +32,7 @@ export type LifecycleEventStatus = (typeof LIFECYCLE_EVENT_STATUSES)[number];
 export type LifecycleDateRole = (typeof LIFECYCLE_DATE_ROLES)[number];
 export type LifecycleStatus = "unknown" | LifecycleEventStatus;
 export type RelationshipType = (typeof RELATIONSHIP_TYPES)[number];
+export type CapabilityTag = (typeof CAPABILITY_TAGS)[number];
 export type JsonValue = string | number | boolean | null | JsonObject | JsonValue[];
 export type JsonObject = { [key: string]: JsonValue };
 type JsonInput = JsonValue | undefined;
@@ -85,7 +95,9 @@ export interface CatalogModel {
   readonly relationships: readonly ModelRelationship[];
   readonly availability_events: readonly AvailabilityEvent[];
   readonly lifecycle_events: readonly LifecycleEvent[];
+  readonly capabilities: readonly CapabilityTag[];
   readonly verified_at: string;
+  readonly last_changed_at: string;
 }
 
 export interface CatalogCoverage {
@@ -97,6 +109,8 @@ export interface CatalogCoverage {
 
 export interface Dataset {
   readonly schema_version: 2;
+  readonly dataset_version: string;
+  readonly changelog_url: string;
   readonly release_date_definition: string;
   readonly identifier_type_definition: Readonly<Record<IdentifierType, string>>;
   readonly identifier_kind_definition: Readonly<Record<IdentifierKind, string>>;
@@ -106,6 +120,7 @@ export interface Dataset {
   readonly lifecycle_status_definition: Readonly<Record<LifecycleEventStatus, string>>;
   readonly lifecycle_date_role_definition: Readonly<Record<LifecycleDateRole, string>>;
   readonly relationship_type_definition: Readonly<Record<RelationshipType, string>>;
+  readonly capability_definition: Readonly<Record<CapabilityTag, string>>;
   readonly coverage: CatalogCoverage;
   readonly providers: readonly Provider[];
   readonly researched_at: string;
@@ -432,7 +447,9 @@ function parseModel(value: JsonInput, index: number): CatalogModel {
       "relationships",
       "availability_events",
       "lifecycle_events",
+      "capabilities",
       "verified_at",
+      "last_changed_at",
     ],
     path,
   );
@@ -448,6 +465,13 @@ function parseModel(value: JsonInput, index: number): CatalogModel {
   const verifiedAt = readString(record, "verified_at", path);
   if (!isIsoDate(verifiedAt)) {
     throw new DatasetValidationError(`${path}.verified_at must be a real ISO date`);
+  }
+  const lastChangedAt = readString(record, "last_changed_at", path);
+  if (!isIsoDate(lastChangedAt)) {
+    throw new DatasetValidationError(`${path}.last_changed_at must be a real ISO date`);
+  }
+  if (lastChangedAt > verifiedAt) {
+    throw new DatasetValidationError(`${path}.last_changed_at cannot exceed verified_at`);
   }
 
   const identifiers = readArray(record, "identifiers", path).map((identifier, itemIndex) =>
@@ -465,6 +489,36 @@ function parseModel(value: JsonInput, index: number): CatalogModel {
   const lifecycleEvents = readArray(record, "lifecycle_events", path, true).map(
     (event, eventIndex) => parseLifecycleEvent(event, `${path}.lifecycle_events[${eventIndex}]`),
   );
+  const capabilities = readArray(record, "capabilities", path).map((value, itemIndex) => {
+    if (typeof value !== "string" || !includes(CAPABILITY_TAGS, value)) {
+      throw new DatasetValidationError(`${path}.capabilities[${itemIndex}] is not supported`);
+    }
+    return value;
+  });
+  if (new Set(capabilities).size !== capabilities.length) {
+    throw new DatasetValidationError(`${path}.capabilities contains duplicates`);
+  }
+  if (!capabilities.includes("text")) {
+    throw new DatasetValidationError(`${path}.capabilities must include text`);
+  }
+  const hasWeights = availabilityEvents.some((event) => event.channel === "weights");
+  if (capabilities.includes("weights") !== hasWeights) {
+    throw new DatasetValidationError(`${path}.capabilities weights must match availability_events`);
+  }
+  const latestLifecycleStatus = [...lifecycleEvents]
+    .sort((left, right) =>
+      normalizedDate(left.date, left.date_precision).localeCompare(
+        normalizedDate(right.date, right.date_precision),
+      ),
+    )
+    .at(-1)?.status;
+  const isDeprecated =
+    latestLifecycleStatus === "deprecated" ||
+    latestLifecycleStatus === "retired" ||
+    latestLifecycleStatus === "retirement_scheduled";
+  if (capabilities.includes("deprecated") !== isDeprecated) {
+    throw new DatasetValidationError(`${path}.capabilities deprecated must match lifecycle_events`);
+  }
   for (const [eventIndex, event] of lifecycleEvents.entries()) {
     if (
       event.identifier !== undefined &&
@@ -488,7 +542,9 @@ function parseModel(value: JsonInput, index: number): CatalogModel {
     ),
     availability_events: availabilityEvents,
     lifecycle_events: lifecycleEvents,
+    capabilities,
     verified_at: verifiedAt,
+    last_changed_at: lastChangedAt,
   };
 }
 
@@ -559,6 +615,8 @@ export function parseDataset(value: JsonInput | Dataset): Dataset {
     record,
     [
       "schema_version",
+      "dataset_version",
+      "changelog_url",
       "release_date_definition",
       "identifier_type_definition",
       "identifier_kind_definition",
@@ -568,6 +626,7 @@ export function parseDataset(value: JsonInput | Dataset): Dataset {
       "lifecycle_status_definition",
       "lifecycle_date_role_definition",
       "relationship_type_definition",
+      "capability_definition",
       "coverage",
       "providers",
       "researched_at",
@@ -578,9 +637,17 @@ export function parseDataset(value: JsonInput | Dataset): Dataset {
   if (record["schema_version"] !== 2) {
     throw new DatasetValidationError("dataset.schema_version must be 2");
   }
+  const datasetVersion = readString(record, "dataset_version", "dataset");
+  if (!/^\d{4}-\d{2}-\d{2}(?:\.\d+)?$/.test(datasetVersion)) {
+    throw new DatasetValidationError("dataset.dataset_version must be a date-based version");
+  }
+  const changelogUrl = readHttpsUrl(record, "changelog_url", "dataset");
   const researchedAt = readString(record, "researched_at", "dataset");
   if (!isIsoDate(researchedAt)) {
     throw new DatasetValidationError("dataset.researched_at must be a real ISO date");
+  }
+  if (datasetVersion.slice(0, 10) > researchedAt) {
+    throw new DatasetValidationError("dataset.dataset_version cannot exceed researched_at");
   }
 
   const providers = readArray(record, "providers", "dataset").map(parseProvider);
@@ -634,6 +701,8 @@ export function parseDataset(value: JsonInput | Dataset): Dataset {
 
   return {
     schema_version: 2,
+    dataset_version: datasetVersion,
+    changelog_url: changelogUrl,
     release_date_definition: readString(record, "release_date_definition", "dataset"),
     identifier_type_definition: readDefinitions(
       record["identifier_type_definition"],
@@ -674,6 +743,11 @@ export function parseDataset(value: JsonInput | Dataset): Dataset {
       record["relationship_type_definition"],
       RELATIONSHIP_TYPES,
       "dataset.relationship_type_definition",
+    ),
+    capability_definition: readDefinitions(
+      record["capability_definition"],
+      CAPABILITY_TAGS,
+      "dataset.capability_definition",
     ),
     coverage: parseCoverage(record["coverage"]),
     providers,

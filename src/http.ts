@@ -1,5 +1,9 @@
+import { createHash } from "node:crypto";
+
 const SUCCESS_CACHE_CONTROL = "public, max-age=300";
 const CDN_CACHE_CONTROL = "max-age=3600, stale-while-revalidate=86400";
+const READ_METHODS = "GET, HEAD, OPTIONS";
+const READ_WRITE_METHODS = "GET, HEAD, POST, OPTIONS";
 
 export class HttpError extends Error {
   readonly status: number;
@@ -13,11 +17,12 @@ export class HttpError extends Error {
   }
 }
 
-function headers(cache: boolean): Headers {
+function headers(cache: boolean, allowedMethods = READ_METHODS): Headers {
   const result = new Headers({
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, If-None-Match",
+    "Access-Control-Allow-Methods": allowedMethods,
     "Access-Control-Allow-Origin": "*",
+    "Access-Control-Expose-Headers": "ETag",
     "Content-Type": "application/json; charset=utf-8",
     "X-Content-Type-Options": "nosniff",
   });
@@ -30,10 +35,29 @@ function headers(cache: boolean): Headers {
   return result;
 }
 
-export function jsonResponse(value: object, status = 200): Response {
-  return new Response(JSON.stringify(value), {
+function matchesEtag(request: Request, etag: string): boolean {
+  return (request.headers.get("If-None-Match") ?? "")
+    .split(",")
+    .some((candidate) => candidate.trim().replace(/^W\//, "") === etag || candidate.trim() === "*");
+}
+
+export function jsonResponse(value: object, status = 200, request?: Request): Response {
+  const body = JSON.stringify(value);
+  const responseHeaders = headers(status >= 200 && status < 300);
+  if (status >= 200 && status < 300) {
+    const etag = `"${createHash("sha256").update(body).digest("base64url")}"`;
+    responseHeaders.set("ETag", etag);
+    if (
+      request !== undefined &&
+      (request.method === "GET" || request.method === "HEAD") &&
+      matchesEtag(request, etag)
+    ) {
+      return new Response(null, { status: 304, headers: responseHeaders });
+    }
+  }
+  return new Response(body, {
     status,
-    headers: headers(status >= 200 && status < 300),
+    headers: responseHeaders,
   });
 }
 
@@ -49,33 +73,63 @@ function errorResponse(error: HttpError): Response {
   );
 }
 
-export type GetHandler = (request: Request) => Response;
-
-export function handleRequest(request: Request, get: GetHandler): Response {
+function earlyResponse(request: Request, allowedMethods: string): Response | undefined {
   if (request.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: headers(false) });
+    return new Response(null, { status: 204, headers: headers(false, allowedMethods) });
   }
-  if (request.method !== "GET" && request.method !== "HEAD") {
+  if (!allowedMethods.split(", ").includes(request.method)) {
     const response = errorResponse(
       new HttpError(405, "method_not_allowed", `Method ${request.method} is not allowed`),
     );
-    response.headers.set("Allow", "GET, HEAD, OPTIONS");
+    response.headers.set("Allow", allowedMethods);
     return response;
   }
+  return undefined;
+}
+
+function finishResponse(request: Request, response: Response): Response {
+  return request.method === "HEAD"
+    ? new Response(null, { status: response.status, headers: response.headers })
+    : response;
+}
+
+function caughtResponse(error: unknown): Response {
+  if (error instanceof HttpError) {
+    return errorResponse(error);
+  }
+  console.error(error);
+  return errorResponse(
+    new HttpError(500, "internal_error", "The server could not complete the request"),
+  );
+}
+
+export type GetHandler = (request: Request) => Response;
+
+export function handleRequest(request: Request, get: GetHandler): Response {
+  const early = earlyResponse(request, READ_METHODS);
+  if (early !== undefined) return early;
 
   try {
-    const response = get(request);
-    if (request.method === "HEAD") {
-      return new Response(null, { status: response.status, headers: response.headers });
-    }
-    return response;
+    return finishResponse(request, get(request));
   } catch (error) {
-    if (error instanceof HttpError) {
-      return errorResponse(error);
-    }
-    console.error(error);
-    return errorResponse(
-      new HttpError(500, "internal_error", "The server could not complete the request"),
-    );
+    return caughtResponse(error);
+  }
+}
+
+export type PostHandler = (request: Request) => Promise<Response>;
+
+export async function handlePostRequest(
+  request: Request,
+  get: GetHandler,
+  post: PostHandler,
+): Promise<Response> {
+  const early = earlyResponse(request, READ_WRITE_METHODS);
+  if (early !== undefined) return early;
+
+  try {
+    const response = request.method === "POST" ? await post(request) : get(request);
+    return finishResponse(request, response);
+  } catch (error) {
+    return caughtResponse(error);
   }
 }

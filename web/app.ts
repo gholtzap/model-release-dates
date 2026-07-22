@@ -57,6 +57,8 @@ const listFields = required<HTMLElement>("#list-fields");
 const itemFields = required<HTMLElement>("#item-fields");
 const identifierFields = required<HTMLElement>("#identifier-fields");
 const queryInput = required<HTMLInputElement>("#query");
+const resultsSearchForm = required<HTMLFormElement>("#results-search-form");
+const resultsQueryInput = required<HTMLInputElement>("#results-query");
 const providerInput = required<HTMLSelectElement>("#provider");
 const availabilityInput = required<HTMLSelectElement>("#availability");
 const availabilityStageInput = required<HTMLSelectElement>("#availability-stage");
@@ -109,7 +111,6 @@ const sourcesList = required<HTMLElement>("#sources-list");
 const rawResponse = required<HTMLElement>("#raw-response");
 const modeButtons = document.querySelectorAll<HTMLButtonElement>("[data-mode]");
 const detailTabs = document.querySelectorAll<HTMLButtonElement>("[data-detail-tab]");
-const presetButtons = document.querySelectorAll<HTMLButtonElement>("[data-preset]");
 const mobilePanelButtons = document.querySelectorAll<HTMLButtonElement>("[data-mobile-panel]");
 const mobileViewport = window.matchMedia("(max-width: 760px)");
 const mobilePanels: Readonly<Record<MobilePanel, HTMLElement>> = {
@@ -121,13 +122,18 @@ const mobilePanels: Readonly<Record<MobilePanel, HTMLElement>> = {
 const browserFetch: Fetcher = (input, init) => window.fetch(input, init);
 
 let mode: RequestMode = "list";
-let detailTab: DetailTab = "overview";
+let detailTab: DetailTab = "json";
 let mobilePanel: MobilePanel = "query";
 let offset = 0;
 let total = 0;
 let selectedModelId: string | undefined;
 let lastResponse: object = {};
 let modelIdOptionsLoading = false;
+
+function syncSearchInputs(value: string): void {
+  queryInput.value = value;
+  resultsQueryInput.value = value;
+}
 
 async function populateModelIdOptions(): Promise<void> {
   if (modelIdOptionsLoading || modelIdOptions.childElementCount !== 0) {
@@ -479,17 +485,12 @@ function renderDetail(model: ApiModel): void {
 
   sourceCount.textContent = `${model.sources.length} source${model.sources.length === 1 ? "" : "s"}`;
   sourcesList.replaceChildren(...model.sources.map(sourceCard));
-  detailEmpty.hidden = true;
-  showDetailTab("overview");
+  showDetailTab(detailTab);
 }
 
 function clearDetail(): void {
   selectedModelId = undefined;
-  detailEmpty.hidden = false;
-  detailOverview.hidden = true;
-  if (detailTab === "overview") {
-    rawResponse.hidden = true;
-  }
+  showDetailTab(detailTab);
 }
 
 function showDetailTab(tabValue: DetailTab): void {
@@ -712,39 +713,6 @@ function setMode(nextMode: RequestMode): void {
   updateRequestPreview();
 }
 
-function resetListControls(): void {
-  queryInput.value = "";
-  providerInput.value = "";
-  availabilityInput.value = "";
-  availabilityStageInput.value = "";
-  lifecycleStatusInput.value = "";
-  identifierInput.value = "";
-  fromInput.value = "";
-  toInput.value = "";
-  sortInput.value = "release_date";
-  orderInput.value = "desc";
-  limitInput.value = "50";
-  offset = 0;
-}
-
-function applyPreset(preset: string): void {
-  setMode("list");
-  resetListControls();
-  if (preset === "recent-openai") {
-    providerInput.value = "openai";
-    fromInput.value = "2025-01-01";
-    orderInput.value = "desc";
-  } else if (preset === "weights") {
-    availabilityInput.value = "weights";
-  } else if (preset === "timeline-2025") {
-    fromInput.value = "2025-01-01";
-    toInput.value = "2025-12-31";
-  }
-  revealActiveAdvancedFilters();
-  updateRequestPreview();
-  void runListRequest();
-}
-
 function hydrateFromLocation(): RequestMode {
   const parameters = new URLSearchParams(location.search);
   if (parameters.get("mode") === "item") {
@@ -762,7 +730,7 @@ function hydrateFromLocation(): RequestMode {
     return "identifier";
   }
 
-  queryInput.value = parameters.get("q") ?? "";
+  syncSearchInputs(parameters.get("q") ?? "");
   providerInput.value = parameters.get("provider") ?? "";
   availabilityInput.value = parameters.get("availability") ?? "";
   availabilityStageInput.value = parameters.get("availability_stage") ?? "";
@@ -795,9 +763,24 @@ form.addEventListener("submit", (event) => {
   }
 });
 
-form.addEventListener("input", () => {
+form.addEventListener("input", (event) => {
+  if (event.target === queryInput) {
+    syncSearchInputs(queryInput.value);
+  }
   offset = 0;
   updateRequestPreview();
+});
+
+resultsQueryInput.addEventListener("input", () => {
+  syncSearchInputs(resultsQueryInput.value);
+  offset = 0;
+  updateRequestPreview();
+});
+
+resultsSearchForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  setMode("list");
+  void runListRequest();
 });
 
 for (const button of modeButtons) {
@@ -824,10 +807,6 @@ bindTabKeyboardNavigation(modeButtons);
 bindTabKeyboardNavigation(detailTabs);
 bindTabKeyboardNavigation(mobilePanelButtons);
 mobileViewport.addEventListener("change", syncMobilePanelAccessibility);
-
-for (const button of presetButtons) {
-  button.addEventListener("click", () => applyPreset(button.dataset["preset"] ?? ""));
-}
 
 previousPage.addEventListener("click", () => {
   offset = Math.max(0, offset - Number(limitInput.value));

@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import { identifierKey, parseDataset, projectModel, type JsonValue } from "./types.js";
+import type { ModelIdentifier, ModelRelease } from "./types.js";
 
 const dataPath = resolve(process.cwd(), "model-release-dates.json");
 const rawDataset: JsonValue = JSON.parse(readFileSync(dataPath, "utf8"));
@@ -35,3 +36,17 @@ export const modelsByIdentifier = new Map(
     model.identifiers.map((identifier) => [identifierKey(identifier), model] as const),
   ),
 );
+
+export interface IdentifierMatch {
+  readonly matched_identifier: ModelIdentifier;
+  readonly model: ModelRelease;
+}
+
+export const modelsByIdentifierValue = new Map<string, IdentifierMatch[]>();
+for (const model of models) {
+  for (const identifier of model.identifiers) {
+    const matches = modelsByIdentifierValue.get(identifier.value) ?? [];
+    matches.push({ matched_identifier: identifier, model });
+    modelsByIdentifierValue.set(identifier.value, matches);
+  }
+}

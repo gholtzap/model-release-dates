@@ -17,39 +17,29 @@
     <header class="app-header">
       <a class="brand" href="/" aria-label="AI Model Release Index home">
         <img src="/favicon.svg" alt="" width="26" height="26" />
-        <span>
-          <strong>Model Dates</strong>
-          <small>API playground</small>
-        </span>
+        <strong>Model Dates</strong>
       </a>
 
       <div class="request-preview">
         <span class="method-badge">GET</span>
         <div class="request-path-wrap">
-          <span>Request URL</span>
           <code id="request-path">/api/models</code>
         </div>
-        <button id="copy-request" class="quiet-button" type="button" aria-label="Copy request as cURL">
-          Copy cURL
-        </button>
-      </div>
-
-      <div class="header-actions">
-        <button id="run-request" class="run-button" type="submit" form="request-form">
-          <span>Run query</span>
-          <span aria-hidden="true">→</span>
-        </button>
+        <div class="header-actions">
+          <button id="copy-request" class="quiet-button" type="button" aria-label="Copy request as cURL">
+            Copy cURL
+          </button>
+          <button id="run-request" class="quiet-button" type="submit" form="request-form">
+            <span>Run query</span>
+          </button>
+        </div>
       </div>
     </header>
 
     <main class="workspace">
       <aside id="request-panel" class="request-panel" aria-labelledby="request-heading" tabindex="-1">
         <div class="panel-heading">
-          <span class="panel-kicker">Request builder</span>
-          <div>
-            <h1 id="request-heading">Explore model releases</h1>
-            <p>Query verified release dates, identifiers, availability, and lifecycle events.</p>
-          </div>
+          <h1 id="request-heading">Request Builder</h1>
         </div>
 
         <div class="mode-switch" role="tablist" aria-label="Endpoint">
@@ -216,13 +206,6 @@
             </section>
           </div>
         </form>
-
-        <div class="presets" aria-label="Example queries">
-          <span>Quick queries</span>
-          <button type="button" data-preset="recent-openai">Recent OpenAI</button>
-          <button type="button" data-preset="weights">Weight releases</button>
-          <button type="button" data-preset="timeline-2025">2025 timeline</button>
-        </div>
       </aside>
 
       <nav class="mobile-workspace-tabs" role="tablist" aria-label="Workspace view">
@@ -239,13 +222,16 @@
 
       <section id="results-panel" class="results-panel" aria-labelledby="results-heading" tabindex="-1">
         <div class="results-toolbar">
-          <div>
-            <span class="panel-kicker">Response</span>
+          <form id="results-search-form" class="results-search" role="search" aria-label="Search models">
+            <input id="results-query" type="search" placeholder="Search models" aria-label="Search models" autocomplete="off" />
+            <button class="quiet-button" type="submit">Search</button>
+          </form>
+          <div class="results-heading-row">
             <h2 id="results-heading">Matching models</h2>
-          </div>
-          <div class="response-status" id="response-status" role="status" aria-live="polite">
-            <span class="status-dot" aria-hidden="true"></span>
-            <span>Ready</span>
+            <div class="response-status" id="response-status" role="status" aria-live="polite">
+              <span class="status-dot" aria-hidden="true"></span>
+              <span>Ready</span>
+            </div>
           </div>
         </div>
 
@@ -293,15 +279,15 @@
 
       <aside id="detail-panel" class="detail-panel" aria-label="Model detail" tabindex="-1">
         <div class="detail-tabs" role="tablist" aria-label="Response detail">
-          <button id="detail-overview-tab" class="detail-tab is-active" type="button" role="tab" aria-controls="detail-overview" aria-selected="true" tabindex="0" data-detail-tab="overview">
+          <button id="detail-overview-tab" class="detail-tab" type="button" role="tab" aria-controls="detail-overview" aria-selected="false" tabindex="-1" data-detail-tab="overview">
             Overview
           </button>
-          <button id="detail-json-tab" class="detail-tab" type="button" role="tab" aria-controls="raw-response" aria-selected="false" tabindex="-1" data-detail-tab="json">
+          <button id="detail-json-tab" class="detail-tab is-active" type="button" role="tab" aria-controls="raw-response" aria-selected="true" tabindex="0" data-detail-tab="json">
             JSON response
           </button>
         </div>
 
-        <div id="detail-empty" class="detail-empty">
+        <div id="detail-empty" class="detail-empty" hidden>
           <h2>Select a model</h2>
           <p>Choose a result to inspect its exact endpoint and release evidence.</p>
         </div>
@@ -381,7 +367,7 @@
           </section>
         </div>
 
-        <pre id="raw-response" class="raw-response" role="tabpanel" aria-labelledby="detail-json-tab" tabindex="0" hidden><code>{}</code></pre>
+        <pre id="raw-response" class="raw-response" role="tabpanel" aria-labelledby="detail-json-tab" tabindex="0"><code>{}</code></pre>
       </aside>
     </main>
 

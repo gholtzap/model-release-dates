@@ -1,4 +1,5 @@
-import { dataset, modelsByIdentifier } from "../src/data.js";
+import { modelsByIdentifier } from "../src/data.js";
+import { catalogMeta, selectModelFields } from "../src/catalog-api.js";
 import { handleRequest, HttpError, jsonResponse } from "../src/http.js";
 import { parseIdentifierQuery } from "../src/query.js";
 import { identifierKey } from "../src/types.js";
@@ -17,17 +18,15 @@ function get(request: Request): Response {
     );
   }
   return jsonResponse({
-    data: model,
+    data: selectModelFields(model, identifier.fields),
     meta: {
-      schema_version: dataset.schema_version,
-      researched_at: dataset.researched_at,
-      coverage: dataset.coverage,
+      ...catalogMeta(identifier.fields),
       matched_identifier: {
         namespace: identifier.namespace,
         value: identifier.identifier,
       },
     },
-  });
+  }, 200, request);
 }
 
 export default {

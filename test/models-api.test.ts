@@ -3,10 +3,11 @@ import test from "node:test";
 
 import { dataset, models, modelsByIdentifier } from "../src/data.js";
 import { identifierKey } from "../src/types.js";
-import { handleRequest } from "../src/http.js";
+import { handlePostRequest, handleRequest } from "../src/http.js";
 import {
   asArray,
   asRecord,
+  allModelsFrom,
   identifierRequest,
   itemRequest,
   listRequest,
@@ -15,18 +16,18 @@ import {
   responseBody,
 } from "./helpers.js";
 
-test("the default list returns every model in chronological order", async () => {
+test("the default list returns the first model page in chronological order", async () => {
   const response = listRequest();
   const body = await responseBody(response);
   const models = asArray(body["data"]).map(asRecord);
   const meta = asRecord(body["meta"]);
 
   assert.equal(response.status, 200);
-  assert.equal(models.length, dataset.models.length);
+  assert.equal(models.length, 50);
   assert.equal(meta["schema_version"], dataset.schema_version);
   assert.equal(meta["researched_at"], dataset.researched_at);
   assert.equal(meta["total"], dataset.models.length);
-  assert.equal(meta["count"], dataset.models.length);
+  assert.equal(meta["count"], 50);
   assert.equal(meta["limit"], 50);
   assert.equal(meta["offset"], 0);
 
@@ -56,7 +57,9 @@ test("every published model can be retrieved by its public item URL", async (con
       assert.deepEqual(body["data"], expected);
       assert.deepEqual(body["meta"], {
         schema_version: dataset.schema_version,
+        dataset_version: dataset.dataset_version,
         researched_at: dataset.researched_at,
+        changelog_url: dataset.changelog_url,
         coverage: dataset.coverage,
       });
     });
@@ -105,16 +108,9 @@ test("every official identifier resolves to exactly its canonical model", async 
 });
 
 test("provider filters return only that provider's complete catalog", async () => {
-  const expectedCounts: Readonly<Record<string, number>> = {
-    openai: 22,
-    anthropic: 10,
-    google: 5,
-    "deepseek-ai": 2,
-    meta: 9,
-  };
-
-  for (const [provider, expectedCount] of Object.entries(expectedCounts)) {
-    const response = listRequest(`provider=${encodeURIComponent(provider)}`);
+  for (const provider of dataset.providers.map((item) => item.id)) {
+    const expectedCount = dataset.models.filter((model) => model.provider_id === provider).length;
+    const response = listRequest(`provider=${encodeURIComponent(provider)}&limit=100`);
     const body = await responseBody(response);
     const models = asArray(body["data"]).map(asRecord);
     const meta = asRecord(body["meta"]);
@@ -126,37 +122,45 @@ test("provider filters return only that provider's complete catalog", async () =
 });
 
 test("availability filters distinguish API access from downloadable weights", async () => {
-  const apiModels = await modelsFrom(listRequest("availability=api"));
-  const weightModels = await modelsFrom(listRequest("availability=weights"));
+  const apiModels = await allModelsFrom("availability=api");
+  const weightModels = await allModelsFrom("availability=weights");
 
-  assert.equal(apiModels.length, 37);
-  assert.equal(weightModels.length, 13);
+  assert.equal(
+    apiModels.length,
+    models.filter((model) => model.availability.includes("api")).length,
+  );
+  assert.equal(
+    weightModels.length,
+    models.filter((model) => model.availability.includes("weights")).length,
+  );
   assert.ok(apiModels.every((model) => asArray(model["availability"]).includes("api")));
   assert.ok(weightModels.every((model) => asArray(model["availability"]).includes("weights")));
-  assert.ok(modelIds(apiModels).includes("deepseek-ai/deepseek-r1"));
-  assert.ok(modelIds(weightModels).includes("deepseek-ai/deepseek-r1"));
+  assert.ok(modelIds(apiModels).includes("deepseek/deepseek-r1"));
+  assert.ok(modelIds(weightModels).includes("deepseek/deepseek-r1"));
 });
 
 test("identifier type and confidence filters match their documented values", async () => {
-  const expectedCounts: Readonly<Record<string, number>> = {
-    model: 33,
-    snapshot: 2,
-    weights: 13,
-  };
-  for (const [identifierType, expectedCount] of Object.entries(expectedCounts)) {
-    const models = await modelsFrom(listRequest(`identifier_type=${identifierType}`));
-    assert.equal(models.length, expectedCount);
-    assert.ok(models.every((model) => model["identifier_type"] === identifierType));
+  for (const identifierType of ["model", "snapshot", "weights"] as const) {
+    const expectedCount = models.filter(
+      (model) => model.identifier_type === identifierType,
+    ).length;
+    const filteredModels = await allModelsFrom(`identifier_type=${identifierType}`);
+    assert.equal(filteredModels.length, expectedCount);
+    assert.ok(filteredModels.every((model) => model["identifier_type"] === identifierType));
   }
 
-  const confirmed = await modelsFrom(listRequest("confidence=confirmed"));
+  const confirmed = await allModelsFrom("confidence=confirmed");
   assert.equal(confirmed.length, dataset.models.length);
   assert.ok(confirmed.every((model) => model["confidence"] === "confirmed"));
 });
 
 test("date bounds are inclusive", async () => {
   const models = await modelsFrom(listRequest("from=2025-04-16&to=2025-04-16"));
-  assert.deepEqual(modelIds(models), ["openai/o3", "openai/o4-mini"]);
+  assert.deepEqual(modelIds(models), [
+    "openai/codex-mini-latest",
+    "openai/o3",
+    "openai/o4-mini",
+  ]);
   assert.ok(models.every((model) => model["release_date"] === "2025-04-16"));
 });
 
@@ -166,13 +170,15 @@ test("model search is case-insensitive and can return related identifiers", asyn
     "openai/gpt-4o",
     "openai/gpt-4o-2024-05-13",
     "openai/gpt-4o-mini",
+    "openai/gpt-4o-2024-08-06",
+    "openai/gpt-4o-mini-search-preview",
   ]);
 });
 
 test("users can query exact upstream identifiers, namespaces, stages, and lifecycle states", async () => {
   assert.deepEqual(
     modelIds(await modelsFrom(listRequest("identifier_namespace=deepseek-api&identifier=deepseek-reasoner"))),
-    ["deepseek-ai/deepseek-r1"],
+    ["deepseek/deepseek-r1"],
   );
   assert.ok(
     (await modelsFrom(listRequest("identifier_namespace=huggingface"))).every((model) =>
@@ -187,7 +193,7 @@ test("users can query exact upstream identifiers, namespaces, stages, and lifecy
   assert.ok(retired.every((model) => model["lifecycle_status"] === "retired"));
   assert.deepEqual(
     modelIds(await modelsFrom(listRequest("q=DEEPSEEK-REASONER"))),
-    ["deepseek-ai/deepseek-r1"],
+    ["deepseek/deepseek-r1"],
   );
 });
 
@@ -196,19 +202,26 @@ test("users can combine provider, channel, date, sorting, and pagination filters
     "provider=openai&availability=api&from=2025-04-01&to=2025-08-31&sort=model&order=asc&limit=3&offset=1";
   const response = listRequest(query);
   const body = await responseBody(response);
-  const models = asArray(body["data"]).map(asRecord);
+  const pageModels = asArray(body["data"]).map(asRecord);
   const meta = asRecord(body["meta"]);
 
   assert.equal(response.status, 200);
-  assert.equal(meta["total"], 10);
+  const expectedTotal = models.filter(
+    (model) =>
+      model.provider_id === "openai" &&
+      model.availability.includes("api") &&
+      model.release_date >= "2025-04-01" &&
+      model.release_date <= "2025-08-31",
+  ).length;
+  assert.equal(meta["total"], expectedTotal);
   assert.equal(meta["count"], 3);
   assert.equal(meta["limit"], 3);
   assert.equal(meta["offset"], 1);
-  assert.ok(modelIds(models).every((model) => model.startsWith("openai/")));
-  assert.ok(models.every((model) => asArray(model["availability"]).includes("api")));
-  assert.ok(models.every((model) => String(model["release_date"]) >= "2025-04-01"));
-  assert.ok(models.every((model) => String(model["release_date"]) <= "2025-08-31"));
-  assert.deepEqual(modelIds(models), [...modelIds(models)].sort((left, right) => left.localeCompare(right)));
+  assert.ok(modelIds(pageModels).every((model) => model.startsWith("openai/")));
+  assert.ok(pageModels.every((model) => asArray(model["availability"]).includes("api")));
+  assert.ok(pageModels.every((model) => String(model["release_date"]) >= "2025-04-01"));
+  assert.ok(pageModels.every((model) => String(model["release_date"]) <= "2025-08-31"));
+  assert.deepEqual(modelIds(pageModels), [...modelIds(pageModels)].sort((left, right) => left.localeCompare(right)));
 });
 
 test("descending sorts reverse both primary and tie-break ordering", async () => {
@@ -225,7 +238,7 @@ test("descending sorts reverse both primary and tie-break ordering", async () =>
 });
 
 test("pagination can reconstruct the complete result set without gaps or duplicates", async () => {
-  const expected = modelIds(await modelsFrom(listRequest("sort=model&limit=50")));
+  const expected = models.map((model) => model.model).sort((left, right) => left.localeCompare(right));
   const collected: string[] = [];
   const pageSize = 7;
 
@@ -361,7 +374,8 @@ test("success, preflight, HEAD, and method errors expose usable HTTP headers", a
   const options = listRequest("", "OPTIONS");
   assert.equal(options.status, 204);
   assert.equal(options.headers.get("access-control-allow-methods"), "GET, HEAD, OPTIONS");
-  assert.equal(options.headers.get("access-control-allow-headers"), "Content-Type");
+  assert.equal(options.headers.get("access-control-allow-headers"), "Content-Type, If-None-Match");
+  assert.equal(get.headers.get("access-control-expose-headers"), "ETag");
 
   for (const method of ["POST", "PUT", "PATCH", "DELETE"]) {
     const response = listRequest("", method);
@@ -383,6 +397,18 @@ test("unexpected handler failures return a generic 500 without leaking details",
     assert.equal(response.status, 500);
     assert.equal(error["code"], "internal_error");
     assert.doesNotMatch(String(error["message"]), /private implementation detail/);
+
+    const postResponse = await handlePostRequest(
+      new Request("https://example.test/api/test", { method: "POST" }),
+      () => response,
+      async () => {
+        throw new Error("private POST implementation detail");
+      },
+    );
+    const postError = asRecord((await responseBody(postResponse))["error"]);
+    assert.equal(postResponse.status, 500);
+    assert.equal(postError["code"], "internal_error");
+    assert.doesNotMatch(String(postError["message"]), /private POST implementation detail/);
   } finally {
     console.error = originalError;
   }

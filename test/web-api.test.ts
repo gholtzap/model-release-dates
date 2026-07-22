@@ -80,11 +80,15 @@ async function expectClientError(
 }
 
 function validListBody(): JsonRecord {
+  const model = models.find((item) => item.lifecycle_events.length > 0);
+  assert.ok(model !== undefined);
   return asRecord({
-    data: [structuredClone(models[0]!)],
+    data: [structuredClone(model)],
     meta: {
       schema_version: dataset.schema_version,
+      dataset_version: dataset.dataset_version,
       researched_at: dataset.researched_at,
+      changelog_url: dataset.changelog_url,
       coverage: dataset.coverage,
       total: 1,
       count: 1,
@@ -174,10 +178,10 @@ test("the browser list client consumes the real filtered API response", async ()
 
   assert.deepEqual(
     response.data.map((model) => model.model),
-    ["openai/o3", "openai/o4-mini"],
+    ["openai/codex-mini-latest", "openai/o3", "openai/o4-mini"],
   );
-  assert.equal(response.meta.total, 2);
-  assert.equal(response.meta.count, 2);
+  assert.equal(response.meta.total, 3);
+  assert.equal(response.meta.count, 3);
   assert.equal(response.meta.offset, 0);
   assert.ok(response.data.every((model) => model.availability.includes("api")));
 });
@@ -220,7 +224,7 @@ test("the browser client preserves optional precision and lifecycle context", as
 
 test("the browser resolves exact upstream identifiers", async () => {
   const response = await fetchIdentifier(handlerFetch, "deepseek-api", "deepseek-reasoner");
-  assert.equal(response.data.model, "deepseek-ai/deepseek-r1");
+  assert.equal(response.data.model, "deepseek/deepseek-r1");
   assert.deepEqual(response.meta.matched_identifier, {
     namespace: "deepseek-api",
     value: "deepseek-reasoner",

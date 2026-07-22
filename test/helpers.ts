@@ -31,23 +31,41 @@ export function listRequest(query = "", method = "GET"): Response {
   return modelsHandler.fetch(new Request(`https://example.test/api/models${suffix}`, { method }));
 }
 
-export function itemRequest(provider: string, model: string, method = "GET"): Response {
+export function itemRequest(provider: string, model: string, method = "GET", fields?: string): Response {
   const url = new URL("https://example.test/api/model");
   url.searchParams.set("provider", provider);
   url.searchParams.set("model", model);
+  if (fields !== undefined) url.searchParams.set("fields", fields);
   return modelHandler.fetch(new Request(url, { method }));
 }
 
-export function identifierRequest(namespace: string, identifier: string, method = "GET"): Response {
+export function identifierRequest(namespace: string, identifier: string, method = "GET", fields?: string): Response {
   const url = new URL("https://example.test/api/identifier");
   url.searchParams.set("namespace", namespace);
   url.searchParams.set("identifier", identifier);
+  if (fields !== undefined) url.searchParams.set("fields", fields);
   return identifierHandler.fetch(new Request(url, { method }));
 }
 
 export async function modelsFrom(response: Response): Promise<JsonRecord[]> {
   const body = await responseBody(response);
   return asArray(body["data"]).map(asRecord);
+}
+
+export async function allModelsFrom(query = ""): Promise<JsonRecord[]> {
+  const parameters = new URLSearchParams(query);
+  parameters.set("limit", "100");
+  const collected: JsonRecord[] = [];
+
+  for (let offset = 0; ; offset += 100) {
+    parameters.set("offset", String(offset));
+    const body = await responseBody(listRequest(parameters.toString()));
+    const page = asArray(body["data"]).map(asRecord);
+    collected.push(...page);
+    if (collected.length >= Number(asRecord(body["meta"])["total"])) {
+      return collected;
+    }
+  }
 }
 
 export function modelIds(models: readonly JsonRecord[]): string[] {

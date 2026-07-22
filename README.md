@@ -10,6 +10,8 @@ Open the deployment root to use the web explorer. It can list and filter models,
 
 The API is deployed at `https://model-release-dates.vercel.app`.
 
+The machine-readable API contract is available at [`/openapi.json`](https://model-release-dates.vercel.app/openapi.json).
+
 ### Resolve an upstream identifier
 
 Use this when the ID in your application does not match the catalog's canonical `provider/model` ID:
@@ -18,9 +20,27 @@ Use this when the ID in your application does not match the catalog's canonical 
 curl 'https://model-release-dates.vercel.app/api/identifiers/deepseek-api/deepseek-reasoner'
 ```
 
-The response resolves `deepseek-reasoner` to `deepseek-ai/deepseek-r1` and includes the exact match in `meta.matched_identifier`. URL-encode identifiers containing `/`, such as Hugging Face repository IDs.
+The response resolves `deepseek-reasoner` to `deepseek/deepseek-r1` and includes the exact match in `meta.matched_identifier`. URL-encode identifiers containing `/`, such as Hugging Face repository IDs.
 
-Supported namespaces currently include `openai-api`, `anthropic-api`, `gemini-api`, `deepseek-api`, and `huggingface`. Identifier matching is exact and case-sensitive. Unknown identifiers return `404` with `error.code` set to `identifier_not_found`.
+Supported namespaces currently include `openai-api`, `anthropic-api`, `gemini-api`, `deepseek-api`, `huggingface`, and `vercel-ai-gateway`. Identifier matching is exact and case-sensitive. Unknown identifiers return `404` with `error.code` set to `identifier_not_found`.
+
+### Resolve without knowing the namespace
+
+Resolve one raw identifier across every namespace:
+
+```sh
+curl 'https://model-release-dates.vercel.app/api/resolve?identifier=gpt-4o'
+```
+
+Resolve up to 100 identifiers in one ordered batch:
+
+```sh
+curl -X POST 'https://model-release-dates.vercel.app/api/resolve?fields=model,release_date,lifecycle_status,identifiers' \
+  -H 'Content-Type: application/json' \
+  -d '{"identifiers":["gpt-4o","claude-3-5-sonnet-20241022","deepseek-reasoner"]}'
+```
+
+Unknown batch members have an empty `matches` array, so one miss does not discard the other results.
 
 ### Get one canonical model
 
@@ -41,7 +61,7 @@ curl 'https://model-release-dates.vercel.app/api/models?provider=anthropic&lifec
 | Parameter | Accepted value |
 | --- | --- |
 | `q` | Case-insensitive substring of a canonical ID, display name, or upstream identifier |
-| `provider` | Provider ID such as `openai`, `anthropic`, `google`, `deepseek-ai`, or `meta` |
+| `provider` | Provider ID such as `openai`, `anthropic`, `google`, `deepseek`, or `meta` |
 | `identifier_namespace` | Exact namespace, such as `openai-api` or `huggingface` |
 | `identifier` | Exact upstream identifier; combine with `identifier_namespace` when possible |
 | `identifier_type` | `model`, `snapshot`, or `weights` |
@@ -54,8 +74,15 @@ curl 'https://model-release-dates.vercel.app/api/models?provider=anthropic&lifec
 | `order` | `asc` (default) or `desc` |
 | `limit` | 1–100; default 50 |
 | `offset` | Zero-based offset; default 0 |
+| `fields` | Comma-separated response fields, such as `model,release_date,lifecycle_status,identifiers` |
 
 Filters can be combined. `meta.total` is the number of matches before pagination; `meta.count` is the number returned. Invalid, unknown, or repeated query parameters return `400` with `error.code` set to `invalid_query`.
+
+`fields` is also supported by canonical model, namespaced identifier, and resolve requests. Without it, the complete record is returned.
+
+### Discover filter values
+
+Clients can build filters dynamically from `GET /api/providers`, `GET /api/identifier-namespaces`, and `GET /api/lifecycle-statuses`.
 
 Requests to `/api/*` are limited to 100 requests per 60-second fixed window per source IP and Vercel region. Requests over the limit receive HTTP `429`.
 
@@ -66,11 +93,11 @@ Schema version 2 keeps evidence on the event it supports:
 ```json
 {
   "data": {
-    "model": "deepseek-ai/deepseek-r1",
+    "model": "deepseek/deepseek-r1",
     "display_name": "DeepSeek R1",
-    "provider_id": "deepseek-ai",
+    "provider_id": "deepseek",
     "provider": {
-      "id": "deepseek-ai",
+      "id": "deepseek",
       "name": "DeepSeek",
       "website": "https://www.deepseek.com/"
     },
@@ -78,6 +105,7 @@ Schema version 2 keeps evidence on the event it supports:
       { "namespace": "deepseek-api", "value": "deepseek-reasoner", "kind": "alias" },
       { "namespace": "huggingface", "value": "deepseek-ai/DeepSeek-R1", "kind": "weights" }
     ],
+    "capabilities": ["text", "reasoning", "weights", "deprecated"],
     "relationships": [],
     "availability_events": [
       {
@@ -99,7 +127,8 @@ Schema version 2 keeps evidence on the event it supports:
         "sources": [{ "publisher": "DeepSeek", "title": "...", "url": "https://...", "evidence": "..." }]
       }
     ],
-    "verified_at": "2026-07-20",
+    "verified_at": "2026-07-22",
+    "last_changed_at": "2026-07-22",
     "release_date": "2025-01-20",
     "release_date_precision": "day",
     "availability": ["api", "weights"],
@@ -111,7 +140,9 @@ Schema version 2 keeps evidence on the event it supports:
   },
   "meta": {
     "schema_version": 2,
-    "researched_at": "2026-07-20",
+    "dataset_version": "2026-07-22",
+    "researched_at": "2026-07-22",
+    "changelog_url": "https://github.com/gholtzap/model-release-dates/commits/main/model-release-dates.json",
     "coverage": {
       "exhaustive": false,
       "statement": "...",
@@ -125,6 +156,10 @@ Schema version 2 keeps evidence on the event it supports:
 `release_date`, `release_date_precision`, `availability`, `confidence`, and `sources` are compatibility fields derived from the earliest qualifying availability event. New integrations should use `availability_events` when channel-specific timing matters. Dates can have `day`, `month`, or `year` precision; partial dates are normalized to the first day of their period only in the compatibility `release_date`.
 
 `lifecycle_status` is the latest cataloged lifecycle state. Consult `lifecycle_events` for whether a date was observed, announced, effective, or scheduled and whether it applies to a particular channel or identifier.
+
+`capabilities` uses the tags `text`, `vision`, `reasoning`, `audio`, `weights`, `embedding`, and `deprecated`. `last_changed_at` records when the catalog record itself changed; `verified_at` records when its evidence was checked.
+
+Every successful JSON representation includes a strong `ETag`. Send it back in `If-None-Match` on `GET` or `HEAD`; unchanged representations return `304`. Response metadata includes the dataset version and changelog URL.
 
 ## Coverage policy
 

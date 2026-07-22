@@ -1,21 +1,18 @@
-import { dataset, findModelById } from "../src/data.js";
+import { findModelById } from "../src/data.js";
+import { catalogMeta, selectModelFields } from "../src/catalog-api.js";
 import { handleRequest, HttpError, jsonResponse } from "../src/http.js";
-import { parseModelId } from "../src/query.js";
+import { parseModelItemQuery } from "../src/query.js";
 
 function get(request: Request): Response {
-  const modelId = parseModelId(new URL(request.url));
-  const model = findModelById(modelId);
+  const query = parseModelItemQuery(new URL(request.url));
+  const model = findModelById(query.modelId);
   if (model === undefined) {
-    throw new HttpError(404, "model_not_found", `Model ${modelId} was not found`);
+    throw new HttpError(404, "model_not_found", `Model ${query.modelId} was not found`);
   }
   return jsonResponse({
-    data: model,
-    meta: {
-      schema_version: dataset.schema_version,
-      researched_at: dataset.researched_at,
-      coverage: dataset.coverage,
-    },
-  });
+    data: selectModelFields(model, query.fields),
+    meta: catalogMeta(query.fields),
+  }, 200, request);
 }
 
 export default {

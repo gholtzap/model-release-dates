@@ -1,4 +1,5 @@
 import { HttpError } from "./http.js";
+import { MODEL_FIELDS, type ModelField } from "./catalog-api.js";
 import {
   AVAILABILITY_TYPES,
   AVAILABILITY_STAGES,
@@ -30,9 +31,13 @@ const LIST_PARAMETERS = new Set([
   "order",
   "limit",
   "offset",
+  "fields",
 ]);
-const ITEM_PARAMETERS = new Set(["provider", "model"]);
-const IDENTIFIER_PARAMETERS = new Set(["namespace", "identifier"]);
+const ITEM_PARAMETERS = new Set(["provider", "model", "fields"]);
+const IDENTIFIER_PARAMETERS = new Set(["namespace", "identifier", "fields"]);
+const RESOLVE_PARAMETERS = new Set(["identifier", "fields"]);
+const FIELDS_PARAMETERS = new Set(["fields"]);
+const NO_PARAMETERS = new Set<string>();
 const SORT_FIELDS = ["model", "release_date"] as const;
 const SORT_ORDERS = ["asc", "desc"] as const;
 const LIFECYCLE_STATUSES = ["unknown", ...LIFECYCLE_EVENT_STATUSES] as const;
@@ -56,6 +61,7 @@ export interface ModelQuery {
   readonly order: SortOrder;
   readonly limit: number;
   readonly offset: number;
+  readonly fields: readonly ModelField[] | undefined;
 }
 
 export interface QueryResult {
@@ -145,6 +151,30 @@ function readDate(value: string | undefined, key: string): string | undefined {
   return value;
 }
 
+function readFields(parameters: URLSearchParams): readonly ModelField[] | undefined {
+  const value = readOptionalParameter(parameters, "fields");
+  if (value === undefined) {
+    return undefined;
+  }
+  const fields = value.split(",").map((field) => field.trim());
+  if (fields.some((field) => field === "")) {
+    throw new HttpError(400, "invalid_query", "Query parameter fields contains an empty field");
+  }
+  if (new Set(fields).size !== fields.length) {
+    throw new HttpError(400, "invalid_query", "Query parameter fields contains duplicates");
+  }
+  for (const field of fields) {
+    if (!MODEL_FIELDS.some((candidate) => candidate === field)) {
+      throw new HttpError(
+        400,
+        "invalid_query",
+        `Query parameter fields must contain only: ${MODEL_FIELDS.join(", ")}`,
+      );
+    }
+  }
+  return fields as ModelField[];
+}
+
 export function parseModelQuery(url: URL): ModelQuery {
   const parameters = url.searchParams;
   rejectUnknownParameters(parameters, LIST_PARAMETERS);
@@ -221,6 +251,7 @@ export function parseModelQuery(url: URL): ModelQuery {
       0,
       Number.MAX_SAFE_INTEGER,
     ),
+    fields: readFields(parameters),
   };
 }
 
@@ -268,7 +299,12 @@ export function queryModels(models: readonly ModelRelease[], query: ModelQuery):
   };
 }
 
-export function parseModelId(url: URL): string {
+export interface ModelItemQuery {
+  readonly modelId: string;
+  readonly fields: readonly ModelField[] | undefined;
+}
+
+export function parseModelItemQuery(url: URL): ModelItemQuery {
   const parameters = url.searchParams;
   rejectUnknownParameters(parameters, ITEM_PARAMETERS);
   const provider = readRequiredParameter(parameters, "provider");
@@ -276,12 +312,20 @@ export function parseModelId(url: URL): string {
   if (!/^[a-z0-9][a-z0-9.-]*$/.test(provider) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(model)) {
     throw new HttpError(400, "invalid_query", "The model identifier is malformed");
   }
-  return `${provider}/${model}`;
+  return { modelId: `${provider}/${model}`, fields: readFields(parameters) };
 }
 
 export interface IdentifierQuery {
   readonly namespace: string;
   readonly identifier: string;
+  readonly fields: readonly ModelField[] | undefined;
+}
+
+export function validateIdentifierValue(value: string, subject = "identifier"): string {
+  if (value.trim() === "" || value.length > 200 || /\s/.test(value)) {
+    throw new HttpError(400, "invalid_query", `The ${subject} is malformed`);
+  }
+  return value;
 }
 
 export function parseIdentifierQuery(url: URL): IdentifierQuery {
@@ -289,12 +333,61 @@ export function parseIdentifierQuery(url: URL): IdentifierQuery {
   rejectUnknownParameters(parameters, IDENTIFIER_PARAMETERS);
   const namespace = readRequiredParameter(parameters, "namespace");
   const identifier = readRequiredParameter(parameters, "identifier");
-  if (
-    !/^[a-z0-9][a-z0-9.-]*$/.test(namespace) ||
-    identifier.length > 200 ||
-    /\s/.test(identifier)
-  ) {
+  if (!/^[a-z0-9][a-z0-9.-]*$/.test(namespace)) {
     throw new HttpError(400, "invalid_query", "The upstream identifier is malformed");
   }
-  return { namespace, identifier };
+  return {
+    namespace,
+    identifier: validateIdentifierValue(identifier, "upstream identifier"),
+    fields: readFields(parameters),
+  };
+}
+
+export interface ResolveQuery {
+  readonly identifier: string;
+  readonly fields: readonly ModelField[] | undefined;
+}
+
+export function parseResolveQuery(url: URL): ResolveQuery {
+  const parameters = url.searchParams;
+  rejectUnknownParameters(parameters, RESOLVE_PARAMETERS);
+  return {
+    identifier: validateIdentifierValue(readRequiredParameter(parameters, "identifier")),
+    fields: readFields(parameters),
+  };
+}
+
+export function parseFieldsQuery(url: URL): readonly ModelField[] | undefined {
+  const parameters = url.searchParams;
+  rejectUnknownParameters(parameters, FIELDS_PARAMETERS);
+  return readFields(parameters);
+}
+
+export function rejectQueryParameters(url: URL): void {
+  rejectUnknownParameters(url.searchParams, NO_PARAMETERS);
+}
+
+export function parseBatchIdentifiers(value: unknown): readonly string[] {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    throw new HttpError(400, "invalid_request", "Request body must be an object");
+  }
+  const record = value as Record<string, unknown>;
+  const keys = Object.keys(record);
+  if (keys.length !== 1 || keys[0] !== "identifiers") {
+    throw new HttpError(400, "invalid_request", "Request body must contain only identifiers");
+  }
+  const identifiers = record["identifiers"];
+  if (!Array.isArray(identifiers) || identifiers.length < 1 || identifiers.length > 100) {
+    throw new HttpError(400, "invalid_request", "identifiers must contain between 1 and 100 values");
+  }
+  return identifiers.map((identifier, index) => {
+    if (typeof identifier !== "string") {
+      throw new HttpError(400, "invalid_request", `identifiers[${index}] must be a string`);
+    }
+    try {
+      return validateIdentifierValue(identifier, `identifier at index ${index}`);
+    } catch {
+      throw new HttpError(400, "invalid_request", `identifiers[${index}] is malformed`);
+    }
+  });
 }

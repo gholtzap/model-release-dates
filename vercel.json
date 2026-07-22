@@ -44,6 +44,18 @@
     },
     "api/identifier.ts": {
       "includeFiles": "model-release-dates.json"
+    },
+    "api/resolve.ts": {
+      "includeFiles": "model-release-dates.json"
+    },
+    "api/providers.ts": {
+      "includeFiles": "model-release-dates.json"
+    },
+    "api/identifier-namespaces.ts": {
+      "includeFiles": "model-release-dates.json"
+    },
+    "api/lifecycle-statuses.ts": {
+      "includeFiles": "model-release-dates.json"
     }
   }
 }
