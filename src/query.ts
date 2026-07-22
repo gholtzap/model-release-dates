@@ -3,12 +3,15 @@ import { MODEL_FIELDS, type ModelField } from "./catalog-api.js";
 import {
   AVAILABILITY_TYPES,
   AVAILABILITY_STAGES,
+  CAPABILITY_TAGS,
   CONFIDENCE_TYPES,
   IDENTIFIER_TYPES,
   LIFECYCLE_EVENT_STATUSES,
   isIsoDate,
+  normalizedDate,
   type AvailabilityType,
   type AvailabilityStage,
+  type CapabilityTag,
   type ConfidenceType,
   type IdentifierType,
   type LifecycleStatus,
@@ -25,6 +28,9 @@ const LIST_PARAMETERS = new Set([
   "availability_stage",
   "confidence",
   "lifecycle_status",
+  "capability",
+  "updated_since",
+  "retiring_before",
   "from",
   "to",
   "sort",
@@ -34,16 +40,19 @@ const LIST_PARAMETERS = new Set([
   "fields",
 ]);
 const ITEM_PARAMETERS = new Set(["provider", "model", "fields"]);
-const IDENTIFIER_PARAMETERS = new Set(["namespace", "identifier", "fields"]);
-const RESOLVE_PARAMETERS = new Set(["identifier", "fields"]);
+const IDENTIFIER_PARAMETERS = new Set(["namespace", "identifier", "fields", "suggestions"]);
+const RESOLVE_PARAMETERS = new Set(["identifier", "fields", "mode", "suggestions"]);
 const FIELDS_PARAMETERS = new Set(["fields"]);
+const CHANGE_PARAMETERS = new Set(["since", "limit", "offset", "fields"]);
 const NO_PARAMETERS = new Set<string>();
 const SORT_FIELDS = ["model", "release_date"] as const;
 const SORT_ORDERS = ["asc", "desc"] as const;
 const LIFECYCLE_STATUSES = ["unknown", ...LIFECYCLE_EVENT_STATUSES] as const;
+const RESOLVE_MODES = ["exact", "suggest"] as const;
 
 type SortField = (typeof SORT_FIELDS)[number];
 type SortOrder = (typeof SORT_ORDERS)[number];
+export type ResolveMode = (typeof RESOLVE_MODES)[number];
 
 export interface ModelQuery {
   readonly q: string | undefined;
@@ -55,6 +64,9 @@ export interface ModelQuery {
   readonly availabilityStage: AvailabilityStage | undefined;
   readonly confidence: ConfidenceType | undefined;
   readonly lifecycleStatus: LifecycleStatus | undefined;
+  readonly capabilities: readonly CapabilityTag[];
+  readonly updatedSince: string | undefined;
+  readonly retiringBefore: string | undefined;
   readonly from: string | undefined;
   readonly to: string | undefined;
   readonly sort: SortField;
@@ -118,6 +130,39 @@ function readEnum<T extends string>(
     );
   }
   return match;
+}
+
+function readEnums<T extends string>(
+  parameters: URLSearchParams,
+  key: string,
+  values: readonly T[],
+): readonly T[] {
+  const requested = parameters.getAll(key).map((value) => value.trim());
+  if (requested.some((value) => value === "")) {
+    throw new HttpError(400, "invalid_query", `Query parameter ${key} cannot be empty`);
+  }
+  if (new Set(requested).size !== requested.length) {
+    throw new HttpError(400, "invalid_query", `Query parameter ${key} contains duplicates`);
+  }
+  return requested.map((value) => {
+    const match = values.find((candidate) => candidate === value);
+    if (match === undefined) {
+      throw new HttpError(
+        400,
+        "invalid_query",
+        `Query parameter ${key} must be one of: ${values.join(", ")}`,
+      );
+    }
+    return match;
+  });
+}
+
+function readBoolean(value: string | undefined, key: string, defaultValue = false): boolean {
+  if (value === undefined) return defaultValue;
+  if (value !== "true" && value !== "false") {
+    throw new HttpError(400, "invalid_query", `Query parameter ${key} must be true or false`);
+  }
+  return value === "true";
 }
 
 function readInteger(
@@ -237,6 +282,15 @@ export function parseModelQuery(url: URL): ModelQuery {
       LIFECYCLE_STATUSES,
       "lifecycle_status",
     ),
+    capabilities: readEnums(parameters, "capability", CAPABILITY_TAGS),
+    updatedSince: readDate(
+      readOptionalParameter(parameters, "updated_since"),
+      "updated_since",
+    ),
+    retiringBefore: readDate(
+      readOptionalParameter(parameters, "retiring_before"),
+      "retiring_before",
+    ),
     from,
     to,
     sort:
@@ -286,6 +340,14 @@ export function queryModels(models: readonly ModelRelease[], query: ModelQuery):
         model.availability_events.some((event) => event.stage === query.availabilityStage)) &&
       (query.confidence === undefined || model.confidence === query.confidence) &&
       (query.lifecycleStatus === undefined || model.lifecycle_status === query.lifecycleStatus) &&
+      query.capabilities.every((capability) => model.capabilities.includes(capability)) &&
+      (query.updatedSince === undefined || model.last_changed_at >= query.updatedSince) &&
+      (query.retiringBefore === undefined ||
+        model.lifecycle_events.some(
+          (event) =>
+            event.status === "retirement_scheduled" &&
+            normalizedDate(event.date, event.date_precision) <= query.retiringBefore!,
+        )) &&
       (query.from === undefined || model.release_date >= query.from) &&
       (query.to === undefined || model.release_date <= query.to),
   );
@@ -319,6 +381,7 @@ export interface IdentifierQuery {
   readonly namespace: string;
   readonly identifier: string;
   readonly fields: readonly ModelField[] | undefined;
+  readonly suggestions: boolean;
 }
 
 export function validateIdentifierValue(value: string, subject = "identifier"): string {
@@ -340,20 +403,77 @@ export function parseIdentifierQuery(url: URL): IdentifierQuery {
     namespace,
     identifier: validateIdentifierValue(identifier, "upstream identifier"),
     fields: readFields(parameters),
+    suggestions: readBoolean(
+      readOptionalParameter(parameters, "suggestions"),
+      "suggestions",
+    ),
   };
 }
 
 export interface ResolveQuery {
   readonly identifier: string;
   readonly fields: readonly ModelField[] | undefined;
+  readonly mode: ResolveMode;
+  readonly suggestions: boolean;
 }
 
 export function parseResolveQuery(url: URL): ResolveQuery {
   const parameters = url.searchParams;
   rejectUnknownParameters(parameters, RESOLVE_PARAMETERS);
+  const mode = readEnum(readOptionalParameter(parameters, "mode"), RESOLVE_MODES, "mode") ?? "exact";
+  const suggestions = readBoolean(
+    readOptionalParameter(parameters, "suggestions"),
+    "suggestions",
+  );
+  if (mode === "suggest" && suggestions) {
+    throw new HttpError(
+      400,
+      "invalid_query",
+      "Query parameter suggestions cannot be combined with mode=suggest",
+    );
+  }
   return {
     identifier: validateIdentifierValue(readRequiredParameter(parameters, "identifier")),
     fields: readFields(parameters),
+    mode,
+    suggestions,
+  };
+}
+
+export interface ChangeQuery {
+  readonly since: string;
+  readonly limit: number;
+  readonly offset: number;
+  readonly fields: readonly ModelField[] | undefined;
+}
+
+export function parseChangeQuery(url: URL): ChangeQuery {
+  const parameters = url.searchParams;
+  rejectUnknownParameters(parameters, CHANGE_PARAMETERS);
+  return {
+    since: readDate(readRequiredParameter(parameters, "since"), "since")!,
+    limit: readInteger(readOptionalParameter(parameters, "limit"), "limit", 50, 1, 100),
+    offset: readInteger(
+      readOptionalParameter(parameters, "offset"),
+      "offset",
+      0,
+      0,
+      Number.MAX_SAFE_INTEGER,
+    ),
+    fields: readFields(parameters),
+  };
+}
+
+export function queryChanges(models: readonly ModelRelease[], query: ChangeQuery): QueryResult {
+  const changed = models
+    .filter((model) => model.last_changed_at >= query.since)
+    .sort((left, right) =>
+      left.last_changed_at.localeCompare(right.last_changed_at) ||
+      left.model.localeCompare(right.model),
+    );
+  return {
+    models: changed.slice(query.offset, query.offset + query.limit),
+    total: changed.length,
   };
 }
 

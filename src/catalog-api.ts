@@ -20,6 +20,7 @@ export const MODEL_FIELDS = [
   "confidence",
   "sources",
   "lifecycle_status",
+  "replacement_models",
 ] as const satisfies readonly (keyof ModelRelease)[];
 
 export type ModelField = (typeof MODEL_FIELDS)[number];

@@ -1,5 +1,5 @@
 import { catalogMeta, selectModelFields } from "../src/catalog-api.js";
-import { modelsByIdentifierValue } from "../src/data.js";
+import { models, modelsByIdentifierValue } from "../src/data.js";
 import { handlePostRequest, HttpError, jsonResponse } from "../src/http.js";
 import {
   parseBatchIdentifiers,
@@ -7,6 +7,7 @@ import {
   parseResolveQuery,
 } from "../src/query.js";
 import type { ModelField } from "../src/catalog-api.js";
+import { suggestIdentifiers } from "../src/suggestions.js";
 
 function selectedMatches(identifier: string, fields: readonly ModelField[] | undefined) {
   return (modelsByIdentifierValue.get(identifier) ?? []).map((match) => ({
@@ -15,14 +16,38 @@ function selectedMatches(identifier: string, fields: readonly ModelField[] | und
   }));
 }
 
+function selectedSuggestions(identifier: string, fields: readonly ModelField[] | undefined) {
+  return suggestIdentifiers(identifier, models).map((suggestion) => ({
+    matched_identifier: suggestion.matched_identifier,
+    model: selectModelFields(suggestion.model, fields),
+    score: suggestion.score,
+    reasons: suggestion.reasons,
+  }));
+}
+
 function get(request: Request): Response {
   const query = parseResolveQuery(new URL(request.url));
+  if (query.mode === "suggest") {
+    const suggestions = selectedSuggestions(query.identifier, query.fields);
+    return jsonResponse({
+      data: suggestions,
+      meta: {
+        ...catalogMeta(query.fields),
+        identifier: query.identifier,
+        mode: query.mode,
+        total: suggestions.length,
+      },
+    }, 200, request);
+  }
   const matches = selectedMatches(query.identifier, query.fields);
   if (matches.length === 0) {
     throw new HttpError(
       404,
       "identifier_not_found",
       `Identifier ${query.identifier} was not found in any namespace`,
+      query.suggestions
+        ? { suggestions: selectedSuggestions(query.identifier, query.fields) }
+        : undefined,
     );
   }
   return jsonResponse({

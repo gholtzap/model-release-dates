@@ -40,6 +40,15 @@ function firstLifecycleEvent(candidate: JsonRecord): JsonRecord {
   return asRecord(asArray(model?.["lifecycle_events"])[0]);
 }
 
+function firstReplacementEvent(candidate: JsonRecord): JsonRecord {
+  const event = asArray(candidate["models"])
+    .map(asRecord)
+    .flatMap((model) => asArray(model["lifecycle_events"]).map(asRecord))
+    .find((item) => "replacement_models" in item);
+  assert.ok(event !== undefined);
+  return event;
+}
+
 function firstRelationshipModel(candidate: JsonRecord): JsonRecord {
   const model = asArray(candidate["models"])
     .map(asRecord)
@@ -118,7 +127,14 @@ test("compatibility fields are derived from event-level data", () => {
   assert.equal(deepseek.confidence, "confirmed");
   assert.equal(deepseek.sources.length, 1, "duplicate event evidence is projected once");
   assert.equal(deepseek.lifecycle_status, "retirement_scheduled");
+  assert.deepEqual(deepseek.replacement_models, []);
   assert.equal(deepseek.provider.name, "DeepSeek");
+
+  const gpt4o = models.find((model) => model.model === "openai/gpt-4o");
+  assert.deepEqual(gpt4o?.replacement_models, [
+    "openai/gpt-5.6-luna",
+    "openai/gpt-5.6-terra",
+  ]);
 
   const candidate = validDataset();
   const model = firstModel(candidate);
@@ -238,6 +254,13 @@ test("availability and lifecycle event violations are rejected", async (context)
     { name: "lifecycle identifier value malformed", message: /identifier.*value is malformed/, mutate: (value) => { const event = firstLifecycleEvent(value); event["identifier"] = { namespace: "openai-api", value: "bad value" }; } },
     { name: "lifecycle identifier value too long", message: /identifier.*value is malformed/, mutate: (value) => { const event = firstLifecycleEvent(value); event["identifier"] = { namespace: "openai-api", value: "x".repeat(201) }; } },
     { name: "lifecycle identifier belongs elsewhere", message: /identifier must belong to the model/, mutate: (value) => { const event = firstLifecycleEvent(value); event["identifier"] = { namespace: "openai-api", value: "not-this-model" }; } },
+    { name: "replacement list empty", message: /replacement_models must be a non-empty array/, mutate: (value) => { firstReplacementEvent(value)["replacement_models"] = []; } },
+    { name: "replacement malformed", message: /must be a canonical model ID/, mutate: (value) => { firstReplacementEvent(value)["replacement_models"] = ["not-a-model"]; } },
+    { name: "replacement duplicate", message: /replacement_models contains duplicates/, mutate: (value) => { const event = firstReplacementEvent(value); const replacement = asArray(event["replacement_models"])[0]!; event["replacement_models"] = [replacement, replacement]; } },
+    { name: "replacement on active event", message: /requires an ending lifecycle state/, mutate: (value) => { firstReplacementEvent(value)["status"] = "active"; } },
+    { name: "replacement target unknown", message: /references unknown replacement/, mutate: (value) => { firstReplacementEvent(value)["replacement_models"] = ["openai/not-real"]; } },
+    { name: "replacement target self", message: /cannot recommend itself/, mutate: (value) => { const models = asArray(value["models"]).map(asRecord); const model = models.find((item) => asArray(item["lifecycle_events"]).map(asRecord).some((event) => "replacement_models" in event))!; asArray(model["lifecycle_events"]).map(asRecord).find((event) => "replacement_models" in event)!["replacement_models"] = [model["model"]!]; } },
+    { name: "replacement target unavailable", message: /recommends unavailable replacement/, mutate: (value) => { firstReplacementEvent(value)["replacement_models"] = ["openai/gpt-4o"]; } },
   ]);
 
   const candidate = validDataset();

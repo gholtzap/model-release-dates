@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import test from "node:test";
 
 import identifierNamespacesHandler from "../api/identifier-namespaces.js";
+import changesHandler from "../api/changes.js";
 import lifecycleStatusesHandler from "../api/lifecycle-statuses.js";
 import providersHandler from "../api/providers.js";
 import resolveHandler from "../api/resolve.js";
@@ -11,6 +12,7 @@ import modelsHandler from "../api/models.js";
 import { MODEL_FIELDS } from "../src/catalog-api.js";
 import { dataset, models, modelsByIdentifierValue } from "../src/data.js";
 import { jsonResponse } from "../src/http.js";
+import { suggestIdentifiers } from "../src/suggestions.js";
 import { asArray, asRecord, identifierRequest, itemRequest, listRequest, responseBody } from "./helpers.js";
 
 function resolveGet(query: string, method = "GET", headers?: HeadersInit): Promise<Response> {
@@ -38,11 +40,18 @@ function resolvePost(
   );
 }
 
+function changesGet(query: string, method = "GET"): Response {
+  return changesHandler.fetch(
+    new Request(`https://example.test/api/changes?${query}`, { method }),
+  );
+}
+
 test("the OpenAPI document describes every public endpoint, schema, parameter, example, and error", () => {
   const document = asRecord(JSON.parse(readFileSync(resolve(process.cwd(), "public/openapi.json"), "utf8")));
   assert.equal(document["openapi"], "3.1.0");
   const paths = asRecord(document["paths"]);
   assert.deepEqual(Object.keys(paths).sort(), [
+    "/api/changes",
     "/api/identifier-namespaces",
     "/api/identifiers/{namespace}/{identifier}",
     "/api/lifecycle-statuses",
@@ -52,7 +61,15 @@ test("the OpenAPI document describes every public endpoint, schema, parameter, e
     "/api/resolve",
   ]);
   const schemas = asRecord(asRecord(document["components"])["schemas"]);
-  for (const name of ["ModelRelease", "ModelSelection", "BatchResolveRequest", "ErrorResponse"]) {
+  for (const name of [
+    "ModelRelease",
+    "ModelSelection",
+    "BatchResolveRequest",
+    "ChangeFeedResponse",
+    "SuggestionResponse",
+    "IdentifierNotFoundResponse",
+    "ErrorResponse",
+  ]) {
     assert.ok(name in schemas);
   }
   assert.ok("parameters" in asRecord(document["components"]));
@@ -135,8 +152,74 @@ test("resolve finds raw identifiers without requiring a namespace", async () => 
   assert.equal(asRecord((await responseBody(missing))["error"])["code"], "identifier_not_found");
 });
 
+test("suggest mode ranks punctuation, prefixes, case, and stale identifiers with reasons", async () => {
+  const cases: ReadonlyArray<readonly [string, string]> = [
+    ["claude-3.5-sonnet-20241022", "punctuation_normalized"],
+    ["anthropic/claude-3-5-sonnet-20241022", "provider_prefix_removed"],
+    ["CLAUDE-3-5-SONNET-20241022", "case_insensitive"],
+    ["claude-3-5-sonnet-20241023", "close_edit_distance"],
+    ["claude-3-5-sonnet-20241022", "exact_identifier"],
+    ["anthropic/CLAUDE-3-5-SONNET-20241022", "case_insensitive"],
+    ["anthropic/claude-3.5-sonnet-20241022", "punctuation_normalized"],
+  ];
+  for (const [identifier, reason] of cases) {
+    const response = await resolveGet(
+      `identifier=${encodeURIComponent(identifier)}&mode=suggest&fields=model`,
+    );
+    const body = await responseBody(response);
+    const suggestions = asArray(body["data"]).map(asRecord);
+    const first = suggestions.find((suggestion) =>
+      asArray(suggestion["reasons"]).includes(reason),
+    );
+    assert.equal(response.status, 200);
+    assert.ok(first !== undefined, `${identifier} should report ${reason}`);
+    assert.ok(Number(first["score"]) >= 0.55 && Number(first["score"]) <= 1);
+    assert.deepEqual(Object.keys(asRecord(first["model"])), ["model"]);
+    for (let index = 1; index < suggestions.length; index += 1) {
+      assert.ok(Number(suggestions[index - 1]?.["score"]) >= Number(suggestions[index]?.["score"]));
+    }
+  }
+
+  const unrelated = await responseBody(await resolveGet("identifier=absolutely-unrelated&mode=suggest"));
+  assert.deepEqual(unrelated["data"], []);
+  const punctuationOnly = await resolveGet("identifier=%3A&mode=suggest");
+  assert.equal(punctuationOnly.status, 200);
+});
+
+test("suggestion ranking is deterministic across namespaces and honors limits", () => {
+  const model = models[0]!;
+  const candidates = [{
+    ...model,
+    identifiers: [
+      { namespace: "z-api", value: "same-id", kind: "alias" as const },
+      { namespace: "a-api", value: "same-id", kind: "alias" as const },
+    ],
+  }];
+  const suggestions = suggestIdentifiers("same-id", candidates, { limit: 1 });
+  assert.equal(suggestions.length, 1);
+  assert.equal(suggestions[0]?.matched_identifier.namespace, "a-api");
+  assert.equal(
+    suggestIdentifiers("same-id", candidates, { namespace: "z-api" })[0]?.matched_identifier.namespace,
+    "z-api",
+  );
+});
+
+test("not-found suggestions are machine-readable and remain opt-in", async () => {
+  const plainBody = await responseBody(await resolveGet("identifier=claude-3-5-sonnet-20241023"));
+  assert.equal("suggestions" in plainBody, false);
+
+  const response = await resolveGet(
+    "identifier=claude-3-5-sonnet-20241023&suggestions=true&fields=model",
+  );
+  const body = await responseBody(response);
+  const suggestions = asArray(body["suggestions"]).map(asRecord);
+  assert.equal(response.status, 404);
+  assert.equal(asRecord(suggestions[0]?.["matched_identifier"])["value"], "claude-3-5-sonnet-20241022");
+  assert.deepEqual(Object.keys(asRecord(suggestions[0]?.["model"])), ["model"]);
+});
+
 test("resolve validates query parameters and supports read HTTP semantics", async (context) => {
-  for (const query of ["", "identifier=", "identifier=bad%20value", `identifier=${"x".repeat(201)}`, "identifier=gpt-4o&extra=1", "identifier=a&identifier=b"]) {
+  for (const query of ["", "identifier=", "identifier=bad%20value", `identifier=${"x".repeat(201)}`, "identifier=gpt-4o&extra=1", "identifier=a&identifier=b", "identifier=gpt-4o&mode=fuzzy", "identifier=gpt-4o&suggestions=yes", "identifier=gpt-4o&mode=suggest&suggestions=true"]) {
     await context.test(query || "missing", async () => {
       assert.equal((await resolveGet(query)).status, 400);
     });
@@ -184,6 +267,43 @@ test("batch resolve accepts case-insensitive JSON media types", async () => {
   assert.equal(response.status, 200);
 });
 
+test("the change feed returns stable incremental pages and compact fields", async () => {
+  const response = changesGet("since=2026-07-22&limit=2&offset=1&fields=model,last_changed_at");
+  const body = await responseBody(response);
+  const changed = asArray(body["data"]).map(asRecord);
+  const expected = models
+    .filter((model) => model.last_changed_at >= "2026-07-22")
+    .sort((left, right) =>
+      left.last_changed_at.localeCompare(right.last_changed_at) || left.model.localeCompare(right.model),
+    );
+  assert.equal(response.status, 200);
+  assert.deepEqual(changed.map((model) => model["model"]), expected.slice(1, 3).map((model) => model.model));
+  assert.ok(changed.every((model) => Object.keys(model).join(",") === "model,last_changed_at"));
+  assert.deepEqual(asRecord(body["meta"]), {
+    schema_version: dataset.schema_version,
+    dataset_version: dataset.dataset_version,
+    researched_at: dataset.researched_at,
+    changelog_url: dataset.changelog_url,
+    coverage: dataset.coverage,
+    fields: ["model", "last_changed_at"],
+    since: "2026-07-22",
+    total: expected.length,
+    count: 2,
+    limit: 2,
+    offset: 1,
+  });
+  assert.notEqual(response.headers.get("etag"), null);
+  assert.equal(changesGet("since=2026-07-22", "HEAD").status, 200);
+  assert.equal(changesGet("since=2026-07-22", "OPTIONS").status, 204);
+});
+
+test("the change feed rejects incomplete and malformed queries", async () => {
+  for (const query of ["", "since=", "since=2026-02-30", "since=2026-07-22&since=2026-07-21", "since=2026-07-22&limit=0", "since=2026-07-22&offset=-1", "since=2026-07-22&unknown=1"]) {
+    assert.equal(changesGet(query).status, 400, query);
+  }
+  assert.equal(changesGet("since=2026-07-22", "POST").status, 405);
+});
+
 test("batch resolve rejects malformed media, bodies, identifiers, and oversized requests", async (context) => {
   const cases: ReadonlyArray<readonly [string, () => Promise<Response>, number, string]> = [
     ["media type", () => resolveHandler.fetch(new Request("https://example.test/api/resolve", { method: "POST", body: "{}" })), 415, "unsupported_media_type"],
@@ -200,6 +320,7 @@ test("batch resolve rejects malformed media, bodies, identifiers, and oversized 
     ["whitespace", () => resolvePost({ identifiers: ["bad value"] }), 400, "invalid_request"],
     ["too long", () => resolvePost({ identifiers: ["x".repeat(201)] }), 400, "invalid_request"],
     ["unknown query", () => resolvePost({ identifiers: ["gpt-4o"] }, { query: "?extra=1" }), 400, "invalid_query"],
+    ["suggest mode", () => resolvePost({ identifiers: ["gpt-4o"] }, { query: "?mode=suggest" }), 400, "invalid_query"],
     ["declared too large", () => resolvePost({ identifiers: ["gpt-4o"] }, { headers: { "Content-Length": "65537" } }), 413, "request_too_large"],
     ["actually too large", () => resolvePost(`{"identifiers":["${"x".repeat(65_536)}"]}`), 413, "request_too_large"],
   ];

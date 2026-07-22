@@ -66,6 +66,9 @@ const providerInput = required<HTMLSelectElement>("#provider");
 const availabilityInput = required<HTMLSelectElement>("#availability");
 const availabilityStageInput = required<HTMLSelectElement>("#availability-stage");
 const lifecycleStatusInput = required<HTMLSelectElement>("#lifecycle-status");
+const capabilityInput = required<HTMLSelectElement>("#capability");
+const updatedSinceInput = required<HTMLInputElement>("#updated-since");
+const retiringBeforeInput = required<HTMLInputElement>("#retiring-before");
 const identifierInput = required<HTMLSelectElement>("#identifier-type");
 const fromInput = required<HTMLInputElement>("#from-date");
 const toInput = required<HTMLInputElement>("#to-date");
@@ -101,6 +104,8 @@ const detailType = required<HTMLElement>("#detail-type");
 const detailConfidence = required<HTMLElement>("#detail-confidence");
 const detailStatus = required<HTMLElement>("#detail-status");
 const detailVerified = required<HTMLElement>("#detail-verified");
+const detailCapabilities = required<HTMLElement>("#detail-capabilities");
+const detailLastChanged = required<HTMLElement>("#detail-last-changed");
 const identifierCount = required<HTMLElement>("#identifier-count");
 const identifiersList = required<HTMLElement>("#identifiers-list");
 const availabilityEventCount = required<HTMLElement>("#availability-event-count");
@@ -109,6 +114,8 @@ const lifecycleEventCount = required<HTMLElement>("#lifecycle-event-count");
 const lifecycleEventsList = required<HTMLElement>("#lifecycle-events-list");
 const relationshipsSection = required<HTMLElement>("#relationships-section");
 const relationshipsList = required<HTMLElement>("#relationships-list");
+const replacementsSection = required<HTMLElement>("#replacements-section");
+const replacementsList = required<HTMLElement>("#replacements-list");
 const sourceCount = required<HTMLElement>("#source-count");
 const sourcesList = required<HTMLElement>("#sources-list");
 const rawResponse = required<HTMLElement>("#raw-response");
@@ -264,6 +271,9 @@ async function populateModelIdOptions(): Promise<void> {
         availability: "",
         availabilityStage: "",
         lifecycleStatus: "",
+        capabilities: [],
+        updatedSince: "",
+        retiringBefore: "",
         from: "",
         to: "",
         sort: "model",
@@ -306,6 +316,9 @@ function filters(): ListFilters {
     availability: availabilityInput.value,
     availabilityStage: availabilityStageInput.value,
     lifecycleStatus: lifecycleStatusInput.value,
+    capabilities: capabilityInput.value === "" ? [] : [capabilityInput.value],
+    updatedSince: updatedSinceInput.value,
+    retiringBefore: retiringBeforeInput.value,
     from: fromInput.value,
     to: toInput.value,
     sort: sortField(),
@@ -319,6 +332,9 @@ function revealActiveAdvancedFilters(): void {
   moreFilters.open = identifierInput.value !== ""
     || availabilityStageInput.value !== ""
     || lifecycleStatusInput.value !== ""
+    || capabilityInput.value !== ""
+    || updatedSinceInput.value !== ""
+    || retiringBeforeInput.value !== ""
     || fromInput.value !== ""
     || toInput.value !== ""
     || sortInput.value !== "release_date"
@@ -521,6 +537,8 @@ function renderDetail(model: ApiModel): void {
   detailConfidence.textContent = model.confidence;
   detailStatus.textContent = model.lifecycle_status.replaceAll("_", " ");
   detailVerified.textContent = model.verified_at;
+  detailCapabilities.textContent = model.capabilities.join(", ");
+  detailLastChanged.textContent = model.last_changed_at;
   identifierCount.textContent = `${model.identifiers.length} ID${model.identifiers.length === 1 ? "" : "s"}`;
   identifiersList.replaceChildren(
     ...model.identifiers.map((identifier) => {
@@ -590,6 +608,20 @@ function renderDetail(model: ApiModel): void {
       const type = document.createElement("span");
       type.textContent = relationship.type.replaceAll("_", " ");
       row.append(target, type);
+      return row;
+    }),
+  );
+
+  replacementsSection.hidden = model.replacement_models.length === 0;
+  replacementsList.replaceChildren(
+    ...model.replacement_models.map((replacement) => {
+      const row = document.createElement("div");
+      row.className = "relationship-row";
+      const target = document.createElement("code");
+      target.textContent = replacement;
+      const label = document.createElement("span");
+      label.textContent = "recommended";
+      row.append(target, label);
       return row;
     }),
   );
@@ -670,6 +702,8 @@ function syncLocation(): void {
       ["availability", current.availability],
       ["availability_stage", current.availabilityStage],
       ["lifecycle_status", current.lifecycleStatus],
+      ["updated_since", current.updatedSince],
+      ["retiring_before", current.retiringBefore],
       ["identifier_type", current.identifierType],
       ["from", current.from],
       ["to", current.to],
@@ -678,6 +712,9 @@ function syncLocation(): void {
       if (value !== "") {
         parameters.set(key, value);
       }
+    }
+    for (const capability of current.capabilities) {
+      parameters.append("capability", capability);
     }
     parameters.set("sort", current.sort);
     parameters.set("order", current.order);
@@ -846,6 +883,9 @@ function hydrateFromLocation(): RequestMode {
   availabilityInput.value = parameters.get("availability") ?? "";
   availabilityStageInput.value = parameters.get("availability_stage") ?? "";
   lifecycleStatusInput.value = parameters.get("lifecycle_status") ?? "";
+  capabilityInput.value = parameters.get("capability") ?? "";
+  updatedSinceInput.value = parameters.get("updated_since") ?? "";
+  retiringBeforeInput.value = parameters.get("retiring_before") ?? "";
   identifierInput.value = parameters.get("identifier_type") ?? "";
   fromInput.value = parameters.get("from") ?? "";
   toInput.value = parameters.get("to") ?? "";

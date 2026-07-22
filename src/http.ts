@@ -8,12 +8,19 @@ const READ_WRITE_METHODS = "GET, HEAD, POST, OPTIONS";
 export class HttpError extends Error {
   readonly status: number;
   readonly code: string;
+  readonly details: Readonly<Record<string, object>> | undefined;
 
-  constructor(status: number, code: string, message: string) {
+  constructor(
+    status: number,
+    code: string,
+    message: string,
+    details?: Readonly<Record<string, object>>,
+  ) {
     super(message);
     this.name = "HttpError";
     this.status = status;
     this.code = code;
+    this.details = details;
   }
 }
 
@@ -68,6 +75,7 @@ function errorResponse(error: HttpError): Response {
         code: error.code,
         message: error.message,
       },
+      ...error.details,
     },
     error.status,
   );

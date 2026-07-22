@@ -121,6 +121,27 @@
                     </select>
                   </label>
                   <label class="field">
+                    <span>Capability</span>
+                    <select id="capability" name="capability">
+                      <option value="">All capabilities</option>
+                      <option value="text">Text</option>
+                      <option value="vision">Vision</option>
+                      <option value="reasoning">Reasoning</option>
+                      <option value="audio">Audio</option>
+                      <option value="weights">Weights</option>
+                      <option value="embedding">Embedding</option>
+                      <option value="deprecated">Deprecated</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span>Updated since</span>
+                    <input id="updated-since" name="updated_since" type="date" />
+                  </label>
+                  <label class="field">
+                    <span>Retiring by</span>
+                    <input id="retiring-before" name="retiring_before" type="date" />
+                  </label>
+                  <label class="field">
                     <span>Released from</span>
                     <input id="from-date" name="from" type="date" />
                   </label>
@@ -347,6 +368,14 @@
               <dt>Verified</dt>
               <dd id="detail-verified"></dd>
             </div>
+            <div>
+              <dt>Capabilities</dt>
+              <dd id="detail-capabilities"></dd>
+            </div>
+            <div>
+              <dt>Last changed</dt>
+              <dd id="detail-last-changed"></dd>
+            </div>
           </dl>
 
           <section class="detail-section" aria-labelledby="identifiers-heading">
@@ -378,6 +407,13 @@
               <h3 id="relationships-heading">Relationships</h3>
             </div>
             <div id="relationships-list" class="relationship-list"></div>
+          </section>
+
+          <section id="replacements-section" class="detail-section" aria-labelledby="replacements-heading" hidden>
+            <div class="section-heading">
+              <h3 id="replacements-heading">Recommended replacements</h3>
+            </div>
+            <div id="replacements-list" class="relationship-list"></div>
           </section>
 
           <section class="sources-section" aria-labelledby="sources-heading">

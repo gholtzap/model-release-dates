@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "AI Model Release Date API",
-    "version": "1.1.0",
-    "description": "A source-backed catalog of AI model release dates, identifiers, lifecycle states, and capabilities."
+    "version": "1.2.0",
+    "description": "A source-backed catalog of AI model release dates, identifiers, lifecycle states, replacement hints, capabilities, and record changes."
   },
   "servers": [
     { "url": "https://model-release-dates.vercel.app" }
@@ -24,6 +24,9 @@
           { "$ref": "#/components/parameters/AvailabilityStageFilter" },
           { "$ref": "#/components/parameters/ConfidenceFilter" },
           { "$ref": "#/components/parameters/LifecycleStatusFilter" },
+          { "$ref": "#/components/parameters/CapabilityFilter" },
+          { "$ref": "#/components/parameters/UpdatedSince" },
+          { "$ref": "#/components/parameters/RetiringBefore" },
           { "$ref": "#/components/parameters/From" },
           { "$ref": "#/components/parameters/To" },
           { "$ref": "#/components/parameters/Sort" },
@@ -43,7 +46,7 @@
                   "data": [{ "model": "openai/gpt-4o", "release_date": "2024-05-13" }],
                   "meta": {
                     "schema_version": 2,
-                    "dataset_version": "2026-07-22.1",
+                    "dataset_version": "2026-07-22.2",
                     "researched_at": "2026-07-22",
                     "changelog_url": "https://github.com/gholtzap/model-release-dates/commits/main/model-release-dates.json",
                     "coverage": {
@@ -90,11 +93,12 @@
                     "model": "openai/gpt-4o",
                     "release_date": "2024-05-13",
                     "lifecycle_status": "deprecated",
+                    "replacement_models": ["openai/gpt-5.6-luna", "openai/gpt-5.6-terra"],
                     "identifiers": [{ "namespace": "openai-api", "value": "gpt-4o", "kind": "alias" }]
                   },
                   "meta": {
                     "schema_version": 2,
-                    "dataset_version": "2026-07-22.1",
+                    "dataset_version": "2026-07-22.2",
                     "researched_at": "2026-07-22",
                     "changelog_url": "https://github.com/gholtzap/model-release-dates/commits/main/model-release-dates.json",
                     "coverage": {
@@ -103,7 +107,7 @@
                       "provider_inclusion_criteria": "Providers publish first-party evidence.",
                       "model_inclusion_criteria": "Models have dated public developer availability."
                     },
-                    "fields": ["model", "release_date", "lifecycle_status", "identifiers"]
+                    "fields": ["model", "release_date", "lifecycle_status", "replacement_models", "identifiers"]
                   }
                 }
               }
@@ -124,7 +128,8 @@
         "parameters": [
           { "$ref": "#/components/parameters/NamespacePath" },
           { "$ref": "#/components/parameters/IdentifierPath" },
-          { "$ref": "#/components/parameters/Fields" }
+          { "$ref": "#/components/parameters/Fields" },
+          { "$ref": "#/components/parameters/Suggestions" }
         ],
         "responses": {
           "200": {
@@ -146,15 +151,17 @@
         "summary": "Resolve an identifier across every namespace",
         "parameters": [
           { "$ref": "#/components/parameters/ResolveIdentifier" },
-          { "$ref": "#/components/parameters/Fields" }
+          { "$ref": "#/components/parameters/Fields" },
+          { "$ref": "#/components/parameters/ResolveMode" },
+          { "$ref": "#/components/parameters/Suggestions" }
         ],
         "responses": {
           "200": {
-            "description": "Every exact cross-namespace match",
+            "description": "Every exact cross-namespace match, or ranked candidates when mode=suggest",
             "headers": { "ETag": { "$ref": "#/components/headers/ETag" } },
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ResolveResponse" },
+                "schema": { "oneOf": [{ "$ref": "#/components/schemas/ResolveResponse" }, { "$ref": "#/components/schemas/SuggestionResponse" }] },
                 "example": {
                   "data": [{
                     "matched_identifier": { "namespace": "openai-api", "value": "gpt-4o", "kind": "alias" },
@@ -162,7 +169,7 @@
                   }],
                   "meta": {
                     "schema_version": 2,
-                    "dataset_version": "2026-07-22.1",
+                    "dataset_version": "2026-07-22.2",
                     "researched_at": "2026-07-22",
                     "changelog_url": "https://github.com/gholtzap/model-release-dates/commits/main/model-release-dates.json",
                     "coverage": {
@@ -212,6 +219,30 @@
         }
       }
     },
+    "/api/changes": {
+      "get": {
+        "operationId": "listModelChanges",
+        "summary": "List models changed on or after a date",
+        "description": "Returns full or field-selected model records ordered by last_changed_at and canonical model ID. The since boundary is inclusive so date-granularity clients cannot miss same-day updates.",
+        "parameters": [
+          { "$ref": "#/components/parameters/Since" },
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Offset" },
+          { "$ref": "#/components/parameters/Fields" }
+        ],
+        "responses": {
+          "200": {
+            "description": "A stable page of changed model records",
+            "headers": { "ETag": { "$ref": "#/components/headers/ETag" } },
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ChangeFeedResponse" } } }
+          },
+          "304": { "$ref": "#/components/responses/NotModified" },
+          "400": { "$ref": "#/components/responses/InvalidQuery" },
+          "405": { "$ref": "#/components/responses/MethodNotAllowed" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
     "/api/providers": { "$ref": "#/components/pathItems/Providers" },
     "/api/identifier-namespaces": { "$ref": "#/components/pathItems/IdentifierNamespaces" },
     "/api/lifecycle-statuses": { "$ref": "#/components/pathItems/LifecycleStatuses" }
@@ -230,6 +261,9 @@
       "AvailabilityStageFilter": { "name": "availability_stage", "in": "query", "schema": { "$ref": "#/components/schemas/AvailabilityStage" } },
       "ConfidenceFilter": { "name": "confidence", "in": "query", "schema": { "const": "confirmed" } },
       "LifecycleStatusFilter": { "name": "lifecycle_status", "in": "query", "schema": { "$ref": "#/components/schemas/LifecycleStatus" } },
+      "CapabilityFilter": { "name": "capability", "in": "query", "description": "Required capability. Repeat the parameter to require every supplied capability.", "style": "form", "explode": true, "schema": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/components/schemas/Capability" } }, "example": ["text", "vision"] },
+      "UpdatedSince": { "name": "updated_since", "in": "query", "description": "Inclusive lower bound on last_changed_at", "schema": { "type": "string", "format": "date" }, "example": "2026-07-01" },
+      "RetiringBefore": { "name": "retiring_before", "in": "query", "description": "Include models with a scheduled retirement on or before this date", "schema": { "type": "string", "format": "date" }, "example": "2026-09-01" },
       "From": { "name": "from", "in": "query", "description": "Inclusive lower release-date bound", "schema": { "type": "string", "format": "date" }, "example": "2024-01-01" },
       "To": { "name": "to", "in": "query", "description": "Inclusive upper release-date bound", "schema": { "type": "string", "format": "date" }, "example": "2024-12-31" },
       "Sort": { "name": "sort", "in": "query", "schema": { "type": "string", "enum": ["release_date", "model"], "default": "release_date" } },
@@ -241,7 +275,10 @@
       "ModelPath": { "name": "model", "in": "path", "required": true, "schema": { "type": "string" }, "example": "gpt-4o" },
       "NamespacePath": { "name": "namespace", "in": "path", "required": true, "schema": { "type": "string" }, "example": "openai-api" },
       "IdentifierPath": { "name": "identifier", "in": "path", "required": true, "schema": { "type": "string", "maxLength": 200 }, "example": "gpt-4o" },
-      "ResolveIdentifier": { "name": "identifier", "in": "query", "required": true, "schema": { "type": "string", "maxLength": 200 }, "example": "gpt-4o" }
+      "ResolveIdentifier": { "name": "identifier", "in": "query", "required": true, "schema": { "type": "string", "maxLength": 200 }, "example": "gpt-4o" },
+      "ResolveMode": { "name": "mode", "in": "query", "description": "Exact matching is the default. suggest returns up to five ranked identifier candidates with scores and reasons.", "schema": { "type": "string", "enum": ["exact", "suggest"], "default": "exact" } },
+      "Suggestions": { "name": "suggestions", "in": "query", "description": "When true in exact mode, include ranked candidates in an identifier_not_found response", "schema": { "type": "boolean", "default": false } },
+      "Since": { "name": "since", "in": "query", "required": true, "description": "Inclusive lower bound on last_changed_at", "schema": { "type": "string", "format": "date" }, "example": "2026-07-01" }
     },
     "pathItems": {
       "Providers": {
@@ -280,7 +317,7 @@
       "InvalidQuery": { "description": "A query or path parameter is invalid", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" }, "example": { "error": { "code": "invalid_query", "message": "Unknown query parameter: extra" } } } } },
       "InvalidRequest": { "description": "The JSON body is malformed or violates the batch contract", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" }, "example": { "error": { "code": "invalid_request", "message": "identifiers must contain between 1 and 100 values" } } } } },
       "ModelNotFound": { "description": "No canonical model matched", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" }, "example": { "error": { "code": "model_not_found", "message": "Model openai/not-real was not found" } } } } },
-      "IdentifierNotFound": { "description": "No identifier matched", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" }, "example": { "error": { "code": "identifier_not_found", "message": "Identifier not-real was not found in any namespace" } } } } },
+      "IdentifierNotFound": { "description": "No identifier matched; suggestions is present only when explicitly requested", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IdentifierNotFoundResponse" }, "example": { "error": { "code": "identifier_not_found", "message": "Identifier gpt-4oo was not found in any namespace" }, "suggestions": [{ "matched_identifier": { "namespace": "openai-api", "value": "gpt-4o", "kind": "alias" }, "model": { "model": "openai/gpt-4o" }, "score": 0.9, "reasons": ["close_edit_distance", "shared_tokens"] }] } } } },
       "RequestTooLarge": { "description": "The request body exceeds 65536 bytes", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
       "UnsupportedMediaType": { "description": "The request does not use application/json", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
       "MethodNotAllowed": { "description": "The HTTP method is not supported", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" }, "example": { "error": { "code": "method_not_allowed", "message": "Method DELETE is not allowed" } } } } },
@@ -316,7 +353,7 @@
       },
       "LifecycleEvent": {
         "type": "object", "additionalProperties": false, "required": ["status", "date", "date_role", "confidence", "sources"],
-        "properties": { "status": { "type": "string", "enum": ["active", "deprecated", "retired", "retirement_scheduled"] }, "date": { "type": "string" }, "date_role": { "type": "string", "enum": ["announced", "effective", "scheduled", "observed"] }, "date_precision": { "$ref": "#/components/schemas/DatePrecision" }, "channel": { "$ref": "#/components/schemas/AvailabilityType" }, "identifier": { "$ref": "#/components/schemas/IdentifierReference" }, "confidence": { "const": "confirmed" }, "sources": { "type": "array", "minItems": 1, "items": { "$ref": "#/components/schemas/Source" } } }
+        "properties": { "status": { "type": "string", "enum": ["active", "deprecated", "retired", "retirement_scheduled"] }, "date": { "type": "string" }, "date_role": { "type": "string", "enum": ["announced", "effective", "scheduled", "observed"] }, "date_precision": { "$ref": "#/components/schemas/DatePrecision" }, "channel": { "$ref": "#/components/schemas/AvailabilityType" }, "identifier": { "$ref": "#/components/schemas/IdentifierReference" }, "replacement_models": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^[^/]+/[^/]+$" } }, "confidence": { "const": "confirmed" }, "sources": { "type": "array", "minItems": 1, "items": { "$ref": "#/components/schemas/Source" } } }
       },
       "Relationship": {
         "type": "object", "additionalProperties": false, "required": ["type", "target_model"],
@@ -327,10 +364,10 @@
         "properties": {
           "model": { "type": "string", "example": "openai/gpt-4o" }, "display_name": { "type": "string", "example": "GPT-4o" }, "provider_id": { "type": "string", "example": "openai" }, "provider": { "$ref": "#/components/schemas/Provider" }, "identifier_type": { "$ref": "#/components/schemas/IdentifierType" },
           "identifiers": { "type": "array", "minItems": 1, "items": { "$ref": "#/components/schemas/ModelIdentifier" } }, "relationships": { "type": "array", "items": { "$ref": "#/components/schemas/Relationship" } }, "availability_events": { "type": "array", "minItems": 1, "items": { "$ref": "#/components/schemas/AvailabilityEvent" } }, "lifecycle_events": { "type": "array", "items": { "$ref": "#/components/schemas/LifecycleEvent" } }, "capabilities": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/components/schemas/Capability" } },
-          "verified_at": { "type": "string", "format": "date" }, "last_changed_at": { "type": "string", "format": "date" }, "availability": { "type": "array", "items": { "$ref": "#/components/schemas/AvailabilityType" } }, "release_date": { "type": "string", "format": "date" }, "release_date_precision": { "$ref": "#/components/schemas/DatePrecision" }, "confidence": { "const": "confirmed" }, "sources": { "type": "array", "minItems": 1, "items": { "$ref": "#/components/schemas/Source" } }, "lifecycle_status": { "$ref": "#/components/schemas/LifecycleStatus" }
+          "verified_at": { "type": "string", "format": "date" }, "last_changed_at": { "type": "string", "format": "date" }, "availability": { "type": "array", "items": { "$ref": "#/components/schemas/AvailabilityType" } }, "release_date": { "type": "string", "format": "date" }, "release_date_precision": { "$ref": "#/components/schemas/DatePrecision" }, "confidence": { "const": "confirmed" }, "sources": { "type": "array", "minItems": 1, "items": { "$ref": "#/components/schemas/Source" } }, "lifecycle_status": { "$ref": "#/components/schemas/LifecycleStatus" }, "replacement_models": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[^/]+/[^/]+$" } }
         }
       },
-      "ModelRelease": { "allOf": [{ "$ref": "#/components/schemas/ModelFields" }, { "required": ["model", "display_name", "provider_id", "provider", "identifier_type", "identifiers", "relationships", "availability_events", "lifecycle_events", "capabilities", "verified_at", "last_changed_at", "availability", "release_date", "release_date_precision", "confidence", "sources", "lifecycle_status"] }] },
+      "ModelRelease": { "allOf": [{ "$ref": "#/components/schemas/ModelFields" }, { "required": ["model", "display_name", "provider_id", "provider", "identifier_type", "identifiers", "relationships", "availability_events", "lifecycle_events", "capabilities", "verified_at", "last_changed_at", "availability", "release_date", "release_date_precision", "confidence", "sources", "lifecycle_status", "replacement_models"] }] },
       "ModelSelection": { "description": "A ModelRelease object limited to the requested fields; without fields, every ModelRelease property is present", "$ref": "#/components/schemas/ModelFields", "minProperties": 1 },
       "Coverage": {
         "type": "object", "additionalProperties": false, "required": ["exhaustive", "statement", "provider_inclusion_criteria", "model_inclusion_criteria"],
@@ -341,10 +378,14 @@
         "properties": { "schema_version": { "const": 2 }, "dataset_version": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}(?:\\.\\d+)?$" }, "researched_at": { "type": "string", "format": "date" }, "changelog_url": { "type": "string", "format": "uri" }, "coverage": { "$ref": "#/components/schemas/Coverage" }, "fields": { "type": "array", "items": { "type": "string" } } }
       },
       "ModelListResponse": { "type": "object", "required": ["data", "meta"], "properties": { "data": { "type": "array", "items": { "anyOf": [{ "$ref": "#/components/schemas/ModelRelease" }, { "$ref": "#/components/schemas/ModelSelection" }] } }, "meta": { "allOf": [{ "$ref": "#/components/schemas/CatalogMeta" }, { "type": "object", "required": ["total", "count", "limit", "offset"], "properties": { "total": { "type": "integer" }, "count": { "type": "integer" }, "limit": { "type": "integer" }, "offset": { "type": "integer" } } }] } } },
+      "ChangeFeedResponse": { "type": "object", "required": ["data", "meta"], "properties": { "data": { "type": "array", "items": { "anyOf": [{ "$ref": "#/components/schemas/ModelRelease" }, { "$ref": "#/components/schemas/ModelSelection" }] } }, "meta": { "allOf": [{ "$ref": "#/components/schemas/CatalogMeta" }, { "type": "object", "required": ["since", "total", "count", "limit", "offset"], "properties": { "since": { "type": "string", "format": "date" }, "total": { "type": "integer" }, "count": { "type": "integer" }, "limit": { "type": "integer" }, "offset": { "type": "integer" } } }] } } },
       "ModelItemResponse": { "type": "object", "required": ["data", "meta"], "properties": { "data": { "anyOf": [{ "$ref": "#/components/schemas/ModelRelease" }, { "$ref": "#/components/schemas/ModelSelection" }] }, "meta": { "$ref": "#/components/schemas/CatalogMeta" } } },
       "IdentifierItemResponse": { "type": "object", "required": ["data", "meta"], "properties": { "data": { "anyOf": [{ "$ref": "#/components/schemas/ModelRelease" }, { "$ref": "#/components/schemas/ModelSelection" }] }, "meta": { "allOf": [{ "$ref": "#/components/schemas/CatalogMeta" }, { "type": "object", "required": ["matched_identifier"], "properties": { "matched_identifier": { "$ref": "#/components/schemas/IdentifierReference" } } }] } } },
       "ResolveMatch": { "type": "object", "additionalProperties": false, "required": ["matched_identifier", "model"], "properties": { "matched_identifier": { "$ref": "#/components/schemas/ModelIdentifier" }, "model": { "anyOf": [{ "$ref": "#/components/schemas/ModelRelease" }, { "$ref": "#/components/schemas/ModelSelection" }] } } },
       "ResolveResponse": { "type": "object", "required": ["data", "meta"], "properties": { "data": { "type": "array", "minItems": 1, "items": { "$ref": "#/components/schemas/ResolveMatch" } }, "meta": { "allOf": [{ "$ref": "#/components/schemas/CatalogMeta" }, { "type": "object", "required": ["identifier", "total"], "properties": { "identifier": { "type": "string" }, "total": { "type": "integer" } } }] } } },
+      "SuggestionReason": { "type": "string", "enum": ["exact_identifier", "case_insensitive", "punctuation_normalized", "provider_prefix_removed", "close_edit_distance", "shared_tokens"] },
+      "IdentifierSuggestion": { "type": "object", "additionalProperties": false, "required": ["matched_identifier", "model", "score", "reasons"], "properties": { "matched_identifier": { "$ref": "#/components/schemas/ModelIdentifier" }, "model": { "anyOf": [{ "$ref": "#/components/schemas/ModelRelease" }, { "$ref": "#/components/schemas/ModelSelection" }] }, "score": { "type": "number", "minimum": 0, "maximum": 1 }, "reasons": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/components/schemas/SuggestionReason" } } } },
+      "SuggestionResponse": { "type": "object", "required": ["data", "meta"], "properties": { "data": { "type": "array", "maxItems": 5, "items": { "$ref": "#/components/schemas/IdentifierSuggestion" } }, "meta": { "allOf": [{ "$ref": "#/components/schemas/CatalogMeta" }, { "type": "object", "required": ["identifier", "mode", "total"], "properties": { "identifier": { "type": "string" }, "mode": { "const": "suggest" }, "total": { "type": "integer" } } }] } } },
       "BatchResolveRequest": { "type": "object", "additionalProperties": false, "required": ["identifiers"], "properties": { "identifiers": { "type": "array", "minItems": 1, "maxItems": 100, "items": { "type": "string", "minLength": 1, "maxLength": 200, "pattern": "^\\S+$" } } } },
       "BatchResolveResult": { "type": "object", "additionalProperties": false, "required": ["identifier", "matches"], "properties": { "identifier": { "type": "string" }, "matches": { "type": "array", "items": { "$ref": "#/components/schemas/ResolveMatch" } } } },
       "BatchResolveResponse": { "type": "object", "required": ["data", "meta"], "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/BatchResolveResult" } }, "meta": { "allOf": [{ "$ref": "#/components/schemas/CatalogMeta" }, { "type": "object", "required": ["requested_count", "matched_count", "unmatched_count"], "properties": { "requested_count": { "type": "integer" }, "matched_count": { "type": "integer" }, "unmatched_count": { "type": "integer" } } }] } } },
@@ -353,7 +394,8 @@
       "LifecycleIndexResponse": { "type": "object", "required": ["data", "meta"], "properties": { "data": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["status", "definition", "model_count"], "properties": { "status": { "$ref": "#/components/schemas/LifecycleStatus" }, "definition": { "type": "string" }, "model_count": { "type": "integer" } } } }, "meta": { "allOf": [{ "$ref": "#/components/schemas/CatalogMeta" }, { "$ref": "#/components/schemas/IndexTotal" }] } } },
       "IndexTotal": { "type": "object", "required": ["total"], "properties": { "total": { "type": "integer" } } },
       "Error": { "type": "object", "additionalProperties": false, "required": ["code", "message"], "properties": { "code": { "type": "string", "enum": ["invalid_query", "invalid_request", "invalid_json", "model_not_found", "identifier_not_found", "request_too_large", "unsupported_media_type", "method_not_allowed", "internal_error"] }, "message": { "type": "string" } } },
-      "ErrorResponse": { "type": "object", "additionalProperties": false, "required": ["error"], "properties": { "error": { "$ref": "#/components/schemas/Error" } } }
+      "ErrorResponse": { "type": "object", "additionalProperties": false, "required": ["error"], "properties": { "error": { "$ref": "#/components/schemas/Error" } } },
+      "IdentifierNotFoundResponse": { "type": "object", "additionalProperties": false, "required": ["error"], "properties": { "error": { "$ref": "#/components/schemas/Error" }, "suggestions": { "type": "array", "maxItems": 5, "items": { "$ref": "#/components/schemas/IdentifierSuggestion" } } } }
     }
   }
 }

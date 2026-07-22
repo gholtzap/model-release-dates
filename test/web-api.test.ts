@@ -29,6 +29,9 @@ function defaultFilters(overrides: Partial<ListFilters> = {}): ListFilters {
     availability: "",
     availabilityStage: "",
     lifecycleStatus: "",
+    capabilities: [],
+    updatedSince: "",
+    retiringBefore: "",
     from: "",
     to: "",
     sort: "release_date",
@@ -114,6 +117,9 @@ test("the explorer builds documented list URLs from practical filters", () => {
         availability: "api",
         availabilityStage: "public",
         lifecycleStatus: "active",
+        capabilities: ["text", "vision"],
+        updatedSince: "2026-07-01",
+        retiringBefore: "2026-09-01",
         from: "2024-01-01",
         to: "2025-01-01",
         sort: "model",
@@ -122,7 +128,7 @@ test("the explorer builds documented list URLs from practical filters", () => {
         offset: 50,
       }),
     ),
-    "/api/models?q=gpt-4o&provider=openai&identifier_namespace=openai-api&identifier=gpt-4o&identifier_type=snapshot&availability=api&availability_stage=public&lifecycle_status=active&from=2024-01-01&to=2025-01-01&sort=model&order=desc&limit=25&offset=50",
+    "/api/models?q=gpt-4o&provider=openai&identifier_namespace=openai-api&identifier=gpt-4o&identifier_type=snapshot&availability=api&availability_stage=public&lifecycle_status=active&updated_since=2026-07-01&retiring_before=2026-09-01&from=2024-01-01&to=2025-01-01&capability=text&capability=vision&sort=model&order=desc&limit=25&offset=50",
   );
   assert.equal(
     buildListPath(defaultFilters()),
@@ -202,6 +208,20 @@ test("the browser client parses model relationships", async () => {
   assert.deepEqual(response.data.relationships, [
     { type: "snapshot_of", target_model: "openai/gpt-4o" },
   ]);
+});
+
+test("the browser client parses capabilities, change dates, and replacement hints", async () => {
+  const response = await fetchModel(handlerFetch, "openai/gpt-4o");
+  assert.ok(response.data.capabilities.includes("vision"));
+  assert.equal(response.data.last_changed_at, "2026-07-22");
+  assert.deepEqual(response.data.replacement_models, [
+    "openai/gpt-5.6-luna",
+    "openai/gpt-5.6-terra",
+  ]);
+  assert.deepEqual(
+    response.data.lifecycle_events.find((event) => event.replacement_models !== undefined)?.replacement_models,
+    response.data.replacement_models,
+  );
 });
 
 test("the browser client preserves optional precision and lifecycle context", async () => {
@@ -314,6 +334,11 @@ test("malformed successful list responses are rejected at the browser boundary",
     { name: "lifecycle date role", message: /date_role is unsupported/, mutate: (model) => { asRecord(asArray(model["lifecycle_events"])[0])["date_role"] = "guessed"; } },
     { name: "lifecycle channel", message: /channel is unsupported/, mutate: (model) => { asRecord(asArray(model["lifecycle_events"])[0])["channel"] = "chat"; } },
     { name: "lifecycle identifier", message: /identifier is not an object/, mutate: (model) => { asRecord(asArray(model["lifecycle_events"])[0])["identifier"] = null; } },
+    { name: "lifecycle replacements array", message: /replacement_models is not an array/, mutate: (model) => { asRecord(asArray(model["lifecycle_events"])[0])["replacement_models"] = {}; } },
+    { name: "lifecycle replacement string", message: /replacement_models\[0\] is not a string/, mutate: (model) => { asRecord(asArray(model["lifecycle_events"])[0])["replacement_models"] = [1]; } },
+    { name: "capabilities array", message: /capabilities is not an array/, mutate: (model) => { model["capabilities"] = {}; } },
+    { name: "capability", message: /capabilities\[0\] is unsupported/, mutate: (model) => { model["capabilities"] = ["video"]; } },
+    { name: "last changed", message: /last_changed_at is not a string/, mutate: (model) => { model["last_changed_at"] = 1; } },
     { name: "availability array", message: /availability is not an array/, mutate: (model) => { model["availability"] = "api"; } },
     { name: "availability enum", message: /availability\[0\] is unsupported/, mutate: (model) => { model["availability"] = ["private"]; } },
     { name: "date precision", message: /release_date_precision is unsupported/, mutate: (model) => { model["release_date_precision"] = "quarter"; } },
@@ -322,6 +347,8 @@ test("malformed successful list responses are rejected at the browser boundary",
     { name: "source object", message: /sources\[0\] is not an object/, mutate: (model) => { model["sources"] = [null]; } },
     { name: "source string", message: /publisher is not a string/, mutate: (model) => { model["sources"] = [{ publisher: 1, title: "T", url: "https://example.com", evidence: "E" }]; } },
     { name: "lifecycle status", message: /lifecycle_status is unsupported/, mutate: (model) => { model["lifecycle_status"] = "paused"; } },
+    { name: "replacement models array", message: /replacement_models is not an array/, mutate: (model) => { model["replacement_models"] = {}; } },
+    { name: "replacement model string", message: /replacement_models\[0\] is not a string/, mutate: (model) => { model["replacement_models"] = [1]; } },
   ];
   for (const invalidCase of cases) {
     await context.test(invalidCase.name, async () => {

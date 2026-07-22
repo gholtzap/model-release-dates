@@ -6,7 +6,7 @@ Every availability and lifecycle event is source-backed, with first-party eviden
 
 ## Try it
 
-Open the deployment root to use the web explorer. It can list and filter models, retrieve a canonical model, or resolve an exact provider API or Hugging Face identifier. It also shows the generated URL, cURL command, structured timelines, and raw JSON.
+Open the deployment root to use the web explorer. It can list and filter models, retrieve a canonical model, or resolve an exact provider API or Hugging Face identifier. It also shows the generated URL, cURL command, lifecycle replacements, structured timelines, and raw JSON.
 
 The API is deployed at `https://model-release-dates.vercel.app`.
 
@@ -42,6 +42,14 @@ curl -X POST 'https://model-release-dates.vercel.app/api/resolve?fields=model,re
 
 Unknown batch members have an empty `matches` array, so one miss does not discard the other results.
 
+Exact, case-sensitive resolution remains the default. To explicitly request ranked candidates for punctuation changes, provider-prefixed values, case differences, and stale aliases, use suggestion mode:
+
+```sh
+curl 'https://model-release-dates.vercel.app/api/resolve?identifier=anthropic%2Fclaude-3.5-sonnet-20241022&mode=suggest&fields=model,lifecycle_status,replacement_models'
+```
+
+Each candidate includes a score from 0 to 1 and machine-readable reasons such as `punctuation_normalized`, `provider_prefix_removed`, `case_insensitive`, `close_edit_distance`, and `shared_tokens`. Suggestion mode returns `200` with zero or more candidates. Alternatively, add `suggestions=true` to an exact resolve or namespaced identifier request to preserve the normal `404 identifier_not_found` response while adding a top-level `suggestions` array.
+
 ### Get one canonical model
 
 ```sh
@@ -68,6 +76,9 @@ curl 'https://model-release-dates.vercel.app/api/models?provider=anthropic&lifec
 | `availability` | `api` or `weights` |
 | `availability_stage` | `public_preview` or `public` |
 | `lifecycle_status` | `unknown`, `active`, `deprecated`, `retired`, or `retirement_scheduled` |
+| `capability` | `text`, `vision`, `reasoning`, `audio`, `weights`, `embedding`, or `deprecated`; repeat it to require every supplied capability |
+| `updated_since` | Inclusive `YYYY-MM-DD` lower bound on `last_changed_at` |
+| `retiring_before` | Models with a `retirement_scheduled` event on or before this `YYYY-MM-DD` date |
 | `confidence` | `confirmed` |
 | `from` / `to` | Inclusive `YYYY-MM-DD` bounds on the derived release date |
 | `sort` | `release_date` (default) or `model` |
@@ -76,13 +87,23 @@ curl 'https://model-release-dates.vercel.app/api/models?provider=anthropic&lifec
 | `offset` | Zero-based offset; default 0 |
 | `fields` | Comma-separated response fields, such as `model,release_date,lifecycle_status,identifiers` |
 
-Filters can be combined. `meta.total` is the number of matches before pagination; `meta.count` is the number returned. Invalid, unknown, or repeated query parameters return `400` with `error.code` set to `invalid_query`.
+Filters can be combined. Repeated `capability` parameters use all-of semantics; other repeated parameters are invalid. `meta.total` is the number of matches before pagination; `meta.count` is the number returned. Invalid or unknown query parameters return `400` with `error.code` set to `invalid_query`.
 
 `fields` is also supported by canonical model, namespaced identifier, and resolve requests. Without it, the complete record is returned.
 
 ### Discover filter values
 
 Clients can build filters dynamically from `GET /api/providers`, `GET /api/identifier-namespaces`, and `GET /api/lifecycle-statuses`.
+
+### Consume catalog changes
+
+Use the date-based change feed for incremental synchronization:
+
+```sh
+curl 'https://model-release-dates.vercel.app/api/changes?since=2026-07-01&fields=model,last_changed_at,lifecycle_status,replacement_models'
+```
+
+`since` is required and inclusive because catalog timestamps have day precision. Results are ordered by `last_changed_at` and then canonical model ID, with the same `limit`, `offset`, `fields`, metadata, and ETag behavior as model queries.
 
 Requests to `/api/*` are limited to 100 requests per 60-second fixed window per source IP and Vercel region. Requests over the limit receive HTTP `429`.
 
@@ -136,11 +157,12 @@ Schema version 2 keeps evidence on the event it supports:
     "sources": [
       { "publisher": "DeepSeek", "title": "...", "url": "https://...", "evidence": "..." }
     ],
-    "lifecycle_status": "retirement_scheduled"
+    "lifecycle_status": "retirement_scheduled",
+    "replacement_models": []
   },
   "meta": {
     "schema_version": 2,
-    "dataset_version": "2026-07-22.1",
+    "dataset_version": "2026-07-22.2",
     "researched_at": "2026-07-22",
     "changelog_url": "https://github.com/gholtzap/model-release-dates/commits/main/model-release-dates.json",
     "coverage": {
@@ -155,7 +177,7 @@ Schema version 2 keeps evidence on the event it supports:
 
 `release_date`, `release_date_precision`, `availability`, `confidence`, and `sources` are compatibility fields derived from the earliest qualifying availability event. New integrations should use `availability_events` when channel-specific timing matters. Dates can have `day`, `month`, or `year` precision; partial dates are normalized to the first day of their period only in the compatibility `release_date`.
 
-`lifecycle_status` is the latest cataloged lifecycle state. Consult `lifecycle_events` for whether a date was observed, announced, effective, or scheduled and whether it applies to a particular channel or identifier.
+`lifecycle_status` is the latest cataloged lifecycle state. Consult `lifecycle_events` for whether a date was observed, announced, effective, or scheduled and whether it applies to a particular channel or identifier. For deprecated, retired, or retirement-scheduled records, `replacement_models` contains source-backed canonical successors when the provider publishes a recommendation; an empty array means the catalog does not have a supported replacement hint.
 
 `capabilities` uses the tags `text`, `vision`, `reasoning`, `audio`, `weights`, `embedding`, and `deprecated`. `last_changed_at` records when the catalog record itself changed; `verified_at` records when its evidence was checked.
 

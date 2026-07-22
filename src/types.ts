@@ -77,6 +77,7 @@ export interface LifecycleEvent {
   readonly date_precision?: DatePrecision;
   readonly channel?: AvailabilityType;
   readonly identifier?: IdentifierReference;
+  readonly replacement_models?: readonly string[];
   readonly confidence: ConfidenceType;
   readonly sources: readonly Source[];
 }
@@ -135,6 +136,7 @@ export interface ModelRelease extends CatalogModel {
   readonly confidence: ConfidenceType;
   readonly sources: readonly Source[];
   readonly lifecycle_status: LifecycleStatus;
+  readonly replacement_models: readonly string[];
 }
 
 export class DatasetValidationError extends Error {
@@ -396,12 +398,13 @@ function parseLifecycleEvent(value: JsonInput, path: string): LifecycleEvent {
   requireKeys(
     record,
     ["status", "date", "date_role", "confidence", "sources"],
-    ["date_precision", "channel", "identifier"],
+    ["date_precision", "channel", "identifier", "replacement_models"],
     path,
   );
   const precision = readDatePrecision(record, path);
   const date = readString(record, "date", path);
   validateEventDate(date, precision, path);
+  const status = readEnum(record, "status", LIFECYCLE_EVENT_STATUSES, path);
   const channel =
     "channel" in record
       ? readEnum(record, "channel", AVAILABILITY_TYPES, path)
@@ -410,8 +413,24 @@ function parseLifecycleEvent(value: JsonInput, path: string): LifecycleEvent {
     "identifier" in record
       ? parseIdentifierReference(record["identifier"], `${path}.identifier`)
       : undefined;
+  const replacementModels = "replacement_models" in record
+    ? readArray(record, "replacement_models", path).map((replacement, index) => {
+        if (typeof replacement !== "string" || !/^[^/]+\/[^/]+$/.test(replacement)) {
+          throw new DatasetValidationError(
+            `${path}.replacement_models[${index}] must be a canonical model ID`,
+          );
+        }
+        return replacement;
+      })
+    : undefined;
+  if (replacementModels !== undefined && new Set(replacementModels).size !== replacementModels.length) {
+    throw new DatasetValidationError(`${path}.replacement_models contains duplicates`);
+  }
+  if (replacementModels !== undefined && status === "active") {
+    throw new DatasetValidationError(`${path}.replacement_models requires an ending lifecycle state`);
+  }
   return {
-    status: readEnum(record, "status", LIFECYCLE_EVENT_STATUSES, path),
+    status,
     date,
     date_role: readEnum(record, "date_role", LIFECYCLE_DATE_ROLES, path),
     ...(precision === "day" && !("date_precision" in record)
@@ -419,6 +438,7 @@ function parseLifecycleEvent(value: JsonInput, path: string): LifecycleEvent {
       : { date_precision: precision }),
     ...(channel === undefined ? {} : { channel }),
     ...(identifier === undefined ? {} : { identifier }),
+    ...(replacementModels === undefined ? {} : { replacement_models: replacementModels }),
     confidence: readEnum(record, "confidence", CONFIDENCE_TYPES, path),
     sources: parseSources(record, path),
   };
@@ -431,6 +451,16 @@ function parseRelationship(value: JsonInput, path: string): ModelRelationship {
     type: readEnum(record, "type", RELATIONSHIP_TYPES, path),
     target_model: readString(record, "target_model", path),
   };
+}
+
+function latestLifecycleStatus(events: readonly LifecycleEvent[]): LifecycleEventStatus | undefined {
+  return [...events]
+    .sort((left, right) =>
+      normalizedDate(left.date, left.date_precision).localeCompare(
+        normalizedDate(right.date, right.date_precision),
+      ),
+    )
+    .at(-1)?.status;
 }
 
 function parseModel(value: JsonInput, index: number): CatalogModel {
@@ -505,17 +535,11 @@ function parseModel(value: JsonInput, index: number): CatalogModel {
   if (capabilities.includes("weights") !== hasWeights) {
     throw new DatasetValidationError(`${path}.capabilities weights must match availability_events`);
   }
-  const latestLifecycleStatus = [...lifecycleEvents]
-    .sort((left, right) =>
-      normalizedDate(left.date, left.date_precision).localeCompare(
-        normalizedDate(right.date, right.date_precision),
-      ),
-    )
-    .at(-1)?.status;
+  const latestStatus = latestLifecycleStatus(lifecycleEvents);
   const isDeprecated =
-    latestLifecycleStatus === "deprecated" ||
-    latestLifecycleStatus === "retired" ||
-    latestLifecycleStatus === "retirement_scheduled";
+    latestStatus === "deprecated" ||
+    latestStatus === "retired" ||
+    latestStatus === "retirement_scheduled";
   if (capabilities.includes("deprecated") !== isDeprecated) {
     throw new DatasetValidationError(`${path}.capabilities deprecated must match lifecycle_events`);
   }
@@ -597,6 +621,9 @@ export function projectModel(model: CatalogModel, provider: Provider): ModelRele
       normalizedDate(right.date, right.date_precision),
     ),
   );
+  const replacementModels = [...lifecycleEvents].reverse().find(
+    (event) => event.replacement_models !== undefined,
+  )?.replacement_models ?? [];
   return {
     ...model,
     provider,
@@ -606,6 +633,7 @@ export function projectModel(model: CatalogModel, provider: Provider): ModelRele
     confidence: firstEvent.confidence,
     sources,
     lifecycle_status: lifecycleEvents.at(-1)?.status ?? "unknown",
+    replacement_models: replacementModels,
   };
 }
 
@@ -696,6 +724,31 @@ export function parseDataset(value: JsonInput | Dataset): Dataset {
         throw new DatasetValidationError(`${model.model} contains duplicate relationships`);
       }
       relationships.add(key);
+    }
+    for (const [eventIndex, event] of model.lifecycle_events.entries()) {
+      for (const replacement of event.replacement_models ?? []) {
+        if (replacement === model.model) {
+          throw new DatasetValidationError(
+            `${model.model}.lifecycle_events[${eventIndex}] cannot recommend itself`,
+          );
+        }
+        const replacementModel = models.find((candidate) => candidate.model === replacement);
+        if (replacementModel === undefined) {
+          throw new DatasetValidationError(
+            `${model.model}.lifecycle_events[${eventIndex}] references unknown replacement ${replacement}`,
+          );
+        }
+        const replacementStatus = latestLifecycleStatus(replacementModel.lifecycle_events);
+        if (
+          replacementStatus === "deprecated" ||
+          replacementStatus === "retired" ||
+          replacementStatus === "retirement_scheduled"
+        ) {
+          throw new DatasetValidationError(
+            `${model.model}.lifecycle_events[${eventIndex}] recommends unavailable replacement ${replacement}`,
+          );
+        }
+      }
     }
   }
 

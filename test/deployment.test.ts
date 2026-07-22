@@ -34,6 +34,7 @@ test("Vercel routes the documented public item URL to the item handler", () => {
 test("all deployed functions explicitly bundle the JSON dataset", () => {
   const functions = asRecord(vercelConfig()["functions"]);
   for (const functionName of [
+    "api/changes.ts",
     "api/models.ts",
     "api/model.ts",
     "api/identifier.ts",
@@ -60,6 +61,10 @@ test("Vercel builds and serves the static explorer", () => {
   assert.match(html, /id="detail-overview"/);
   assert.match(html, /id="identifier-namespace"/);
   assert.match(html, /id="availability-events-list"/);
+  assert.match(html, /id="capability"/);
+  assert.match(html, /id="updated-since"/);
+  assert.match(html, /id="retiring-before"/);
+  assert.match(html, /id="replacements-section"/);
   assert.match(html, /src="\/app\.js"/);
   assert.doesNotThrow(() => JSON.parse(readFileSync(resolve(process.cwd(), "public/openapi.json"), "utf8")));
 });

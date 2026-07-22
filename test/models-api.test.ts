@@ -154,6 +154,60 @@ test("identifier type and confidence filters match their documented values", asy
   assert.ok(confirmed.every((model) => model["confidence"] === "confirmed"));
 });
 
+test("capability filters use all-of semantics and compose with provider and lifecycle", async () => {
+  const vision = await allModelsFrom("capability=vision");
+  assert.ok(vision.length > 0);
+  assert.ok(vision.every((model) => asArray(model["capabilities"]).includes("vision")));
+
+  const activeOpenAiReasoningVision = await allModelsFrom(
+    "provider=openai&capability=reasoning&capability=vision&lifecycle_status=active",
+  );
+  const expected = models.filter(
+    (model) =>
+      model.provider_id === "openai" &&
+      model.capabilities.includes("reasoning") &&
+      model.capabilities.includes("vision") &&
+      model.lifecycle_status === "active",
+  );
+  assert.deepEqual(
+    modelIds(activeOpenAiReasoningVision).sort(),
+    expected.map((model) => model.model).sort(),
+  );
+});
+
+test("updated and retirement filters use catalog-change and lifecycle dates", async () => {
+  const updated = await allModelsFrom("updated_since=2026-07-22");
+  assert.deepEqual(
+    modelIds(updated).sort(),
+    models.filter((model) => model.last_changed_at >= "2026-07-22").map((model) => model.model).sort(),
+  );
+
+  const retiring = await allModelsFrom("retiring_before=2026-09-01");
+  const expected = models.filter((model) =>
+    model.lifecycle_events.some(
+      (event) => event.status === "retirement_scheduled" && event.date <= "2026-09-01",
+    ),
+  );
+  assert.deepEqual(modelIds(retiring).sort(), expected.map((model) => model.model).sort());
+  assert.ok(modelIds(retiring).includes("anthropic/claude-opus-4.1"));
+  assert.ok(modelIds(retiring).includes("deepseek/deepseek-r1"));
+});
+
+test("deprecated models expose validated replacement hints", async () => {
+  const gpt4o = asRecord((await responseBody(itemRequest("openai", "gpt-4o")))["data"]);
+  assert.deepEqual(asArray(gpt4o["replacement_models"]), [
+    "openai/gpt-5.6-luna",
+    "openai/gpt-5.6-terra",
+  ]);
+  const event = asArray(gpt4o["lifecycle_events"])
+    .map(asRecord)
+    .find((candidate) => "replacement_models" in candidate);
+  assert.deepEqual(asArray(event?.["replacement_models"]), asArray(gpt4o["replacement_models"]));
+
+  const active = asRecord((await responseBody(itemRequest("openai", "gpt-5.6-sol")))["data"]);
+  assert.deepEqual(active["replacement_models"], []);
+});
+
 test("date bounds are inclusive", async () => {
   const models = await modelsFrom(listRequest("from=2025-04-16&to=2025-04-16"));
   assert.deepEqual(modelIds(models), [
@@ -282,7 +336,12 @@ test("bad list queries fail loudly instead of returning misleading results", asy
     ["availability=private", "must be one of"],
     ["availability_stage=private", "must be one of"],
     ["lifecycle_status=sunset", "must be one of"],
+    ["capability=video", "must be one of"],
+    ["capability=vision&capability=vision", "contains duplicates"],
+    ["capability=", "cannot be empty"],
     ["confidence=likely", "must be one of"],
+    ["updated_since=2026-02-30", "real ISO date"],
+    ["retiring_before=2026-02-30", "real ISO date"],
     ["from=2025-02-30", "real ISO date"],
     ["to=2025-1-01", "real ISO date"],
     ["from=2025-02-01&to=2025-01-01", "cannot be after"],
@@ -327,9 +386,20 @@ test("bad or unknown identifier lookups return stable errors", async (context) =
   }
 
   const missing = identifierRequest("openai-api", "not-real");
-  const error = asRecord((await responseBody(missing))["error"]);
+  const missingBody = await responseBody(missing);
+  const error = asRecord(missingBody["error"]);
   assert.equal(missing.status, 404);
   assert.equal(error["code"], "identifier_not_found");
+  assert.equal("suggestions" in missingBody, false);
+
+  const suggested = handler.fetch(new Request(
+    "https://example.test/api/identifier?namespace=anthropic-api&identifier=claude-3-5-sonnet-20241023&suggestions=true&fields=model",
+  ));
+  const suggestedBody = await responseBody(suggested);
+  const suggestions = asArray(suggestedBody["suggestions"]).map(asRecord);
+  assert.equal(suggested.status, 404);
+  assert.equal(asRecord(suggestions[0]?.["matched_identifier"])["value"], "claude-3-5-sonnet-20241022");
+  assert.deepEqual(Object.keys(asRecord(suggestions[0]?.["model"])), ["model"]);
 });
 
 test("bad or unknown item lookups return stable errors", async (context) => {

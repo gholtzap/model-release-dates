@@ -12,6 +12,7 @@ export type LifecycleStatus =
   | "retirement_scheduled";
 export type LifecycleDateRole = "announced" | "effective" | "scheduled" | "observed";
 export type RelationshipType = "snapshot_of" | "alias_of";
+export type CapabilityTag = "text" | "vision" | "reasoning" | "audio" | "weights" | "embedding" | "deprecated";
 export type SortField = "model" | "release_date";
 export type SortOrder = "asc" | "desc";
 export type JsonValue = string | number | boolean | null | JsonObject | JsonValue[];
@@ -58,6 +59,7 @@ export interface ApiLifecycleEvent {
   readonly date_precision?: DatePrecision;
   readonly channel?: AvailabilityType;
   readonly identifier?: Readonly<Pick<ApiIdentifier, "namespace" | "value">>;
+  readonly replacement_models?: readonly string[];
   readonly confidence: ConfidenceType;
   readonly sources: readonly ApiSource[];
 }
@@ -79,13 +81,16 @@ export interface ApiModel {
   readonly relationships: readonly ApiRelationship[];
   readonly availability_events: readonly ApiAvailabilityEvent[];
   readonly lifecycle_events: readonly ApiLifecycleEvent[];
+  readonly capabilities: readonly CapabilityTag[];
   readonly verified_at: string;
+  readonly last_changed_at: string;
   readonly availability: readonly AvailabilityType[];
   readonly release_date: string;
   readonly release_date_precision: DatePrecision;
   readonly confidence: ConfidenceType;
   readonly sources: readonly ApiSource[];
   readonly lifecycle_status: LifecycleStatus;
+  readonly replacement_models: readonly string[];
 }
 
 export interface ListFilters {
@@ -97,6 +102,9 @@ export interface ListFilters {
   readonly availability: string;
   readonly availabilityStage: string;
   readonly lifecycleStatus: string;
+  readonly capabilities: readonly string[];
+  readonly updatedSince: string;
+  readonly retiringBefore: string;
   readonly from: string;
   readonly to: string;
   readonly sort: SortField;
@@ -270,6 +278,14 @@ function parseLifecycleEvent(value: JsonInput, path: string): ApiLifecycleEvent 
   const identifier = "identifier" in record
     ? parseIdentifierReference(record["identifier"], `${path}.identifier`)
     : undefined;
+  const replacementModels = "replacement_models" in record
+    ? readArray(record, "replacement_models", path).map((model, index) => {
+        if (typeof model !== "string") {
+          throw new ApiClientError(502, "invalid_response", `${path}.replacement_models[${index}] is not a string`);
+        }
+        return model;
+      })
+    : undefined;
   return {
     status: parseEnum(
       readString(record, "status", path),
@@ -289,6 +305,7 @@ function parseLifecycleEvent(value: JsonInput, path: string): ApiLifecycleEvent 
       ? {}
       : { channel: parseEnum(channel, ["api", "weights"], `${path}.channel`) }),
     ...(identifier === undefined ? {} : { identifier }),
+    ...(replacementModels === undefined ? {} : { replacement_models: replacementModels }),
     confidence: parseEnum(readString(record, "confidence", path), ["confirmed"], `${path}.confidence`),
     sources: parseSources(record, path),
   };
@@ -343,7 +360,15 @@ function parseModel(value: JsonInput, path: string): ApiModel {
     lifecycle_events: readArray(record, "lifecycle_events", path).map((event, index) =>
       parseLifecycleEvent(event, `${path}.lifecycle_events[${index}]`),
     ),
+    capabilities: readArray(record, "capabilities", path).map((capability, index) =>
+      parseEnum(
+        String(capability),
+        ["text", "vision", "reasoning", "audio", "weights", "embedding", "deprecated"],
+        `${path}.capabilities[${index}]`,
+      ),
+    ),
     verified_at: readString(record, "verified_at", path),
+    last_changed_at: readString(record, "last_changed_at", path),
     availability: readArray(record, "availability", path).map((channel, index) =>
       parseEnum(String(channel), ["api", "weights"], `${path}.availability[${index}]`),
     ),
@@ -360,6 +385,12 @@ function parseModel(value: JsonInput, path: string): ApiModel {
       ["unknown", "active", "deprecated", "retired", "retirement_scheduled"],
       `${path}.lifecycle_status`,
     ),
+    replacement_models: readArray(record, "replacement_models", path).map((model, index) => {
+      if (typeof model !== "string") {
+        throw new ApiClientError(502, "invalid_response", `${path}.replacement_models[${index}] is not a string`);
+      }
+      return model;
+    }),
   };
 }
 
@@ -387,6 +418,8 @@ export function buildListPath(filters: ListFilters): string {
     ["availability", filters.availability],
     ["availability_stage", filters.availabilityStage],
     ["lifecycle_status", filters.lifecycleStatus],
+    ["updated_since", filters.updatedSince],
+    ["retiring_before", filters.retiringBefore],
     ["from", filters.from],
     ["to", filters.to],
   ];
@@ -394,6 +427,9 @@ export function buildListPath(filters: ListFilters): string {
     if (value !== "") {
       parameters.set(key, value);
     }
+  }
+  for (const capability of filters.capabilities) {
+    parameters.append("capability", capability);
   }
   parameters.set("sort", filters.sort);
   parameters.set("order", filters.order);

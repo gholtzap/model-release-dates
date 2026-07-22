@@ -56,6 +56,9 @@
     },
     "api/lifecycle-statuses.ts": {
       "includeFiles": "model-release-dates.json"
+    },
+    "api/changes.ts": {
+      "includeFiles": "model-release-dates.json"
     }
   }
 }
