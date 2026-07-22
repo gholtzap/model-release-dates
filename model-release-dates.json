@@ -2879,14 +2879,14 @@
         {
           "channel": "api",
           "stage": "public",
-          "date": "2025-11-09",
+          "date": "2025-10-23",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "KAT Coder Pro V1 on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/kat-coder-pro-v1/about",
-              "evidence": "Vercel AI Gateway identifies kwaipilot/kat-coder-pro-v1 as a public developer model and dates its release to 2025-11-09."
+              "publisher": "StreamLake",
+              "title": "KAT-Coder model release ledger",
+              "url": "https://www.streamlake.com/document/WANQING/mdptas54hptu5uvllco",
+              "evidence": "Kuaishou's official StreamLake release ledger records KAT-Coder-Pro-V1 as publicly released on 2025-10-23."
             }
           ]
         }
@@ -2915,14 +2915,14 @@
         {
           "channel": "api",
           "stage": "public",
-          "date": "2026-03-27",
+          "date": "2026-03-25",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "KAT Coder Pro V2 on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/kat-coder-pro-v2/about",
-              "evidence": "Vercel AI Gateway identifies kwaipilot/kat-coder-pro-v2 as a public developer model and dates its release to 2026-03-27."
+              "publisher": "StreamLake",
+              "title": "KAT-Coder model release ledger",
+              "url": "https://www.streamlake.com/document/WANQING/mdptas54hptu5uvllco",
+              "evidence": "Kuaishou's official StreamLake release ledger records KAT-Coder-Pro-V2 as publicly released on 2026-03-25."
             }
           ]
         }
@@ -4467,10 +4467,10 @@
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "Kimi K2 on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/kimi-k2/about",
-              "evidence": "Vercel AI Gateway identifies moonshotai/kimi-k2 as a public developer model and dates its release to 2025-07-11."
+              "publisher": "Moonshot AI",
+              "title": "Kimi K2: Open Agentic Intelligence",
+              "url": "https://platform.kimi.com/blog/posts/k2-report",
+              "evidence": "Moonshot AI's official launch publication dates Kimi K2 to 2025-07-11 and documents public API access."
             }
           ]
         }
@@ -4544,10 +4544,10 @@
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "Kimi K2 Thinking on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/kimi-k2-thinking/about",
-              "evidence": "Vercel AI Gateway identifies moonshotai/kimi-k2-thinking as a public developer model and dates its release to 2025-11-06."
+              "publisher": "Moonshot AI",
+              "title": "Kimi K2 Thinking release announcement",
+              "url": "https://platform.kimi.com/blog/posts/k2-think",
+              "evidence": "Moonshot AI's official announcement says Kimi K2 Thinking was released and opened on 2025-11-06, with API access."
             }
           ]
         }
@@ -4650,14 +4650,14 @@
         {
           "channel": "api",
           "stage": "public",
-          "date": "2026-01-26",
+          "date": "2026-01-27",
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "Kimi K2.5 on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/kimi-k2.5/about",
-              "evidence": "Vercel AI Gateway identifies moonshotai/kimi-k2.5 as a public developer model and dates its release to 2026-01-26."
+              "publisher": "Moonshot AI",
+              "title": "Kimi K2.5 official model page",
+              "url": "https://www.kimi.com/ai-models/kimi-k2-5",
+              "evidence": "Moonshot AI's official model page states Kimi K2.5 was released on 2026-01-27 and made available through its API."
             }
           ]
         }
@@ -4691,10 +4691,16 @@
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "Morph V3 Fast on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/morph-v3-fast/about",
-              "evidence": "Vercel AI Gateway identifies morph/morph-v3-fast as a public developer model and dates its release to 2025-07-07."
+              "publisher": "OpenRouter",
+              "title": "Morph V3 Fast on OpenRouter",
+              "url": "https://openrouter.ai/morph/morph-v3-fast",
+              "evidence": "OpenRouter's public model record dates the exact morph/morph-v3-fast identifier to 2025-07-07."
+            },
+            {
+              "publisher": "Morph",
+              "title": "Morph Fast Apply documentation",
+              "url": "https://docs.morphllm.com/models/apply",
+              "evidence": "Morph's official documentation confirms morph-v3-fast as a publicly available API model."
             }
           ]
         }
@@ -4727,10 +4733,16 @@
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "Morph V3 Large on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/morph-v3-large/about",
-              "evidence": "Vercel AI Gateway identifies morph/morph-v3-large as a public developer model and dates its release to 2025-07-07."
+              "publisher": "OpenRouter",
+              "title": "Morph V3 Large on OpenRouter",
+              "url": "https://openrouter.ai/morph/morph-v3-large",
+              "evidence": "OpenRouter's public model record dates the exact morph/morph-v3-large identifier to 2025-07-07."
+            },
+            {
+              "publisher": "Morph",
+              "title": "Morph Fast Apply documentation",
+              "url": "https://docs.morphllm.com/models/apply",
+              "evidence": "Morph's official documentation confirms morph-v3-large as a publicly available API model."
             }
           ]
         }
@@ -4835,10 +4847,10 @@
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "Nemotron 3 Nano 30B A3B on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/nemotron-3-nano-30b-a3b/about",
-              "evidence": "Vercel AI Gateway identifies nvidia/nemotron-3-nano-30b-a3b as a public developer model and dates its release to 2025-12-15."
+              "publisher": "NVIDIA",
+              "title": "NVIDIA Nemotron 3 Nano 30B A3B model card",
+              "url": "https://build.nvidia.com/nvidia/nemotron-3-nano-30b-a3b/modelcard",
+              "evidence": "NVIDIA's official model card records the Hugging Face and NVIDIA Build release date as 2025-12-15."
             }
           ]
         }
@@ -4871,10 +4883,10 @@
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "Nemotron 3 Super 120B A12B on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/nemotron-3-super-120b-a12b/about",
-              "evidence": "Vercel AI Gateway identifies nvidia/nemotron-3-super-120b-a12b as a public developer model and dates its release to 2026-03-11."
+              "publisher": "NVIDIA",
+              "title": "NVIDIA Nemotron 3 Super 120B A12B model card",
+              "url": "https://build.nvidia.com/nvidia/nemotron-3-super-120b-a12b/modelcard",
+              "evidence": "NVIDIA's official model card records the Hugging Face and NVIDIA Build release date as 2026-03-11."
             }
           ]
         }
@@ -4907,10 +4919,10 @@
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "Nemotron Nano 12B V2 VL on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/nemotron-nano-12b-v2-vl/about",
-              "evidence": "Vercel AI Gateway identifies nvidia/nemotron-nano-12b-v2-vl as a public developer model and dates its release to 2025-10-28."
+              "publisher": "NVIDIA",
+              "title": "NVIDIA Nemotron Nano 12B V2 VL model card",
+              "url": "https://build.nvidia.com/nvidia/nemotron-nano-12b-v2-vl/modelcard",
+              "evidence": "NVIDIA's official model card records the Hugging Face and NVIDIA Build release date as 2025-10-28."
             }
           ]
         }
@@ -4944,10 +4956,10 @@
           "confidence": "confirmed",
           "sources": [
             {
-              "publisher": "Vercel",
-              "title": "Nemotron Nano 9B V2 on AI Gateway",
-              "url": "https://vercel.com/ai-gateway/models/nemotron-nano-9b-v2/about",
-              "evidence": "Vercel AI Gateway identifies nvidia/nemotron-nano-9b-v2 as a public developer model and dates its release to 2025-08-18."
+              "publisher": "NVIDIA",
+              "title": "NVIDIA Nemotron Nano 9B v2 model card",
+              "url": "https://huggingface.co/nvidia/NVIDIA-Nemotron-Nano-9B-v2",
+              "evidence": "NVIDIA's official model card records the Hugging Face and API Catalog release date as 2025-08-18."
             }
           ]
         }
