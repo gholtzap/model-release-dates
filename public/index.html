@@ -47,10 +47,10 @@
             Search
           </button>
           <button id="mode-item-tab" class="mode-button" type="button" role="tab" aria-controls="item-fields" aria-selected="false" tabindex="-1" data-mode="item">
-            Model
+            Get by model ID
           </button>
           <button id="mode-identifier-tab" class="mode-button" type="button" role="tab" aria-controls="identifier-fields" aria-selected="false" tabindex="-1" data-mode="identifier">
-            Identifier
+            Resolve external ID
           </button>
         </div>
 
@@ -159,7 +159,7 @@
             <section class="parameter-section">
               <div class="parameter-heading">
                 <div>
-                  <strong>Model path</strong>
+                  <strong>Get by model ID</strong>
                   <span>Retrieve a model using its canonical provider/model ID.</span>
                 </div>
               </div>
@@ -183,8 +183,8 @@
             <section class="parameter-section">
               <div class="parameter-heading">
                 <div>
-                  <strong>Identifier path</strong>
-                  <span>Resolve an exact first-party API or weights identifier.</span>
+                  <strong>Resolve external ID</strong>
+                  <span>Find the canonical model from an API or weights identifier.</span>
                 </div>
               </div>
               <div class="field-grid field-grid-flush">
@@ -207,6 +207,17 @@
           </div>
         </form>
       </aside>
+
+      <div
+        id="request-panel-resizer"
+        class="panel-resizer"
+        role="separator"
+        aria-label="Resize request and results panels"
+        aria-controls="request-panel results-panel"
+        aria-orientation="vertical"
+        tabindex="0"
+        data-panel-resizer="request"
+      ></div>
 
       <nav class="mobile-workspace-tabs" role="tablist" aria-label="Workspace view">
         <button class="mobile-workspace-tab is-active" id="mobile-query-tab" type="button" role="tab" aria-controls="request-panel" aria-selected="true" tabindex="0" data-mobile-panel="query">
@@ -276,6 +287,17 @@
           </div>
         </footer>
       </section>
+
+      <div
+        id="detail-panel-resizer"
+        class="panel-resizer"
+        role="separator"
+        aria-label="Resize results and detail panels"
+        aria-controls="results-panel detail-panel"
+        aria-orientation="vertical"
+        tabindex="0"
+        data-panel-resizer="detail"
+      ></div>
 
       <aside id="detail-panel" class="detail-panel" aria-label="Model detail" tabindex="-1">
         <div class="detail-tabs" role="tablist" aria-label="Response detail">

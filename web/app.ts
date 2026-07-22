@@ -16,6 +16,7 @@ import {
 type RequestMode = "list" | "item" | "identifier";
 type DetailTab = "overview" | "json";
 type MobilePanel = "query" | "results" | "detail";
+type ResizeEdge = "request" | "detail";
 
 function required<T extends Element>(selector: string): T {
   const element = document.querySelector<T>(selector);
@@ -53,6 +54,8 @@ const workspace = required<HTMLElement>(".workspace");
 const requestPanel = required<HTMLElement>("#request-panel");
 const resultsPanel = required<HTMLElement>("#results-panel");
 const detailPanel = required<HTMLElement>("#detail-panel");
+const requestPanelResizer = required<HTMLElement>("#request-panel-resizer");
+const detailPanelResizer = required<HTMLElement>("#detail-panel-resizer");
 const listFields = required<HTMLElement>("#list-fields");
 const itemFields = required<HTMLElement>("#item-fields");
 const identifierFields = required<HTMLElement>("#identifier-fields");
@@ -113,6 +116,7 @@ const modeButtons = document.querySelectorAll<HTMLButtonElement>("[data-mode]");
 const detailTabs = document.querySelectorAll<HTMLButtonElement>("[data-detail-tab]");
 const mobilePanelButtons = document.querySelectorAll<HTMLButtonElement>("[data-mobile-panel]");
 const mobileViewport = window.matchMedia("(max-width: 760px)");
+const stackedDetailViewport = window.matchMedia("(max-width: 1280px)");
 const mobilePanels: Readonly<Record<MobilePanel, HTMLElement>> = {
   query: requestPanel,
   results: resultsPanel,
@@ -130,9 +134,116 @@ let selectedModelId: string | undefined;
 let lastResponse: object = {};
 let modelIdOptionsLoading = false;
 
+const MIN_REQUEST_PANEL_WIDTH = 240;
+const MIN_RESULTS_PANEL_WIDTH = 320;
+const MIN_DETAIL_PANEL_WIDTH = 280;
+const RESIZER_WIDTH = 6;
+
 function syncSearchInputs(value: string): void {
   queryInput.value = value;
   resultsQueryInput.value = value;
+}
+
+function panelWidth(panel: HTMLElement): number {
+  return Math.round(panel.getBoundingClientRect().width);
+}
+
+function maxPanelWidth(edge: ResizeEdge): number {
+  if (edge === "request") {
+    const detailWidth = stackedDetailViewport.matches ? 0 : panelWidth(detailPanel);
+    const resizerWidth = stackedDetailViewport.matches ? RESIZER_WIDTH : RESIZER_WIDTH * 2;
+    return Math.max(
+      MIN_REQUEST_PANEL_WIDTH,
+      workspace.clientWidth - detailWidth - MIN_RESULTS_PANEL_WIDTH - resizerWidth,
+    );
+  }
+  return Math.max(
+    MIN_DETAIL_PANEL_WIDTH,
+    workspace.clientWidth - panelWidth(requestPanel) - MIN_RESULTS_PANEL_WIDTH - RESIZER_WIDTH * 2,
+  );
+}
+
+function updateResizerState(): void {
+  const values: ReadonlyArray<readonly [HTMLElement, ResizeEdge, number]> = [
+    [requestPanelResizer, "request", MIN_REQUEST_PANEL_WIDTH],
+    [detailPanelResizer, "detail", MIN_DETAIL_PANEL_WIDTH],
+  ];
+  for (const [resizer, edge, minimum] of values) {
+    resizer.setAttribute("aria-valuemin", String(minimum));
+    resizer.setAttribute("aria-valuemax", String(maxPanelWidth(edge)));
+    resizer.setAttribute(
+      "aria-valuenow",
+      String(panelWidth(edge === "request" ? requestPanel : detailPanel)),
+    );
+  }
+}
+
+function resizeAt(edge: ResizeEdge, clientX: number): void {
+  const bounds = workspace.getBoundingClientRect();
+  const requestedWidth = edge === "request" ? clientX - bounds.left : bounds.right - clientX;
+  const minimum = edge === "request" ? MIN_REQUEST_PANEL_WIDTH : MIN_DETAIL_PANEL_WIDTH;
+  const width = Math.min(Math.max(Math.round(requestedWidth), minimum), maxPanelWidth(edge));
+  document.documentElement.style.setProperty(
+    edge === "request" ? "--request-panel-width" : "--detail-panel-width",
+    `${width}px`,
+  );
+  updateResizerState();
+}
+
+function finishResize(resizer: HTMLElement, pointerId?: number): void {
+  if (pointerId !== undefined && resizer.hasPointerCapture(pointerId)) {
+    resizer.releasePointerCapture(pointerId);
+  }
+  resizer.classList.remove("is-active");
+  workspace.classList.remove("is-resizing");
+}
+
+function bindPanelResizer(resizer: HTMLElement, edge: ResizeEdge): void {
+  resizer.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) {
+      return;
+    }
+    event.preventDefault();
+    resizer.setPointerCapture(event.pointerId);
+    resizer.classList.add("is-active");
+    workspace.classList.add("is-resizing");
+    resizeAt(edge, event.clientX);
+  });
+  resizer.addEventListener("pointermove", (event) => {
+    if (resizer.hasPointerCapture(event.pointerId)) {
+      resizeAt(edge, event.clientX);
+    }
+  });
+  resizer.addEventListener("pointerup", (event) => finishResize(resizer, event.pointerId));
+  resizer.addEventListener("pointercancel", (event) => finishResize(resizer, event.pointerId));
+  resizer.addEventListener("keydown", (event) => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+      return;
+    }
+    event.preventDefault();
+    const bounds = workspace.getBoundingClientRect();
+    const currentEdge = edge === "request"
+      ? bounds.left + panelWidth(requestPanel)
+      : bounds.right - panelWidth(detailPanel);
+    resizeAt(edge, currentEdge + (event.key === "ArrowLeft" ? -16 : 16));
+  });
+}
+
+function constrainPanelWidths(): void {
+  if (mobileViewport.matches) {
+    return;
+  }
+  const requestMaximum = maxPanelWidth("request");
+  if (panelWidth(requestPanel) > requestMaximum) {
+    document.documentElement.style.setProperty("--request-panel-width", `${requestMaximum}px`);
+  }
+  if (!stackedDetailViewport.matches) {
+    const detailMaximum = maxPanelWidth("detail");
+    if (panelWidth(detailPanel) > detailMaximum) {
+      document.documentElement.style.setProperty("--detail-panel-width", `${detailMaximum}px`);
+    }
+  }
+  updateResizerState();
 }
 
 async function populateModelIdOptions(): Promise<void> {
@@ -806,7 +917,11 @@ for (const button of mobilePanelButtons) {
 bindTabKeyboardNavigation(modeButtons);
 bindTabKeyboardNavigation(detailTabs);
 bindTabKeyboardNavigation(mobilePanelButtons);
+bindPanelResizer(requestPanelResizer, "request");
+bindPanelResizer(detailPanelResizer, "detail");
+updateResizerState();
 mobileViewport.addEventListener("change", syncMobilePanelAccessibility);
+window.addEventListener("resize", constrainPanelWidths);
 
 previousPage.addEventListener("click", () => {
   offset = Math.max(0, offset - Number(limitInput.value));

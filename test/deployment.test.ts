@@ -71,6 +71,8 @@ test("the explorer ships the accessible responsive workbench contract", () => {
 
   assert.match(html, /id="mobile-query-tab"[^>]+aria-controls="request-panel"/);
   assert.match(html, /id="mode-list-tab"[^>]+aria-controls="list-fields"/);
+  assert.match(html, /id="mode-item-tab"[^>]*>\s*Get by model ID\s*<\/button>/);
+  assert.match(html, /id="mode-identifier-tab"[^>]*>\s*Resolve external ID\s*<\/button>/);
   assert.match(html, /id="detail-overview-tab"[^>]+aria-controls="detail-overview"/);
   assert.match(html, /id="detail-json-tab"[^>]+is-active[^>]+aria-selected="true"/);
   assert.match(html, /<option value="desc" selected>Descending<\/option>/);
@@ -78,7 +80,7 @@ test("the explorer ships the accessible responsive workbench contract", () => {
   assert.match(html, /<datalist id="model-id-options"><\/datalist>/);
   assert.match(html, /<th scope="col">Lifecycle<\/th>/);
   assert.match(html, /id="results-loading"/);
-  assert.match(css, /grid-template-columns: 360px minmax\(470px, 1fr\) minmax\(360px, 430px\)/);
+  assert.match(css, /grid-template-columns: var\(--request-panel-width\) 6px minmax\(320px, 1fr\) 6px var\(--detail-panel-width\)/);
   assert.match(css, /height: calc\(100dvh - 68px\)/);
   assert.doesNotMatch(css, /\bInter\b/);
   assert.doesNotMatch(css, /text-transform:\s*uppercase/);
@@ -87,7 +89,11 @@ test("the explorer ships the accessible responsive workbench contract", () => {
   assert.doesNotMatch(html, /aria-hidden="true">→/);
   assert.doesNotMatch(html, /Quick queries|data-preset/);
   assert.match(html, /id="results-search-form"[^>]+role="search"/);
+  assert.match(html, /data-panel-resizer="request"/);
+  assert.match(html, /data-panel-resizer="detail"/);
   assert.match(app, /syncSearchInputs/);
+  assert.match(app, /setPointerCapture/);
+  assert.match(app, /event\.key !== "ArrowLeft"/);
   assert.match(css, /\.model-cell:hover \.copy-model-button/);
   assert.match(app, /event\.key === "ArrowRight"/);
   assert.match(app, /let detailTab: DetailTab = "json"/);
