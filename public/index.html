@@ -7,7 +7,7 @@
       name="description"
       content="Explore verified AI model release dates and their supporting sources."
     />
-    <meta name="theme-color" content="#0b0d0f" />
+    <meta name="theme-color" content="#171817" />
     <meta name="color-scheme" content="dark" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/styles.css" />
@@ -16,12 +16,19 @@
   <body>
     <header class="app-header">
       <a class="brand" href="/" aria-label="AI Model Release Index home">
-        <strong>Model release index</strong>
+        <img src="/favicon.svg" alt="" width="26" height="26" />
+        <span>
+          <strong>Model Dates</strong>
+          <small>API playground</small>
+        </span>
       </a>
 
       <div class="request-preview">
         <span class="method-badge">GET</span>
-        <code id="request-path">/api/models</code>
+        <div class="request-path-wrap">
+          <span>Request URL</span>
+          <code id="request-path">/api/models</code>
+        </div>
         <button id="copy-request" class="quiet-button" type="button" aria-label="Copy request as cURL">
           Copy cURL
         </button>
@@ -29,7 +36,8 @@
 
       <div class="header-actions">
         <button id="run-request" class="run-button" type="submit" form="request-form">
-          <span>Send</span>
+          <span>Run query</span>
+          <span aria-hidden="true">→</span>
         </button>
       </div>
     </header>
@@ -37,21 +45,22 @@
     <main class="workspace">
       <aside id="request-panel" class="request-panel" aria-labelledby="request-heading" tabindex="-1">
         <div class="panel-heading">
+          <span class="panel-kicker">Request builder</span>
           <div>
-            <h1 id="request-heading">Query models</h1>
-            <p>Search release dates, identifiers, availability, and lifecycle history.</p>
+            <h1 id="request-heading">Explore model releases</h1>
+            <p>Query verified release dates, identifiers, availability, and lifecycle events.</p>
           </div>
         </div>
 
         <div class="mode-switch" role="tablist" aria-label="Endpoint">
           <button id="mode-list-tab" class="mode-button is-active" type="button" role="tab" aria-controls="list-fields" aria-selected="true" tabindex="0" data-mode="list">
-            List models
+            Search
           </button>
           <button id="mode-item-tab" class="mode-button" type="button" role="tab" aria-controls="item-fields" aria-selected="false" tabindex="-1" data-mode="item">
-            Get one
+            Model
           </button>
           <button id="mode-identifier-tab" class="mode-button" type="button" role="tab" aria-controls="identifier-fields" aria-selected="false" tabindex="-1" data-mode="identifier">
-            Resolve ID
+            Identifier
           </button>
         </div>
 
@@ -169,11 +178,13 @@
                 <input
                   id="model-id"
                   name="model"
-                  type="text"
+                  type="search"
                   value="openai/gpt-4o"
                   placeholder="provider/model"
                   autocomplete="off"
+                  list="model-id-options"
                 />
+                <datalist id="model-id-options"></datalist>
               </label>
             </section>
           </div>
@@ -207,7 +218,7 @@
         </form>
 
         <div class="presets" aria-label="Example queries">
-          <span>Examples</span>
+          <span>Quick queries</span>
           <button type="button" data-preset="recent-openai">Recent OpenAI</button>
           <button type="button" data-preset="weights">Weight releases</button>
           <button type="button" data-preset="timeline-2025">2025 timeline</button>
@@ -228,7 +239,10 @@
 
       <section id="results-panel" class="results-panel" aria-labelledby="results-heading" tabindex="-1">
         <div class="results-toolbar">
-          <h2 id="results-heading">Models</h2>
+          <div>
+            <span class="panel-kicker">Response</span>
+            <h2 id="results-heading">Matching models</h2>
+          </div>
           <div class="response-status" id="response-status" role="status" aria-live="polite">
             <span class="status-dot" aria-hidden="true"></span>
             <span>Ready</span>

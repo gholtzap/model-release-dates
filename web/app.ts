@@ -68,6 +68,7 @@ const sortInput = required<HTMLSelectElement>("#sort");
 const orderInput = required<HTMLSelectElement>("#order");
 const limitInput = required<HTMLSelectElement>("#limit");
 const modelIdInput = required<HTMLInputElement>("#model-id");
+const modelIdOptions = required<HTMLDataListElement>("#model-id-options");
 const identifierNamespaceInput = required<HTMLSelectElement>("#identifier-namespace");
 const upstreamIdentifierInput = required<HTMLInputElement>("#upstream-identifier");
 const moreFilters = required<HTMLDetailsElement>(".more-filters");
@@ -126,6 +127,49 @@ let offset = 0;
 let total = 0;
 let selectedModelId: string | undefined;
 let lastResponse: object = {};
+let modelIdOptionsLoading = false;
+
+async function populateModelIdOptions(): Promise<void> {
+  if (modelIdOptionsLoading || modelIdOptions.childElementCount !== 0) {
+    return;
+  }
+  modelIdOptionsLoading = true;
+  try {
+    const options: HTMLOptionElement[] = [];
+    let catalogOffset = 0;
+    while (true) {
+      const response = await fetchModels(browserFetch, {
+        q: "",
+        provider: "",
+        identifierNamespace: "",
+        identifier: "",
+        identifierType: "",
+        availability: "",
+        availabilityStage: "",
+        lifecycleStatus: "",
+        from: "",
+        to: "",
+        sort: "model",
+        order: "asc",
+        limit: 100,
+        offset: catalogOffset,
+      });
+      options.push(...response.data.map((model) => {
+        const option = document.createElement("option");
+        option.value = model.model;
+        option.label = model.display_name;
+        return option;
+      }));
+      catalogOffset += response.data.length;
+      if (response.data.length === 0 || catalogOffset >= response.meta.total) {
+        modelIdOptions.replaceChildren(...options);
+        return;
+      }
+    }
+  } finally {
+    modelIdOptionsLoading = false;
+  }
+}
 
 function sortField(): SortField {
   return sortInput.value === "model" ? "model" : "release_date";
@@ -199,7 +243,7 @@ function setBusy(busy: boolean): void {
   resultsLoading.hidden = !busy;
   const label = runButton.querySelector<HTMLSpanElement>("span:first-child");
   if (label !== null) {
-    label.textContent = busy ? "Sending…" : "Send";
+    label.textContent = busy ? "Running…" : "Run query";
   }
   if (busy) {
     setStatus("loading", "Requesting");
@@ -228,6 +272,15 @@ function tag(value: string): HTMLSpanElement {
   return element;
 }
 
+async function writeClipboard(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function renderModels(models: readonly ApiModel[]): void {
   resultsBody.replaceChildren();
   emptyState.hidden = models.length !== 0;
@@ -238,13 +291,30 @@ function renderModels(models: readonly ApiModel[]): void {
     row.classList.toggle("is-selected", model.model === selectedModelId);
 
     const modelCell = document.createElement("td");
+    const modelCellContent = document.createElement("div");
+    modelCellContent.className = "model-cell";
     const modelButton = document.createElement("button");
     modelButton.type = "button";
     modelButton.className = "model-cell-button";
     modelButton.textContent = model.model;
     modelButton.title = `Inspect ${model.model}`;
     modelButton.addEventListener("click", () => void inspectModel(model.model));
-    modelCell.append(modelButton);
+    const copyModelButton = document.createElement("button");
+    copyModelButton.type = "button";
+    copyModelButton.className = "copy-model-button";
+    copyModelButton.title = "Copy model ID";
+    copyModelButton.setAttribute("aria-label", `Copy ${model.model}`);
+    copyModelButton.addEventListener("click", async () => {
+      const copied = await writeClipboard(model.model);
+      copyModelButton.classList.toggle("is-copied", copied);
+      copyModelButton.title = copied ? "Copied" : "Copy failed";
+      window.setTimeout(() => {
+        copyModelButton.classList.remove("is-copied");
+        copyModelButton.title = "Copy model ID";
+      }, 1400);
+    });
+    modelCellContent.append(modelButton, copyModelButton);
+    modelCell.append(modelCellContent);
 
     const dateCell = document.createElement("td");
     const releaseDate = document.createElement("time");
@@ -636,6 +706,9 @@ function setMode(nextMode: RequestMode): void {
     button.setAttribute("aria-selected", String(active));
     button.tabIndex = active ? 0 : -1;
   }
+  if (mode === "item") {
+    void populateModelIdOptions().catch(() => undefined);
+  }
   updateRequestPreview();
 }
 
@@ -769,13 +842,8 @@ nextPage.addEventListener("click", () => {
 });
 
 copyRequestButton.addEventListener("click", async () => {
-  try {
-    const command = `curl '${new URL(activePath(), location.origin).toString()}'`;
-    await navigator.clipboard.writeText(command);
-    copyRequestButton.textContent = "Copied";
-  } catch {
-    copyRequestButton.textContent = "Copy failed";
-  }
+  const command = `curl '${new URL(activePath(), location.origin).toString()}'`;
+  copyRequestButton.textContent = await writeClipboard(command) ? "Copied" : "Copy failed";
   window.setTimeout(() => {
     copyRequestButton.textContent = "Copy cURL";
   }, 1400);

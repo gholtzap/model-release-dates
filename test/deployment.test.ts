@@ -64,12 +64,18 @@ test("the explorer ships the accessible responsive workbench contract", () => {
   assert.match(html, /id="mode-list-tab"[^>]+aria-controls="list-fields"/);
   assert.match(html, /id="detail-overview-tab"[^>]+aria-controls="detail-overview"/);
   assert.match(html, /<option value="desc" selected>Descending<\/option>/);
+  assert.match(html, /list="model-id-options"/);
+  assert.match(html, /<datalist id="model-id-options"><\/datalist>/);
   assert.match(html, /<th scope="col">Lifecycle<\/th>/);
   assert.match(html, /id="results-loading"/);
-  assert.match(css, /grid-template-columns: clamp\(280px, 22vw, 320px\) minmax\(440px, 1fr\) clamp\(380px, 29vw, 480px\)/);
-  assert.match(css, /height: calc\(100dvh - 56px\)/);
+  assert.match(css, /grid-template-columns: 360px minmax\(470px, 1fr\) minmax\(360px, 430px\)/);
+  assert.match(css, /height: calc\(100dvh - 68px\)/);
   assert.doesNotMatch(css, /\bInter\b/);
+  assert.match(css, /\.model-cell:hover \.copy-model-button/);
   assert.match(app, /event\.key === "ArrowRight"/);
+  assert.match(app, /populateModelIdOptions/);
+  assert.match(app, /className = "copy-model-button"/);
+  assert.match(app, /writeClipboard\(model\.model\)/);
   assert.match(app, /parameters\.get\("order"\) === "asc" \? "asc" : "desc"/);
 });
 
