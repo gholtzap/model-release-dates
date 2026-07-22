@@ -86,9 +86,9 @@ test("the production schema-v2 catalog satisfies every identity and event invari
   assert.equal(requiredModels.length, 193);
   assert.deepEqual(requiredModels.filter((model) => !modelsById.has(model)), []);
   assert.equal(dataset.providers.length, 21);
-  assert.equal(dataset.models.length, 194);
-  assert.equal(models.length, 194);
-  assert.equal(modelsByIdentifier.size, 231);
+  assert.equal(dataset.models.length, 195);
+  assert.equal(models.length, 195);
+  assert.equal(modelsByIdentifier.size, 232);
   assert.equal(dataset.coverage.exhaustive, false);
   assert.match(dataset.coverage.statement, /non-exhaustive/);
   assert.deepEqual(parseDataset(dataset), dataset);

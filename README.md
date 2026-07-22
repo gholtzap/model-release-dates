@@ -140,7 +140,7 @@ Schema version 2 keeps evidence on the event it supports:
   },
   "meta": {
     "schema_version": 2,
-    "dataset_version": "2026-07-22",
+    "dataset_version": "2026-07-22.1",
     "researched_at": "2026-07-22",
     "changelog_url": "https://github.com/gholtzap/model-release-dates/commits/main/model-release-dates.json",
     "coverage": {

@@ -58,7 +58,12 @@ test("the OpenAPI document describes every public endpoint, schema, parameter, e
   assert.ok("parameters" in asRecord(document["components"]));
   const requestBody = asRecord(asRecord(asRecord(paths["/api/resolve"])["post"])["requestBody"]);
   const requestContent = asRecord(asRecord(requestBody["content"])["application/json"]);
-  assert.ok("example" in requestContent);
+  const exampleIdentifiers = asArray(asRecord(requestContent["example"])["identifiers"]);
+  assert.ok(exampleIdentifiers.length > 0);
+  assert.deepEqual(
+    exampleIdentifiers.filter((identifier) => typeof identifier !== "string" || !modelsByIdentifierValue.has(identifier)),
+    [],
+  );
 
   const unresolved: string[] = [];
   function visit(value: unknown): void {

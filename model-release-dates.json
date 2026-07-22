@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "dataset_version": "2026-07-22",
+  "dataset_version": "2026-07-22.1",
   "changelog_url": "https://github.com/gholtzap/model-release-dates/commits/main/model-release-dates.json",
   "release_date_definition": "First public developer availability of the named upstream model through an official API or downloadable weights. For canonical model-family records, availability through an earlier preview or experimental identifier counts; the exact identifiers and their kinds are listed separately. Private previews and announcements without access do not count.",
   "identifier_type_definition": {
@@ -677,6 +677,84 @@
               "title": "Model deprecations",
               "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
               "evidence": "Anthropic's lifecycle table records anthropic/claude-3.5-sonnet-20240620 as retired on 2025-10-28."
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        "text",
+        "vision",
+        "deprecated"
+      ],
+      "last_changed_at": "2026-07-22",
+      "verified_at": "2026-07-22"
+    },
+    {
+      "model": "anthropic/claude-3.5-sonnet-20241022",
+      "display_name": "Claude 3.5 Sonnet (20241022 snapshot)",
+      "provider_id": "anthropic",
+      "identifier_type": "snapshot",
+      "identifiers": [
+        {
+          "namespace": "anthropic-api",
+          "value": "claude-3-5-sonnet-20241022",
+          "kind": "snapshot"
+        }
+      ],
+      "relationships": [
+        {
+          "type": "snapshot_of",
+          "target_model": "anthropic/claude-3.5-sonnet"
+        }
+      ],
+      "availability_events": [
+        {
+          "channel": "api",
+          "stage": "public",
+          "date": "2024-10-22",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Introducing computer use, a new Claude 3.5 Sonnet, and Claude 3.5 Haiku",
+              "url": "https://www.anthropic.com/news/3-5-models-and-computer-use",
+              "evidence": "Anthropic announced the upgraded Claude 3.5 Sonnet and its immediate API availability on October 22, 2024."
+            },
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle documentation identifies the dated API model as claude-3-5-sonnet-20241022."
+            }
+          ]
+        }
+      ],
+      "lifecycle_events": [
+        {
+          "status": "deprecated",
+          "date": "2025-08-13",
+          "date_role": "announced",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records claude-3-5-sonnet-20241022 as deprecated on 2025-08-13."
+            }
+          ]
+        },
+        {
+          "status": "retired",
+          "date": "2025-10-28",
+          "date_role": "effective",
+          "confidence": "confirmed",
+          "sources": [
+            {
+              "publisher": "Anthropic",
+              "title": "Model deprecations",
+              "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+              "evidence": "Anthropic's lifecycle table records claude-3-5-sonnet-20241022 as retired on 2025-10-28."
             }
           ]
         }
