@@ -29,4 +29,5 @@ Do not refactor for its own sake. Refactor only when it makes the current task s
 
 The goal is to continuously turn repeated patterns and implicit concepts into simple, reliable, well-tested building blocks.
 
+Avoid terminal-style UI. Use sentence-case sans-serif text; reserve monospace for actual code, JSON, commands, and identifiers. Do not use all-caps labels, eyebrow text, or decorative status metadata.
 
